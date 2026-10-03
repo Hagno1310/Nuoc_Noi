@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 1.4 |
+| **Phiên bản** | 1.5 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v1.5** | Quy định câu báo lỗi khi chủ quán đăng nhập, mật khẩu chủ quán tối thiểu 8 ký tự, và trường hợp không kiểm tra được quyền chủ quán (R20). |
 | **Thay đổi ở v1.4** | Hủy đơn thất bại vì lỗi mạng: giữ nút Hoàn tác và báo lỗi (R17). Quy định khi nào thông báo trên màn hình order được ẩn (R18). Có mạng trở lại thì tải lại chỗ ngồi và đơn vừa tạo (R19). |
 | **Thay đổi ở v1.3** | Thay "Bàn" bằng khái niệm chung **Chỗ ngồi**, gồm hai loại: **Bàn** và **Ghế quầy** (R14). Giờ mở cửa mặc định là 20, vì quán mở từ 20:00 đến 02:00 (R15). |
 | **Thay đổi ở v1.2** | Rút gọn phạm vi: bỏ chế độ offline và service worker; nhân viên dùng một tài khoản chung với **PIN quán** là mật khẩu; bỏ quản lý từng thiết bị; nhân viên được hủy bất kỳ đơn nào trong **cửa sổ hủy**; bỏ biểu đồ; bỏ E2E. Xem [Phụ lục A](#phụ-lục-a--nhật-ký-quyết-định). |
@@ -86,8 +87,16 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - Chưa đăng nhập mà vào `/order` thì bị chuyển sang `/login`.
 
 **FR-00b: Chủ quán đăng nhập**
-- `/admin/login` dùng email + mật khẩu.
-- Chưa đăng nhập hoặc không phải chủ quán mà vào `/admin/*` thì bị chặn.
+- `/admin/login` dùng email + mật khẩu. Mật khẩu chủ quán dài ít nhất 8 ký tự (script tạo tài khoản kiểm tra).
+- Báo lỗi khi đăng nhập:
+  - Sai email hoặc mật khẩu: "Sai email hoặc mật khẩu.".
+  - Bị giới hạn do nhập sai nhiều lần: "Nhập sai quá nhiều lần, thử lại sau ít phút.".
+  - Lỗi khác (mất mạng): "Không kết nối được. Kiểm tra mạng rồi thử lại.".
+- Chưa đăng nhập hoặc không phải chủ quán mà vào `/admin/*` thì bị chặn:
+  - Chưa đăng nhập: chuyển sang `/admin/login`.
+  - Đã đăng nhập nhưng không phải chủ quán: báo "Tài khoản này không phải tài khoản chủ quán." kèm nút Đăng xuất.
+  - Không kiểm tra được quyền (lỗi mạng hoặc server): vẫn chặn, báo "Không kiểm tra được quyền truy cập. Tải lại trang.".
+- Chủ quán đã đăng nhập mà vào `/admin/login` thì chuyển sang `/admin/dashboard`. Tài khoản khác (ví dụ điện thoại đang đăng nhập bằng PIN quán) vẫn thấy form đăng nhập; chủ quán đăng nhập trên máy đó thì thay phiên của nhân viên.
 
 ### 3.2. Màn hình order (nhân viên)
 
@@ -268,3 +277,4 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R17 (v1.4) | Hủy thất bại vì lỗi mạng | Mọi nút hủy khóa, nút vừa bấm hiện "Đang hủy…" khi đang chờ server. Lỗi mạng thì giữ nút Hoàn tác và báo "Chưa hủy được – kiểm tra mạng rồi thử lại." |
 | R18 (v1.4) | Ẩn thông báo trên màn hình order | Thông báo lỗi ẩn khi bắt đầu đơn mới. "Giá đã đổi" và đơn trùng ở ô riêng, giữ đến lần gửi thành công hoặc hủy thành công tiếp theo. Trong các thông báo lỗi, hủy thành công chỉ xóa "Chưa hủy được". |
 | R19 (v1.4) | Có mạng trở lại | Tải lại chỗ ngồi và đơn vừa tạo. Lúc mất mạng thì không tải. |
+| R20 (v1.5) | Đăng nhập chủ quán | Ba câu báo lỗi giống cách FR-00a làm cho nhân viên. Mật khẩu chủ quán ≥ 8 ký tự. Lỗi khi kiểm tra quyền thì báo riêng, không báo nhầm là không phải chủ quán. Chỉ chủ quán mới bị chuyển khỏi `/admin/login`. |
