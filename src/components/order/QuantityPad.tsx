@@ -28,11 +28,11 @@ export function QuantityPad({
           value={quantity === 0 ? "" : String(quantity)}
           onChange={(e) => dispatch({ type: "set", raw: e.target.value })}
           style={{ width: `${Math.max(1, String(quantity).length) + 0.2}ch` }}
-          className="bg-transparent text-right text-7xl leading-none min-[380px]:[@media(min-height:740px)]:text-8xl font-extrabold tracking-tight tabular-nums border-b-2 border-transparent placeholder:text-ink-muted/60 focus-visible:border-ember focus-visible:outline-none"
+          className="bg-transparent text-right font-display text-7xl leading-none [@media(min-height:740px)]:text-8xl min-[380px]:[@media(min-height:740px)]:text-9xl tabular-nums border-b-2 border-transparent placeholder:text-ink-muted/60 focus-visible:border-ember focus-visible:outline-none"
         />
         <span
           aria-hidden="true"
-          className="text-2xl font-medium text-ink-muted"
+          className="font-display text-2xl tracking-wide text-ink-muted [@media(min-height:740px)]:text-3xl"
         >
           cốc
         </span>
@@ -44,7 +44,7 @@ export function QuantityPad({
             <button
               key={n}
               type="button"
-              className={`${key} min-h-14 text-2xl`}
+              className={`${key} min-h-14 font-display text-3xl font-normal tracking-wide`}
               onClick={() => dispatch({ type: "add", amount: n })}
             >
               +{n}

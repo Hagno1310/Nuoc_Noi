@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useEffect } from "react";
 
 export type Feedback = { orderId: string; text: string };
@@ -33,8 +34,17 @@ export function ConfirmBar({
   if (feedback) {
     return (
       <div className="flex min-h-16 items-center justify-between gap-3 rounded-2xl border border-ember/60 bg-raised pr-2 pl-4">
-        <span role="status" className="font-semibold">
-          {feedback.text}
+        <span className="flex items-center gap-3">
+          <Image
+            src="/brand/motif-cigarette.png"
+            alt=""
+            width={46}
+            height={20}
+            className="halo shrink-0"
+          />
+          <span role="status" className="font-semibold text-balance">
+            {feedback.text}
+          </span>
         </span>
         <button
           type="button"
@@ -53,7 +63,7 @@ export function ConfirmBar({
       aria-label="Xác nhận đơn"
       disabled={!canSubmit || sending}
       onClick={onSubmit}
-      className="min-h-16 w-full rounded-2xl bg-ember text-xl font-extrabold text-ember-ink transition-[transform,background-color] duration-150 active:scale-[0.98] disabled:bg-raised disabled:text-ink-muted"
+      className="min-h-16 w-full rounded-2xl bg-ember font-display text-2xl tracking-wide text-ember-ink transition-[transform,background-color] duration-150 active:scale-[0.98] disabled:bg-raised disabled:text-ink-muted"
     >
       {sending ? "Đang gửi…" : "Xác nhận đơn"}
     </button>

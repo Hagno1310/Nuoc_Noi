@@ -169,14 +169,15 @@ export function OrderScreen({
   return (
     <main className="mx-auto max-w-md px-4 pt-3">
       {/* Màn hình đầu: mọi thứ tới nút Xác nhận vừa một khung, phím rơi vào vùng ngón cái (order-brief §6) */}
-      <div className="flex min-h-[calc(100dvh-6rem)] flex-col gap-3 pb-3">
+      <div className="flex min-h-[calc(100dvh-6rem)] flex-col gap-2 pb-1 [@media(min-height:740px)]:gap-3 [@media(min-height:740px)]:pb-3">
         <header className="flex items-center justify-between gap-3">
           <Image
-            src="/brand/nuoc-noi-wordmark-small.png"
+            src="/brand/nuoc-noi-wordmark.png"
             alt="Nước Nôi"
-            width={88}
-            height={24}
+            width={54}
+            height={50}
             priority
+            className="halo h-9 w-auto [@media(min-height:740px)]:h-[50px]"
           />
           <PriceBanner price={price} offline={!online} />
         </header>
@@ -186,13 +187,15 @@ export function OrderScreen({
           </p>
         )}
         <QuantityPad quantity={quantity} dispatch={changeQuantity}>
-          <div className="relative -mt-2 text-center">
+          <div className="relative -mt-1 space-y-1.5 text-center">
             <p
               data-testid="total"
-              className="text-4xl font-semibold tracking-tight tabular-nums [@media(min-height:740px)]:text-5xl"
+              className="font-display text-4xl tracking-wide tabular-nums [@media(min-height:740px)]:text-6xl"
             >
               {price === null ? "—" : formatVnd(quantity * price)}
             </p>
+            {/* Vệt sáng tĩnh dưới con số: đường kẻ của thế giới Phơi sáng dài */}
+            <span aria-hidden="true" className="streak mx-auto block w-4/5" />
             {feedback && (
               <span
                 key={feedback.orderId}

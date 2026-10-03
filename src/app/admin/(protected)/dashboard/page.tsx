@@ -38,23 +38,28 @@ export default async function DashboardPage() {
   const day = formatIsoDate(s.business_date);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:flex lg:min-h-[calc(100dvh-2rem)] lg:flex-col lg:justify-center">
       <AutoRefresh seconds={60} />
-      <h1 className="text-2xl font-bold">Tổng quan</h1>
+      <h1 className="font-display text-3xl tracking-wide lg:sr-only">
+        Tổng quan
+      </h1>
       <BusinessDayArc
         elapsed={elapsedHours(now, startHour)}
         startLabel={`${String(startHour).padStart(2, "0")}:00`}
         nowLabel={formatVnTime(now.toISOString())}
       >
         <p className="text-sm text-ink-muted">Ngày kinh doanh {day}</p>
-        <p className="text-4xl font-extrabold tabular-nums sm:text-5xl">
+        <p className="font-display text-[clamp(2.75rem,9vmin,5.5rem)] leading-none tracking-wide tabular-nums">
           {formatVnd(s.today_revenue)}
         </p>
-        <p className="text-lg tabular-nums">{s.today_cups} cốc</p>
+        <p className="font-display text-2xl tracking-wide tabular-nums">
+          {s.today_cups} cốc
+        </p>
       </BusinessDayArc>
-      <div className="text-center">
+      <div className="space-y-2 text-center">
+        <span aria-hidden="true" className="streak mx-auto block w-48" />
         <p className="text-sm text-ink-muted">Doanh thu tháng {day.slice(3)}</p>
-        <p className="text-2xl font-bold tabular-nums">
+        <p className="font-display text-3xl tracking-wide tabular-nums">
           {formatVnd(s.month_revenue)}
         </p>
       </div>

@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 1.8 |
+| **Phiên bản** | 1.9 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v1.9** | Trạng thái trống của Đơn vừa tạo; Lịch sử đơn hàng dạng dòng hai tầng trên điện thoại (R25). |
 | **Thay đổi ở v1.8** | Thành tiền hiển thị ngay dưới số cốc; nút ghế quầy chỉ hiện phần số (R24). |
 | **Thay đổi ở v1.7** | Quy định câu báo lỗi khi các trang chủ quán không tải được dữ liệu (R23). |
 | **Thay đổi ở v1.6** | Đơn giá chung tối đa 500.000đ, để thành tiền không vượt giới hạn số nguyên (R21). Một tài khoản chủ quán và cách hiện người đổi giá; xác nhận hai bước khi ẩn chỗ ngồi và đổi PIN quán (R22). |
@@ -143,6 +144,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 **FR-04b: Đơn vừa tạo và hủy đơn**
 - Màn hình order liệt kê các đơn hàng **do chính điện thoại này tạo** trong ngày kinh doanh hiện tại. Mỗi điện thoại tự nhớ danh sách đơn của mình.
+- Khi chưa có đơn nào, mục "Đơn vừa tạo" vẫn hiện, kèm câu "Chưa có đơn nào.".
 - Đơn còn trong **cửa sổ hủy** (5 phút kể từ lúc tạo) thì có nút "Hủy". Nút "Hoàn tác" cũng dùng chính chức năng hủy này.
 - **Quy tắc hủy (server kiểm tra):**
   - Nhân viên được hủy **bất kỳ đơn nào** còn trong cửa sổ hủy.
@@ -191,6 +193,7 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 
 **FR-07: Lịch sử đơn hàng, `/admin/history`**
 - **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số cốc, Đơn giá, Thành tiền, Trạng thái.
+  - Trên điện thoại, mỗi đơn hiện thành một dòng hai tầng (thời gian · chỗ ngồi và trạng thái; "N cốc × đơn giá" và thành tiền), đủ 6 trường trên. Từ tablet trở lên là bảng 6 cột.
 - **Lọc:** theo khoảng **Từ ngày – Đến ngày**, tính theo ngày kinh doanh.
   - Mặc định là hôm nay.
   - Ngày không hợp lệ thì thay bằng hôm nay.
@@ -295,3 +298,4 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R22 (v1.6) | Lịch sử đổi giá, xác nhận | Một tài khoản chủ quán; người đổi hiện email, "Chủ quán khác" hoặc "Khởi tạo". Ẩn chỗ ngồi và đổi PIN quán cần xác nhận hai bước (theo `ui-craft.md`). |
 | R23 (v1.7) | Lỗi tải trang chủ quán | Mỗi trang (Tổng quan, Lịch sử đơn hàng, Cài đặt) có câu báo lỗi riêng nêu vấn đề và cách khắc phục; Tổng quan tự thử lại sau 60 giây. |
 | R24 (v1.8) | Bố cục màn hình order | Thành tiền ngay dưới số cốc (đọc cùng một cái liếc); nút ghế quầy chỉ hiện phần số để vừa 2 hàng 6 như mép quầy. |
+| R25 (v1.9) | Giao diện | Đơn vừa tạo trống thì hiện "Chưa có đơn nào."; Lịch sử đơn hàng dạng dòng hai tầng trên điện thoại, bảng 6 cột từ tablet. |

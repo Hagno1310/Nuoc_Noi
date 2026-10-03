@@ -30,7 +30,7 @@ export function OwnerCancelButton({ orderId }: { orderId: string }) {
         type="button"
         disabled={busy}
         onClick={() => void click()}
-        className={`min-h-12 rounded-md border px-2 text-xs font-semibold sm:px-3 sm:text-sm disabled:opacity-50 ${step.armed ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+        className={`min-h-12 rounded-md border px-3 text-sm font-semibold whitespace-nowrap disabled:opacity-50 ${step.armed ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
       >
         {busy ? "Đang hủy…" : step.armed ? "Chắc chắn hủy?" : "Hủy"}
       </button>

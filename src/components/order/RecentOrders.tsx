@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { MyOrder } from "@/lib/api";
 import { formatVnd } from "@/lib/money";
@@ -31,12 +32,28 @@ export function RecentOrders({
     return () => clearInterval(timer);
   }, []);
 
-  if (orders.length === 0) return null;
   const nowMs = now().getTime();
 
   return (
-    <section aria-label="Đơn vừa tạo" className="space-y-2 pt-4 pb-6">
-      <h2 className="text-base font-semibold text-ink-muted">Đơn vừa tạo</h2>
+    <section aria-label="Đơn vừa tạo" className="space-y-3 pt-6 pb-8">
+      <div className="flex items-center gap-3">
+        <h2 className="font-display text-xl tracking-wide text-ink-muted">
+          Đơn vừa tạo
+        </h2>
+        <span aria-hidden="true" className="streak flex-1 opacity-40" />
+      </div>
+      {orders.length === 0 && (
+        <div className="flex items-center gap-4 py-4 text-ink-muted">
+          <Image
+            src="/brand/motif-cocktail.png"
+            alt=""
+            width={40}
+            height={49}
+            className="opacity-40"
+          />
+          <p>Chưa có đơn nào.</p>
+        </div>
+      )}
       <ul className="divide-y divide-line">
         {orders.map((o) => {
           const cancelled = o.status === "cancelled";

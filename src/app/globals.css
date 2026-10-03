@@ -32,6 +32,7 @@
   --color-warn: var(--warn);
   --color-danger: var(--danger);
   --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
+  --font-display: var(--font-anton), var(--font-be-vietnam), sans-serif;
   --ease-exposure: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -77,6 +78,37 @@ a {
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.85) sepia(0.3);
+}
+
+/* Vết loang sáng quanh logo, như đèn bar chụp phơi sáng (chỉ cho ảnh logo, không cho chữ) */
+.halo {
+  filter: drop-shadow(0 0 1px rgb(230 216 180 / 0.5))
+    drop-shadow(0 0 14px rgb(230 138 60 / 0.35))
+    drop-shadow(0 0 40px rgb(230 138 60 / 0.18));
+}
+
+/* Vệt sáng phơi sáng: đường kẻ của thế giới này, thay cho viền mảnh thông thường */
+.streak {
+  position: relative;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ember) 12%,
+    var(--ink) 55%,
+    rgb(230 216 180 / 0.25) 85%,
+    transparent
+  );
+}
+.streak::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+  border-radius: inherit;
+  background: inherit;
+  filter: blur(6px);
+  opacity: 0.55;
 }
 
 /* Chuyển động đặc trưng: số cốc và thành tiền kéo thành vệt sáng ngang rồi lướt xuống "Đơn vừa tạo" */

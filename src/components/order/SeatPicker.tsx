@@ -8,8 +8,18 @@ export type SeatSelection =
 
 const base =
   "min-h-12 truncate rounded-lg border px-1 text-base font-semibold tabular-nums transition-[opacity,background-color,color] duration-200";
-const on = "border-ember bg-ember text-ember-ink";
+const on =
+  "border-ember bg-ember text-ember-ink shadow-[0_0_18px_rgb(230_138_60/0.45)]";
 const off = "border-edge text-ink active:bg-raised";
+
+function GroupLabel({ children }: { children: string }) {
+  return (
+    <p className="flex items-center gap-2 text-xs font-medium text-ink-muted">
+      {children}
+      <span aria-hidden="true" className="streak flex-1 opacity-30" />
+    </p>
+  );
+}
 
 type Props = {
   seats: ActiveSeat[];
@@ -60,12 +70,12 @@ export function SeatPicker({ seats, selection, onChange }: Props) {
     <div className="space-y-3">
       {counters.length > 0 && (
         <div role="group" aria-label="Ghế quầy" className="space-y-1.5">
-          <p className="text-xs font-medium text-ink-muted">Ghế quầy</p>
+          <GroupLabel>Ghế quầy</GroupLabel>
           <div className="grid grid-cols-6 gap-1.5">{counters}</div>
         </div>
       )}
       <div className="space-y-1.5">
-        <p className="text-xs font-medium text-ink-muted">Bàn · Mang về</p>
+        <GroupLabel>Bàn · Mang về</GroupLabel>
         <div className="grid grid-cols-4 gap-1.5">
           {tables.length > 0 && (
             <div role="group" aria-label="Bàn" className="contents">

@@ -27,11 +27,11 @@ export default async function OwnerLayout({
     <div className="mx-auto flex min-h-dvh max-w-6xl flex-col pb-16 lg:flex-row lg:gap-6 lg:p-4 lg:pb-4">
       <header className="flex items-center justify-between p-4 lg:w-56 lg:flex-col lg:items-stretch lg:justify-start lg:gap-4 lg:p-0">
         <Image
-          src="/brand/nuoc-noi-wordmark-small.png"
+          src="/brand/nuoc-noi-wordmark.png"
           alt="Nước Nôi"
-          width={110}
-          height={30}
-          className="lg:ml-3 lg:self-start"
+          width={97}
+          height={90}
+          className="halo h-10 w-auto lg:mt-2 lg:ml-3 lg:h-20 lg:self-start"
         />
         <div className="contents lg:flex lg:flex-1 lg:flex-col lg:justify-between">
           <OwnerNav />

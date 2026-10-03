@@ -9,12 +9,12 @@ export default function OwnerLoginPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-10 px-6 py-8">
       <Image
-        src="/brand/nuoc-noi-wordmark-small.png"
+        src="/brand/nuoc-noi-wordmark.png"
         alt="Nước Nôi"
-        width={132}
-        height={36}
+        width={97}
+        height={90}
         priority
-        className="mx-auto"
+        className="halo"
       />
       <LoginForm
         onLogin={async (email, password) => {

@@ -35,7 +35,7 @@ export async function GET(
       <img
         src={src}
         width={px * 0.6}
-        height={(px * 0.6 * 1150) / 1220}
+        height={(px * 0.6 * 1016) / 1096}
         alt=""
       />
     </div>,

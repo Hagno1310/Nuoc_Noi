@@ -86,8 +86,38 @@ export default async function HistoryPage({
         </p>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs sm:min-w-[44rem] sm:text-sm [&_td]:px-0.5 [&_th]:px-0.5 sm:[&_td]:px-2 sm:[&_td]:whitespace-nowrap sm:[&_th]:px-2 sm:[&_th]:whitespace-nowrap">
+      {/* Điện thoại: mỗi đơn là một dòng sổ hai tầng, vẫn đủ 6 trường của FR-07 */}
+      <ul className="divide-y divide-line sm:hidden">
+        {(rows ?? []).map((o) => {
+          const cancelled = o.status === "cancelled";
+          const muted = cancelled ? "text-ink-muted line-through" : "";
+          return (
+            <li key={o.id} className="flex items-center gap-3 py-3">
+              <div className="min-w-0 flex-1 space-y-1 tabular-nums">
+                <p className="flex flex-wrap items-baseline gap-x-2">
+                  <span className={muted}>
+                    {formatVnDateTime(o.created_at)} · {o.seat_name ?? "—"}
+                  </span>
+                  <span className="text-xs whitespace-nowrap text-ink-muted">
+                    {cancelled ? "Đã hủy" : "Đã thanh toán"}
+                  </span>
+                </p>
+                <p className={`flex justify-between gap-4 ${muted}`}>
+                  <span>
+                    {o.quantity} cốc × {formatVnd(o.unit_price)}
+                  </span>
+                  <span className="font-semibold">
+                    {formatVnd(o.total_amount)}
+                  </span>
+                </p>
+              </div>
+              {!cancelled && <OwnerCancelButton orderId={o.id} />}
+            </li>
+          );
+        })}
+      </ul>
+      <div className="hidden overflow-x-auto sm:block">
+        <table className="w-full min-w-[44rem] text-left text-sm [&_td]:px-2 [&_td]:whitespace-nowrap [&_th]:px-2 [&_th]:whitespace-nowrap">
           <thead>
             <tr className="border-b border-edge">
               <th className="py-2">Thời gian</th>
@@ -109,10 +139,7 @@ export default async function HistoryPage({
                   <td
                     className={`py-2 tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}
                   >
-                    {formatVnDateTime(o.created_at).slice(0, 10)}{" "}
-                    <span className="block sm:inline">
-                      {formatVnDateTime(o.created_at).slice(11)}
-                    </span>
+                    {formatVnDateTime(o.created_at)}
                   </td>
                   <td
                     className={cancelled ? "text-ink-muted line-through" : ""}
@@ -145,13 +172,13 @@ export default async function HistoryPage({
             })}
           </tbody>
         </table>
-        {!error && (rows ?? []).length === 0 && (
-          <p className="py-6 text-center text-ink-muted">
-            Không có đơn hàng nào trong khoảng này. Chọn khoảng ngày khác rồi
-            bấm Lọc.
-          </p>
-        )}
       </div>
+      {!error && (rows ?? []).length === 0 && (
+        <p className="py-6 text-center text-ink-muted">
+          Không có đơn hàng nào trong khoảng này. Chọn khoảng ngày khác rồi bấm
+          Lọc.
+        </p>
+      )}
 
       {pages > 1 && (
         <nav aria-label="Phân trang" className="flex items-center gap-3">

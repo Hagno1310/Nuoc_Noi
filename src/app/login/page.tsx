@@ -12,7 +12,7 @@ export default function StaffLoginPage() {
         src="/brand/nuoc-noi-wordmark.png"
         alt="Nước Nôi"
         width={160}
-        height={151}
+        height={148}
         priority
         className="mx-auto"
       />
