@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 1.7 |
+| **Phiên bản** | 1.8 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v1.8** | Thành tiền hiển thị ngay dưới số cốc; nút ghế quầy chỉ hiện phần số (R24). |
 | **Thay đổi ở v1.7** | Quy định câu báo lỗi khi các trang chủ quán không tải được dữ liệu (R23). |
 | **Thay đổi ở v1.6** | Đơn giá chung tối đa 500.000đ, để thành tiền không vượt giới hạn số nguyên (R21). Một tài khoản chủ quán và cách hiện người đổi giá; xác nhận hai bước khi ẩn chỗ ngồi và đổi PIN quán (R22). |
 | **Thay đổi ở v1.5** | Quy định câu báo lỗi khi chủ quán đăng nhập, mật khẩu chủ quán tối thiểu 8 ký tự, và trường hợp không kiểm tra được quyền chủ quán (R20). |
@@ -113,11 +114,12 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - Đơn giá được cập nhật realtime. Khi đơn giá đổi, ô đơn giá được làm nổi bật khoảng 3 giây và thành tiền được tính lại ngay.
 
 **FR-03: Thành tiền**
-- Thành tiền = số lượng × đơn giá chung. Số tiền này hiển thị cỡ lớn ngay trên nút "Xác nhận đơn".
+- Thành tiền = số lượng × đơn giá chung. Số tiền này hiển thị cỡ lớn ngay dưới số cốc, ở phần trên màn hình order (theo `docs/design/order-brief.md`).
 
 **FR-03b: Chọn chỗ ngồi**
 - Hiển thị các **chỗ ngồi** chưa bị ẩn, chia thành hai nhóm: **Ghế quầy** và **Bàn**. Có thêm nút cố định **"Mang về"**.
 - Mỗi nhóm được sắp theo `sort_order`. Ghế quầy được xếp sao cho giống thứ tự ghế ngoài quầy thật.
+- Trong nhóm Ghế quầy, nút bỏ tiền tố "Quầy " của tên ("Quầy 7" hiện "7"); tên khác hiện nguyên. Đơn hàng vẫn lưu tên đầy đủ, và trình đọc màn hình đọc tên đầy đủ.
 - Không bắt buộc chọn. Bấm lại vào lựa chọn đang chọn thì bỏ chọn.
 
 **FR-04: Gửi đơn hàng**
@@ -292,3 +294,4 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R21 (v1.6) | Đơn giá chung tối đa | 500.000đ. Giá thật khoảng 200.000đ/cốc; giới hạn chặn gõ thừa số 0 và giữ thành tiền (tối đa 500 cốc) trong giới hạn số nguyên. Server kiểm tra. |
 | R22 (v1.6) | Lịch sử đổi giá, xác nhận | Một tài khoản chủ quán; người đổi hiện email, "Chủ quán khác" hoặc "Khởi tạo". Ẩn chỗ ngồi và đổi PIN quán cần xác nhận hai bước (theo `ui-craft.md`). |
 | R23 (v1.7) | Lỗi tải trang chủ quán | Mỗi trang (Tổng quan, Lịch sử đơn hàng, Cài đặt) có câu báo lỗi riêng nêu vấn đề và cách khắc phục; Tổng quan tự thử lại sau 60 giây. |
+| R24 (v1.8) | Bố cục màn hình order | Thành tiền ngay dưới số cốc (đọc cùng một cái liếc); nút ghế quầy chỉ hiện phần số để vừa 2 hàng 6 như mép quầy. |

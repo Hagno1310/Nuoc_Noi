@@ -25,13 +25,15 @@ export function PriceBanner({
     <div
       data-testid="price-banner"
       data-highlight={highlight ? "true" : "false"}
-      className={`flex items-center justify-between rounded-xl p-3 transition-colors ${highlight ? "bg-yellow-300" : "bg-slate-100"}`}
+      className="flex items-center gap-2"
     >
-      <span className="text-xl font-semibold">
+      <span
+        className={`rounded-md px-2 py-1 text-sm font-medium transition-colors duration-200 ${highlight ? "bg-warn text-ember-ink" : "text-ink-muted"}`}
+      >
         {price === null ? "Đang tải giá…" : `Đơn giá: ${formatVnd(price)}/cốc`}
       </span>
       {offline && (
-        <span className="rounded-full bg-red-600 px-3 py-1 text-sm font-bold text-white">
+        <span className="rounded-full bg-danger px-2.5 py-0.5 text-xs font-semibold text-ember-ink">
           Mất mạng
         </span>
       )}

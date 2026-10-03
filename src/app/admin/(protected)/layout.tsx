@@ -31,6 +31,7 @@ export default async function OwnerLayout({
           alt="Nước Nôi"
           width={110}
           height={30}
+          className="lg:ml-3 lg:self-start"
         />
         <div className="contents lg:flex lg:flex-1 lg:flex-col lg:justify-between">
           <OwnerNav />

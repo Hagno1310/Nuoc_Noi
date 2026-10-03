@@ -29,7 +29,7 @@ export function LoginForm({
           autoComplete="username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 p-3"
+          className="mt-1 min-h-12 w-full rounded-lg border border-edge bg-transparent p-3"
         />
       </label>
       <label className="block">
@@ -40,18 +40,18 @@ export function LoginForm({
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 p-3"
+          className="mt-1 min-h-12 w-full rounded-lg border border-edge bg-transparent p-3"
         />
       </label>
       {error && (
-        <p role="alert" className="font-medium text-red-600">
+        <p role="alert" className="font-medium text-danger">
           {error}
         </p>
       )}
       <button
         type="submit"
         disabled={busy}
-        className="min-h-14 w-full rounded-lg bg-slate-900 font-bold text-white disabled:opacity-50"
+        className="min-h-14 w-full rounded-lg bg-ember font-bold text-ember-ink disabled:opacity-50"
       >
         {busy ? "Đang đăng nhập…" : "Đăng nhập"}
       </button>

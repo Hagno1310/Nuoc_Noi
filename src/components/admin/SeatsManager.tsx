@@ -114,9 +114,8 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
   }
 
   const small =
-    "flex min-h-12 min-w-12 items-center justify-center rounded-md border border-current/30 px-3 text-sm disabled:opacity-40";
-  const field =
-    "min-h-12 rounded-lg border border-current/30 bg-transparent p-2";
+    "flex min-h-12 min-w-12 items-center justify-center rounded-md border border-edge px-3 text-sm disabled:opacity-40";
+  const field = "min-h-12 rounded-lg border border-edge bg-transparent p-2";
   return (
     <div className="space-y-4">
       {KINDS.map((kind) => {
@@ -127,11 +126,11 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
               {KIND_LABEL[kind]} ({list.length})
             </h3>
             {list.length === 0 && (
-              <p className="py-2 text-sm opacity-80">
+              <p className="py-2 text-sm text-ink-muted">
                 Chưa có {KIND_LABEL[kind].toLowerCase()} nào. Thêm ở ô bên dưới.
               </p>
             )}
-            <ul className="divide-y divide-current/10">
+            <ul className="divide-y divide-line">
               {list.map((s, i) => (
                 <li
                   key={s.id}
@@ -198,7 +197,7 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
                       </button>
                       <button
                         type="button"
-                        className={small}
+                        className={`${small} ${hide.armed === s.id ? "border-danger bg-danger text-ember-ink" : ""}`}
                         disabled={busy}
                         onClick={() => setArchived(s, true)}
                       >
@@ -233,25 +232,25 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
           onChange={(e) => setNewName(e.target.value)}
           placeholder="VD: Quầy 13"
           aria-label="Tên chỗ ngồi mới"
-          className={`${field} min-w-0 flex-1`}
+          className={`${field} min-w-40 flex-1`}
         />
         <button
           type="submit"
           disabled={busy}
-          className="min-h-12 rounded-lg border border-current px-4 font-bold disabled:opacity-50"
+          className="min-h-12 rounded-lg border border-edge px-4 font-bold disabled:opacity-50"
         >
           Thêm chỗ ngồi
         </button>
       </form>
       {archived.length > 0 && (
         <details>
-          <summary className="flex min-h-12 cursor-pointer items-center text-sm opacity-80">
+          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-ink-muted">
             Chỗ ngồi đã ẩn ({archived.length})
           </summary>
           <ul>
             {archived.map((s) => (
               <li key={s.id} className="flex items-center gap-2 py-1">
-                <span className="flex-1 opacity-70">
+                <span className="flex-1 text-ink-muted">
                   {s.name} · {KIND_LABEL[s.kind]}
                 </span>
                 <button
@@ -268,7 +267,7 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
         </details>
       )}
       {error && (
-        <p role="alert" className="text-red-500">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}

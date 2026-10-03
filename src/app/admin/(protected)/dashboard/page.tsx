@@ -46,14 +46,14 @@ export default async function DashboardPage() {
         startLabel={`${String(startHour).padStart(2, "0")}:00`}
         nowLabel={formatVnTime(now.toISOString())}
       >
-        <p className="text-sm opacity-80">Ngày kinh doanh {day}</p>
+        <p className="text-sm text-ink-muted">Ngày kinh doanh {day}</p>
         <p className="text-4xl font-extrabold tabular-nums sm:text-5xl">
           {formatVnd(s.today_revenue)}
         </p>
         <p className="text-lg tabular-nums">{s.today_cups} cốc</p>
       </BusinessDayArc>
       <div className="text-center">
-        <p className="text-sm opacity-80">Doanh thu tháng {day.slice(3)}</p>
+        <p className="text-sm text-ink-muted">Doanh thu tháng {day.slice(3)}</p>
         <p className="text-2xl font-bold tabular-nums">
           {formatVnd(s.month_revenue)}
         </p>

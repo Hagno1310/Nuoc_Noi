@@ -50,9 +50,9 @@ export default async function HistoryPage({
   const pages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const href = (p: number) => `/admin/history?from=${from}&to=${to}&page=${p}`;
   const field =
-    "block min-h-12 rounded-lg border border-current/30 bg-transparent p-2";
+    "block min-h-12 rounded-lg border border-edge bg-transparent p-2";
   const pager =
-    "flex min-h-12 items-center gap-1 rounded-lg border border-current/30 px-3";
+    "flex min-h-12 items-center gap-1 rounded-lg border border-edge px-3";
 
   return (
     <div className="space-y-4">
@@ -73,7 +73,7 @@ export default async function HistoryPage({
         </label>
         <button
           type="submit"
-          className="min-h-12 rounded-lg bg-orange-400 px-4 font-bold text-black"
+          className="min-h-12 rounded-lg bg-ember px-4 font-bold text-ember-ink"
         >
           Lọc
         </button>
@@ -81,15 +81,15 @@ export default async function HistoryPage({
       </form>
 
       {error && (
-        <p role="alert" className="text-red-500">
+        <p role="alert" className="text-danger">
           Không tải được danh sách đơn. Kiểm tra mạng rồi tải lại trang.
         </p>
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-xs sm:min-w-[44rem] sm:text-sm [&_td]:px-0.5 [&_th]:px-0.5 sm:[&_td]:px-2 sm:[&_td]:whitespace-nowrap sm:[&_th]:px-2 sm:[&_th]:whitespace-nowrap">
           <thead>
-            <tr className="border-b border-current/30">
+            <tr className="border-b border-edge">
               <th className="py-2">Thời gian</th>
               <th>Chỗ ngồi</th>
               <th className="text-right">Số cốc</th>
@@ -105,27 +105,32 @@ export default async function HistoryPage({
             {(rows ?? []).map((o) => {
               const cancelled = o.status === "cancelled";
               return (
-                <tr key={o.id} className="border-b border-current/10">
+                <tr key={o.id} className="border-b border-line">
                   <td
-                    className={`py-2 tabular-nums ${cancelled ? "line-through opacity-50" : ""}`}
+                    className={`py-2 tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}
                   >
-                    {formatVnDateTime(o.created_at)}
+                    {formatVnDateTime(o.created_at).slice(0, 10)}{" "}
+                    <span className="block sm:inline">
+                      {formatVnDateTime(o.created_at).slice(11)}
+                    </span>
                   </td>
-                  <td className={cancelled ? "line-through opacity-50" : ""}>
+                  <td
+                    className={cancelled ? "text-ink-muted line-through" : ""}
+                  >
                     {o.seat_name ?? "—"}
                   </td>
                   <td
-                    className={`text-right tabular-nums ${cancelled ? "line-through opacity-50" : ""}`}
+                    className={`text-right tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}
                   >
                     {o.quantity}
                   </td>
                   <td
-                    className={`text-right tabular-nums ${cancelled ? "line-through opacity-50" : ""}`}
+                    className={`text-right tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}
                   >
                     {formatVnd(o.unit_price)}
                   </td>
                   <td
-                    className={`text-right tabular-nums ${cancelled ? "line-through opacity-50" : ""}`}
+                    className={`text-right tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}
                   >
                     {formatVnd(o.total_amount)}
                   </td>
@@ -141,7 +146,7 @@ export default async function HistoryPage({
           </tbody>
         </table>
         {!error && (rows ?? []).length === 0 && (
-          <p className="py-6 text-center opacity-80">
+          <p className="py-6 text-center text-ink-muted">
             Không có đơn hàng nào trong khoảng này. Chọn khoảng ngày khác rồi
             bấm Lọc.
           </p>
@@ -167,14 +172,16 @@ export default async function HistoryPage({
       )}
 
       {t && (
-        <p className="sticky bottom-16 border-t border-current/20 bg-background py-3 font-medium tabular-nums lg:bottom-0">
+        <p className="sticky bottom-16 border-t border-line bg-bg py-3 font-medium tabular-nums lg:bottom-0">
           {t.order_count} đơn · {t.cups} cốc · Doanh thu{" "}
           <strong>{formatVnd(t.revenue)}</strong>{" "}
-          <span className="text-sm opacity-70">(không tính đơn đã hủy)</span>
+          <span className="text-sm text-ink-muted">
+            (không tính đơn đã hủy)
+          </span>
         </p>
       )}
       {totalsError && (
-        <p role="alert" className="text-red-500">
+        <p role="alert" className="text-danger">
           Không tải được dòng tổng. Kiểm tra mạng rồi tải lại trang.
         </p>
       )}

@@ -30,12 +30,12 @@ export function OwnerCancelButton({ orderId }: { orderId: string }) {
         type="button"
         disabled={busy}
         onClick={() => void click()}
-        className="min-h-12 rounded-md border border-red-400/60 px-3 text-sm text-red-400 disabled:opacity-50"
+        className={`min-h-12 rounded-md border px-2 text-xs font-semibold sm:px-3 sm:text-sm disabled:opacity-50 ${step.armed ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
       >
         {busy ? "Đang hủy…" : step.armed ? "Chắc chắn hủy?" : "Hủy"}
       </button>
       {error && (
-        <span role="alert" className="text-xs text-red-500">
+        <span role="alert" className="text-xs text-danger">
           {error}
         </span>
       )}

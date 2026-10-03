@@ -7,6 +7,7 @@ import {
   type MyOrder,
   type StaffApi,
 } from "@/lib/api";
+import Image from "next/image";
 import { formatVnd } from "@/lib/money";
 import { getMyOrderIds, rememberOrder } from "@/lib/order/myOrders";
 import { quantityReducer, type QuantityAction } from "@/lib/order/quantity";
@@ -166,32 +167,64 @@ export function OrderScreen({
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 p-4">
-      <PriceBanner price={price} offline={!online} />
-      {!online && (
-        <p className="rounded-lg bg-red-100 p-3 font-semibold text-red-800">
-          Mất mạng – chưa gửi được đơn
-        </p>
-      )}
-      <p
-        data-testid="total"
-        className="text-center text-4xl font-extrabold tabular-nums"
-      >
-        {price === null ? "—" : formatVnd(quantity * price)}
-      </p>
-      <SeatPicker seats={seats} selection={selection} onChange={changeSeat} />
-      <QuantityPad quantity={quantity} dispatch={changeQuantity} />
-      {info && (
-        <p role="status" className="rounded-lg bg-amber-100 p-3 text-amber-900">
-          {info}
-        </p>
-      )}
-      {error && (
-        <p role="alert" className="rounded-lg bg-amber-100 p-3 text-amber-900">
-          {error}
-        </p>
-      )}
-      <div className="sticky bottom-0 bg-white pb-2 pt-1">
+    <main className="mx-auto max-w-md px-4 pt-3">
+      {/* Màn hình đầu: mọi thứ tới nút Xác nhận vừa một khung, phím rơi vào vùng ngón cái (order-brief §6) */}
+      <div className="flex min-h-[calc(100dvh-6rem)] flex-col gap-3 pb-3">
+        <header className="flex items-center justify-between gap-3">
+          <Image
+            src="/brand/nuoc-noi-wordmark-small.png"
+            alt="Nước Nôi"
+            width={88}
+            height={24}
+            priority
+          />
+          <PriceBanner price={price} offline={!online} />
+        </header>
+        {!online && (
+          <p className="rounded-lg border border-danger/60 px-3 py-2 font-semibold text-danger">
+            Mất mạng – chưa gửi được đơn
+          </p>
+        )}
+        <QuantityPad quantity={quantity} dispatch={changeQuantity}>
+          <div className="relative -mt-2 text-center">
+            <p
+              data-testid="total"
+              className="text-4xl font-semibold tracking-tight tabular-nums [@media(min-height:740px)]:text-5xl"
+            >
+              {price === null ? "—" : formatVnd(quantity * price)}
+            </p>
+            {feedback && (
+              <span
+                key={feedback.orderId}
+                aria-hidden="true"
+                className="exposure-streak pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-1.5 rounded-full bg-gradient-to-r from-transparent via-ember to-transparent"
+              />
+            )}
+          </div>
+          <SeatPicker
+            seats={seats}
+            selection={selection}
+            onChange={changeSeat}
+          />
+        </QuantityPad>
+        {info && (
+          <p
+            role="status"
+            className="rounded-lg border border-warn/50 px-3 py-2 text-warn"
+          >
+            {info}
+          </p>
+        )}
+        {error && (
+          <p
+            role="alert"
+            className="rounded-lg border border-danger/60 px-3 py-2 text-danger"
+          >
+            {error}
+          </p>
+        )}
+      </div>
+      <div className="sticky bottom-0 z-10 -mx-4 bg-bg/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <ConfirmBar
           canSubmit={quantity > 0 && price !== null && online}
           sending={sending}

@@ -34,7 +34,7 @@ export function BusinessHourForm({ currentHour }: { currentHour: number }) {
             setSaved(false);
             setHour(Number(e.target.value));
           }}
-          className="min-h-12 rounded-lg border border-current/30 bg-transparent p-2 tabular-nums"
+          className="min-h-12 rounded-lg border border-edge bg-transparent p-2 tabular-nums"
         >
           {Array.from({ length: 24 }, (_, h) => (
             <option key={h} value={h}>
@@ -43,11 +43,11 @@ export function BusinessHourForm({ currentHour }: { currentHour: number }) {
           ))}
         </select>
       </label>
-      <p className="text-sm opacity-80">
+      <p className="text-sm text-ink-muted">
         Chỉ áp dụng cho đơn mới. Nên đổi khi quán đã đóng cửa.
       </p>
       {error && (
-        <p role="alert" className="text-red-500">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
@@ -56,7 +56,7 @@ export function BusinessHourForm({ currentHour }: { currentHour: number }) {
         type="button"
         disabled={busy}
         onClick={() => void save()}
-        className="min-h-12 rounded-lg border border-current px-6 font-bold disabled:opacity-50"
+        className="min-h-12 rounded-lg border border-edge px-6 font-bold disabled:opacity-50"
       >
         {busy ? "Đang lưu…" : "Lưu giờ mở cửa"}
       </button>

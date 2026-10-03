@@ -40,11 +40,11 @@ export function PriceForm({ currentPrice, onSave }: Props) {
           inputMode="numeric"
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
-          className="mt-1 min-h-12 w-full max-w-xs rounded-lg border border-current/30 bg-transparent p-3 text-xl tabular-nums"
+          className="mt-1 min-h-12 w-full max-w-xs rounded-lg border border-edge bg-transparent p-3 text-xl tabular-nums"
         />
       </label>
       {error && (
-        <p role="alert" className="text-red-500">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
@@ -52,7 +52,7 @@ export function PriceForm({ currentPrice, onSave }: Props) {
       <button
         type="submit"
         disabled={busy}
-        className="min-h-12 rounded-lg bg-emerald-600 px-6 font-bold text-white disabled:opacity-50"
+        className="min-h-12 rounded-lg bg-ember px-6 font-bold text-ember-ink disabled:opacity-50"
       >
         {busy ? "Đang lưu…" : "Lưu thay đổi"}
       </button>

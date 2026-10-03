@@ -51,12 +51,12 @@ export function ExportCsvButton({ from, to }: { from: string; to: string }) {
         type="button"
         disabled={busy}
         onClick={() => void exportCsv()}
-        className="min-h-12 rounded-lg border border-current px-4 font-bold disabled:opacity-50"
+        className="min-h-12 rounded-lg border border-edge px-4 font-bold disabled:opacity-50"
       >
         {busy ? "Đang xuất…" : "Xuất CSV"}
       </button>
       {error && (
-        <span role="alert" className="text-red-500">
+        <span role="alert" className="text-danger">
           {error}
         </span>
       )}

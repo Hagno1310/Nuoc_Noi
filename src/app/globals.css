@@ -1,26 +1,114 @@
 @import "tailwindcss";
 
+/* Phơi sáng dài (docs/design/order-brief.md): chỉ có nền tối, vì quán là phòng tối.
+   Màu theo vai trò; component chỉ dùng token, không dùng tên màu Tailwind. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --bg: #1a1e15;
+  --surface: #232819;
+  --raised: #2e3424;
+  --line: #4a5238; /* đường kẻ trang trí */
+  --edge: #78815e; /* viền điều khiển, ≥ 3:1 trên nền */
+  --ink: #e6d8b4; /* chữ kem đã giảm sáng, 12:1 */
+  --ink-muted: #a9b08f; /* chữ phụ, ≥ 5.6:1 */
+  --ember: #e68a3c; /* màu nhấn duy nhất */
+  --ember-ink: #1a1e15;
+  --ok: #a9c47e;
+  --warn: #e5bc5e;
+  --danger: #ee8a76;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-edge: var(--edge);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ember: var(--ember);
+  --color-ember-ink: var(--ember-ink);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
+  --ease-exposure: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  background: var(--bg);
+}
+
+/* Lớp nhiễu hạt tĩnh như phim chụp đêm; không chuyển động */
+body {
+  min-height: 100dvh;
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  font-family: var(--font-be-vietnam), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--ember-ink);
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--ember);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+
+a {
+  text-underline-offset: 0.2em;
+}
+
+* {
+  scrollbar-color: var(--edge) transparent;
+  scrollbar-width: thin;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85) sepia(0.3);
+}
+
+/* Chuyển động đặc trưng: số cốc và thành tiền kéo thành vệt sáng ngang rồi lướt xuống "Đơn vừa tạo" */
+@keyframes exposure-streak {
+  0% {
+    opacity: 0.9;
+    transform: translateY(0) scaleX(0.15);
+    filter: blur(2px);
+  }
+  55% {
+    opacity: 0.8;
+    transform: translateY(0) scaleX(1);
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(48px) scaleX(1.1);
+    filter: blur(6px);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.exposure-streak {
+  animation: exposure-streak 250ms var(--ease-exposure) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exposure-streak {
+    display: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+  }
 }

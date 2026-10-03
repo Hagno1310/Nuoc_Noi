@@ -5,7 +5,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { formatVnDateTime } from "@/lib/time";
 import { PinSection, PriceSection } from "./SettingsForms";
 
-const section = "space-y-3 rounded-xl border border-current/20 p-4";
+const section = "space-y-3 rounded-xl border border-line p-4";
 
 export default async function SettingsPage() {
   const supabase = await createServerSupabase();

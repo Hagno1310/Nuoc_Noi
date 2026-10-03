@@ -30,13 +30,17 @@ export function PinLogin({
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-center text-2xl font-bold">Nhập PIN quán</h1>
-      <p
-        aria-label="PIN đã nhập"
-        className="text-center text-4xl tracking-[0.5em]"
-      >
-        {"●".repeat(pin.length).padEnd(6, "○")}
+    <div className="space-y-6">
+      <h1 className="text-center text-xl font-semibold">Nhập PIN quán</h1>
+      <p aria-label="PIN đã nhập" className="flex justify-center gap-4">
+        <span className="sr-only">Đã nhập {pin.length} trên 6 số</span>
+        {Array.from({ length: 6 }, (_, i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className={`size-3.5 rounded-full border transition-colors duration-150 ${i < pin.length ? "border-ember bg-ember" : "border-edge"}`}
+          />
+        ))}
       </p>
       <div className="grid grid-cols-3 gap-2">
         {KEYS.map((key, i) =>
@@ -46,7 +50,7 @@ export function PinLogin({
               type="button"
               aria-label={key === "⌫" ? "Xóa số" : key}
               onClick={() => press(key)}
-              className="flex min-h-14 items-center justify-center rounded-xl bg-slate-200 text-2xl font-bold active:scale-95"
+              className="flex min-h-16 items-center justify-center rounded-xl border border-edge text-2xl font-semibold tabular-nums transition-colors duration-150 active:border-ink active:bg-ink active:text-bg"
             >
               {key === "⌫" ? <Delete aria-hidden="true" /> : key}
             </button>
@@ -56,7 +60,7 @@ export function PinLogin({
         )}
       </div>
       {error && (
-        <p role="alert" className="text-center font-medium text-red-600">
+        <p role="alert" className="text-center font-medium text-danger">
           {error}
         </p>
       )}
@@ -64,7 +68,7 @@ export function PinLogin({
         type="button"
         disabled={pin.length !== 6 || busy}
         onClick={() => void submit()}
-        className="min-h-14 w-full rounded-xl bg-emerald-600 text-xl font-bold text-white disabled:bg-slate-300"
+        className="min-h-16 w-full rounded-2xl bg-ember text-xl font-extrabold text-ember-ink disabled:bg-raised disabled:text-ink-muted"
       >
         Vào
       </button>

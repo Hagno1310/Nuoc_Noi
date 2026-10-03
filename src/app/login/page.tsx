@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PinLogin } from "@/components/order/PinLogin";
 import { getBrowserSupabase } from "@/lib/supabase/client";
@@ -6,7 +7,15 @@ import { getBrowserSupabase } from "@/lib/supabase/client";
 export default function StaffLoginPage() {
   const router = useRouter();
   return (
-    <main className="mx-auto max-w-sm p-4">
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-10 px-6 py-8">
+      <Image
+        src="/brand/nuoc-noi-wordmark.png"
+        alt="Nước Nôi"
+        width={160}
+        height={151}
+        priority
+        className="mx-auto"
+      />
       <PinLogin
         onLogin={async (pin) => {
           const { error } = await getBrowserSupabase().auth.signInWithPassword({

@@ -32,7 +32,7 @@ export function ConfirmBar({
 
   if (feedback) {
     return (
-      <div className="flex min-h-16 items-center justify-between gap-3 rounded-2xl bg-slate-800 px-4 text-white">
+      <div className="flex min-h-16 items-center justify-between gap-3 rounded-2xl border border-ember/60 bg-raised pr-2 pl-4">
         <span role="status" className="font-semibold">
           {feedback.text}
         </span>
@@ -40,7 +40,7 @@ export function ConfirmBar({
           type="button"
           disabled={cancelBusy}
           onClick={() => onUndo(feedback.orderId)}
-          className="min-h-12 rounded-lg border border-white/60 px-4 font-bold disabled:opacity-60"
+          className="min-h-12 shrink-0 rounded-xl border border-edge px-4 font-semibold active:bg-ink active:text-bg disabled:opacity-50"
         >
           {undoing ? "Đang hủy…" : "Hoàn tác"}
         </button>
@@ -53,7 +53,7 @@ export function ConfirmBar({
       aria-label="Xác nhận đơn"
       disabled={!canSubmit || sending}
       onClick={onSubmit}
-      className="min-h-16 w-full rounded-2xl bg-emerald-600 text-2xl font-bold text-white active:scale-[0.98] disabled:bg-slate-300"
+      className="min-h-16 w-full rounded-2xl bg-ember text-xl font-extrabold text-ember-ink transition-[transform,background-color] duration-150 active:scale-[0.98] disabled:bg-raised disabled:text-ink-muted"
     >
       {sending ? "Đang gửi…" : "Xác nhận đơn"}
     </button>

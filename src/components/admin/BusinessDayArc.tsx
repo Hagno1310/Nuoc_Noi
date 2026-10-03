@@ -40,22 +40,24 @@ export function BusinessDayArc({
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className="text-orange-400"
+            className="text-ember"
           />
         )}
-        <circle cx={b.x} cy={b.y} r="4" className="fill-orange-400" />
+        <circle cx={b.x} cy={b.y} r="4" className="fill-ember" />
         <text
           x={a.x}
           y={a.y + 14}
           textAnchor="middle"
-          className="fill-current text-[8px] tabular-nums opacity-70"
+          className="fill-current text-[8px] tabular-nums text-ink-muted"
         >
           {startLabel}
         </text>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-10 text-center">
         {children}
-        <p className="text-xs tabular-nums opacity-70">Bây giờ {nowLabel}</p>
+        <p className="text-xs tabular-nums text-ink-muted">
+          Bây giờ {nowLabel}
+        </p>
       </div>
     </div>
   );

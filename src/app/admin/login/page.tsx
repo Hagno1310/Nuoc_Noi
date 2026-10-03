@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { getBrowserSupabase } from "@/lib/supabase/client";
@@ -6,7 +7,15 @@ import { getBrowserSupabase } from "@/lib/supabase/client";
 export default function OwnerLoginPage() {
   const router = useRouter();
   return (
-    <main className="mx-auto max-w-sm p-6">
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-10 px-6 py-8">
+      <Image
+        src="/brand/nuoc-noi-wordmark-small.png"
+        alt="Nước Nôi"
+        width={132}
+        height={36}
+        priority
+        className="mx-auto"
+      />
       <LoginForm
         onLogin={async (email, password) => {
           const { error } = await getBrowserSupabase().auth.signInWithPassword({
