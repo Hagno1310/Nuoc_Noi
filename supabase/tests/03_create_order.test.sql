@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(19);
+select plan(23);
 
 insert into auth.users (id, email, aud, role) values
   ('00000000-0000-0000-0000-0000000000b1', 'staff@test.vn', 'authenticated', 'authenticated');
@@ -32,10 +32,17 @@ select is((select business_date from public.orders where id = '00000000-0000-000
 select is((public.create_order('00000000-0000-0000-0000-000000000001', 7, '00000000-0000-0000-0000-0000000000c9', false, 25000) ->> 'duplicate')::boolean,
   true, 'gửi lại cùng id → duplicate');
 select is((select count(*)::int from public.orders where id = '00000000-0000-0000-0000-000000000001'), 1, 'không tạo đơn thứ hai');
+select is((select r ->> 'id' from (select public.create_order('00000000-0000-0000-0000-000000000001', 7, '00000000-0000-0000-0000-0000000000c9', false, 25000) as r) x),
+  '00000000-0000-0000-0000-000000000001', 'duplicate trả về đúng id');
+select is((select (r ->> 'total_amount')::int from (select public.create_order('00000000-0000-0000-0000-000000000001', 7, '00000000-0000-0000-0000-0000000000c9', false, 25000) as r) x),
+  175000, 'duplicate trả về đúng thành tiền');
 
 -- Giá trên máy đã cũ
 create temp table o2 as select public.create_order('00000000-0000-0000-0000-000000000002', 1, null, false, 20000) as r;
 select is((select (r ->> 'unit_price')::int || '/' || (r ->> 'price_changed') from o2), '25000/true', 'giá cũ trên máy: server dùng giá mới và báo price_changed');
+
+select is((select (r ->> 'duplicate') || '/' || (r ->> 'price_changed') from (select public.create_order('00000000-0000-0000-0000-000000000002', 1, null, false, 20000) as r) x),
+  'true/true', 'gửi lại đơn giá cũ: vẫn duplicate và price_changed');
 
 -- Kiểm tra dữ liệu đầu vào
 select throws_ok($$select public.create_order(gen_random_uuid(), 0, null, false, 25000)$$, 'P0001', 'INVALID_QUANTITY', 'số lượng 0 bị từ chối');
@@ -44,6 +51,9 @@ select throws_ok($$select public.create_order(gen_random_uuid(), 1, '00000000-00
   'P0001', 'INVALID_SEAT', 'không được vừa mang về vừa có chỗ ngồi');
 select throws_ok($$select public.create_order(gen_random_uuid(), 1, gen_random_uuid(), false, 25000)$$,
   'P0001', 'SEAT_NOT_FOUND', 'chỗ ngồi không tồn tại');
+
+select throws_ok($$select public.create_order(gen_random_uuid(), 1, '00000000-0000-0000-0000-0000000000c8', false, 25000)$$,
+  'P0001', 'SEAT_NOT_FOUND', 'chỗ ngồi đã ẩn không được chọn');
 
 select public.create_order('00000000-0000-0000-0000-000000000003', 2, null, true, 25000);
 select is((select seat_name from public.orders where id = '00000000-0000-0000-0000-000000000003'), 'Mang về', 'mang về có seat_name = Mang về');
