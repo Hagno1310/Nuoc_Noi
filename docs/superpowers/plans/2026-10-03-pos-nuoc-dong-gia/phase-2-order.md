@@ -18,10 +18,12 @@ SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
 ### Task 7: API client và danh sách đơn của điện thoại
 
 **Files:**
+
 - Create: `src/lib/supabase/client.ts`, `src/lib/api.ts`, `src/lib/order/myOrders.ts`
 - Test: `tests/unit/api.test.ts`, `tests/unit/order/myOrders.test.ts`
 
 **Interfaces:**
+
 - Consumes: các RPC `create_order`, `cancel_order`, `list_orders_by_ids`, `list_active_seats`.
 - Produces:
   - Các kiểu `CreateOrderInput`, `CreatedOrder`, `MyOrder`, `ActiveSeat`, `StaffApi`, đúng như file tổng quan.
@@ -36,23 +38,48 @@ SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
 
 ```ts
 import { describe, expect, it, vi } from "vitest";
-import { createStaffApi, NetworkError, RpcError, type RpcClient } from "@/lib/api";
+import {
+  createStaffApi,
+  NetworkError,
+  RpcError,
+  type RpcClient,
+} from "@/lib/api";
 
-function clientReturning(result: { data: unknown; error: { message: string; code?: string } | null }) {
+function clientReturning(result: {
+  data: unknown;
+  error: { message: string; code?: string } | null;
+}) {
   const rpc = vi.fn().mockResolvedValue(result);
   return { client: { rpc } as unknown as RpcClient, rpc };
 }
 
 describe("createStaffApi", () => {
   it("createOrder ánh xạ đúng tham số RPC", async () => {
-    const created = { id: "o1", unit_price: 25000, total_amount: 175000, price_changed: false,
-      created_at: "2026-10-03T05:00:00Z", business_date: "2026-10-03", duplicate: false };
+    const created = {
+      id: "o1",
+      unit_price: 25000,
+      total_amount: 175000,
+      price_changed: false,
+      created_at: "2026-10-03T05:00:00Z",
+      business_date: "2026-10-03",
+      duplicate: false,
+    };
     const { client, rpc } = clientReturning({ data: created, error: null });
     const result = await createStaffApi(() => client).createOrder({
-      id: "o1", quantity: 7, seatId: "s1", isTakeaway: false, clientPrice: 25000 });
+      id: "o1",
+      quantity: 7,
+      seatId: "s1",
+      isTakeaway: false,
+      clientPrice: 25000,
+    });
     expect(result).toEqual(created);
     expect(rpc).toHaveBeenCalledWith("create_order", {
-      p_id: "o1", p_quantity: 7, p_seat_id: "s1", p_is_takeaway: false, p_client_price: 25000 });
+      p_id: "o1",
+      p_quantity: 7,
+      p_seat_id: "s1",
+      p_is_takeaway: false,
+      p_client_price: 25000,
+    });
   });
 
   it("listOrdersByIds với danh sách rỗng thì không gọi server", async () => {
@@ -62,20 +89,34 @@ describe("createStaffApi", () => {
   });
 
   it("lỗi có mã SQLSTATE thành RpcError mang mã lỗi", async () => {
-    const { client } = clientReturning({ data: null, error: { message: "CANCEL_WINDOW_EXPIRED", code: "P0001" } });
-    const err = await createStaffApi(() => client).cancelOrder("o1").catch((e) => e);
+    const { client } = clientReturning({
+      data: null,
+      error: { message: "CANCEL_WINDOW_EXPIRED", code: "P0001" },
+    });
+    const err = await createStaffApi(() => client)
+      .cancelOrder("o1")
+      .catch((e) => e);
     expect(err).toBeInstanceOf(RpcError);
     expect(err.code).toBe("CANCEL_WINDOW_EXPIRED");
   });
 
   it("lỗi không có mã (fetch thất bại) thành NetworkError", async () => {
-    const { client } = clientReturning({ data: null, error: { message: "TypeError: Failed to fetch", code: "" } });
-    await expect(createStaffApi(() => client).listActiveSeats()).rejects.toBeInstanceOf(NetworkError);
+    const { client } = clientReturning({
+      data: null,
+      error: { message: "TypeError: Failed to fetch", code: "" },
+    });
+    await expect(
+      createStaffApi(() => client).listActiveSeats(),
+    ).rejects.toBeInstanceOf(NetworkError);
   });
 
   it("rpc ném exception thì thành NetworkError", async () => {
-    const client = { rpc: vi.fn().mockRejectedValue(new TypeError("offline")) } as unknown as RpcClient;
-    await expect(createStaffApi(() => client).listActiveSeats()).rejects.toBeInstanceOf(NetworkError);
+    const client = {
+      rpc: vi.fn().mockRejectedValue(new TypeError("offline")),
+    } as unknown as RpcClient;
+    await expect(
+      createStaffApi(() => client).listActiveSeats(),
+    ).rejects.toBeInstanceOf(NetworkError);
   });
 });
 ```
@@ -125,16 +166,36 @@ Chạy `npm test`. Kết quả mong đợi: FAIL vì chưa có module.
 `src/lib/api.ts`:
 
 ```ts
-export type CreateOrderInput = { id: string; quantity: number; seatId: string | null; isTakeaway: boolean; clientPrice: number };
+export type CreateOrderInput = {
+  id: string;
+  quantity: number;
+  seatId: string | null;
+  isTakeaway: boolean;
+  clientPrice: number;
+};
 export type CreatedOrder = {
-  id: string; unit_price: number; total_amount: number; price_changed: boolean;
-  created_at: string; business_date: string; duplicate: boolean;
+  id: string;
+  unit_price: number;
+  total_amount: number;
+  price_changed: boolean;
+  created_at: string;
+  business_date: string;
+  duplicate: boolean;
 };
 export type MyOrder = {
-  id: string; quantity: number; unit_price: number; total_amount: number;
-  seat_name: string | null; status: "paid" | "cancelled"; created_at: string;
+  id: string;
+  quantity: number;
+  unit_price: number;
+  total_amount: number;
+  seat_name: string | null;
+  status: "paid" | "cancelled";
+  created_at: string;
 };
-export type ActiveSeat = { id: string; name: string; kind: "table" | "counter" };
+export type ActiveSeat = {
+  id: string;
+  name: string;
+  kind: "table" | "counter";
+};
 export interface StaffApi {
   createOrder(input: CreateOrderInput): Promise<CreatedOrder>;
   cancelOrder(orderId: string): Promise<void>;
@@ -143,7 +204,10 @@ export interface StaffApi {
 }
 
 export type RpcClient = {
-  rpc(fn: string, args?: Record<string, unknown>): PromiseLike<{
+  rpc(
+    fn: string,
+    args?: Record<string, unknown>,
+  ): PromiseLike<{
     data: unknown;
     error: { message: string; code?: string } | null;
   }>;
@@ -163,7 +227,11 @@ export class RpcError extends Error {
   }
 }
 
-async function call<T>(client: RpcClient, fn: string, args: Record<string, unknown> = {}): Promise<T> {
+async function call<T>(
+  client: RpcClient,
+  fn: string,
+  args: Record<string, unknown> = {},
+): Promise<T> {
   let result: Awaited<ReturnType<RpcClient["rpc"]>>;
   try {
     result = await client.rpc(fn, args);
@@ -192,7 +260,10 @@ export function createStaffApi(getClient: () => RpcClient): StaffApi {
     cancelOrder: async (orderId) => {
       await call(getClient(), "cancel_order", { p_order_id: orderId });
     },
-    listOrdersByIds: async (ids) => (ids.length === 0 ? [] : call(getClient(), "list_orders_by_ids", { p_ids: ids })),
+    listOrdersByIds: async (ids) =>
+      ids.length === 0
+        ? []
+        : call(getClient(), "list_orders_by_ids", { p_ids: ids }),
     listActiveSeats: () => call(getClient(), "list_active_seats"),
   };
 }
@@ -232,7 +303,11 @@ type Entry = { id: string; at: number };
 function read(): Entry[] {
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) ?? "[]");
-    return Array.isArray(parsed) ? parsed.filter((e) => typeof e?.id === "string" && typeof e?.at === "number") : [];
+    return Array.isArray(parsed)
+      ? parsed.filter(
+          (e) => typeof e?.id === "string" && typeof e?.at === "number",
+        )
+      : [];
   } catch {
     return [];
   }
@@ -243,7 +318,10 @@ function fresh(entries: Entry[], now: number): Entry[] {
 }
 
 export function rememberOrder(id: string, now = Date.now()): void {
-  const entries = fresh([{ id, at: now }, ...read().filter((e) => e.id !== id)], now);
+  const entries = fresh(
+    [{ id, at: now }, ...read().filter((e) => e.id !== id)],
+    now,
+  );
   try {
     localStorage.setItem(KEY, JSON.stringify(entries));
   } catch {
@@ -274,10 +352,12 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 8: Bàn phím số lượng và định dạng giờ
 
 **Files:**
+
 - Create: `src/lib/order/quantity.ts`, `src/lib/time.ts`, `src/components/order/QuantityPad.tsx`
 - Test: `tests/unit/order/quantity.test.ts`, `tests/unit/time.test.ts`, `tests/unit/order/QuantityPad.test.tsx`
 
 **Interfaces:**
+
 - Produces:
   - `MAX_QUANTITY = 500`.
   - `type QuantityAction = { type: "add"; amount: number } | { type: "decrement" } | { type: "clear" } | { type: "set"; raw: string }`.
@@ -302,7 +382,9 @@ describe("quantityReducer", () => {
     expect(q).toBe(7);
   });
   it("không vượt quá MAX_QUANTITY", () => {
-    expect(quantityReducer(495, { type: "add", amount: 10 })).toBe(MAX_QUANTITY);
+    expect(quantityReducer(495, { type: "add", amount: 10 })).toBe(
+      MAX_QUANTITY,
+    );
   });
   it("-1 không xuống dưới 0", () => {
     expect(quantityReducer(1, { type: "decrement" })).toBe(0);
@@ -329,7 +411,9 @@ import { formatIsoDate, formatVnDateTime, formatVnTime } from "@/lib/time";
 
 describe("time helpers", () => {
   it("đổi UTC sang giờ Việt Nam", () => {
-    expect(formatVnDateTime("2026-10-03T22:59:05Z")).toBe("04/10/2026 05:59:05");
+    expect(formatVnDateTime("2026-10-03T22:59:05Z")).toBe(
+      "04/10/2026 05:59:05",
+    );
     expect(formatVnTime("2026-10-03T22:59:05Z")).toBe("05:59");
   });
   it("định dạng ngày kinh doanh", () => {
@@ -416,13 +500,19 @@ export function quantityReducer(state: number, action: QuantityAction): number {
 ```ts
 const formatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Ho_Chi_Minh",
-  year: "numeric", month: "2-digit", day: "2-digit",
-  hour: "2-digit", minute: "2-digit", second: "2-digit",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
   hourCycle: "h23",
 });
 
 function vnParts(iso: string): Record<string, string> {
-  return Object.fromEntries(formatter.formatToParts(new Date(iso)).map((p) => [p.type, p.value]));
+  return Object.fromEntries(
+    formatter.formatToParts(new Date(iso)).map((p) => [p.type, p.value]),
+  );
 }
 
 export function formatVnDateTime(iso: string): string {
@@ -448,9 +538,16 @@ export function formatIsoDate(date: string): string {
 import type { QuantityAction } from "@/lib/order/quantity";
 
 const QUICK_ADDS = [1, 2, 5, 10];
-const btn = "min-h-14 rounded-xl text-2xl font-bold active:scale-95 transition-transform";
+const btn =
+  "min-h-14 rounded-xl text-2xl font-bold active:scale-95 transition-transform";
 
-export function QuantityPad({ quantity, dispatch }: { quantity: number; dispatch: (a: QuantityAction) => void }) {
+export function QuantityPad({
+  quantity,
+  dispatch,
+}: {
+  quantity: number;
+  dispatch: (a: QuantityAction) => void;
+}) {
   return (
     <div className="space-y-3">
       <input
@@ -464,16 +561,29 @@ export function QuantityPad({ quantity, dispatch }: { quantity: number; dispatch
       />
       <div className="grid grid-cols-4 gap-2">
         {QUICK_ADDS.map((n) => (
-          <button key={n} type="button" className={`${btn} bg-sky-600 text-white`} onClick={() => dispatch({ type: "add", amount: n })}>
+          <button
+            key={n}
+            type="button"
+            className={`${btn} bg-sky-600 text-white`}
+            onClick={() => dispatch({ type: "add", amount: n })}
+          >
             +{n}
           </button>
         ))}
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" className={`${btn} bg-slate-200`} onClick={() => dispatch({ type: "decrement" })}>
+        <button
+          type="button"
+          className={`${btn} bg-slate-200`}
+          onClick={() => dispatch({ type: "decrement" })}
+        >
           −1
         </button>
-        <button type="button" className={`${btn} bg-slate-200`} onClick={() => dispatch({ type: "clear" })}>
+        <button
+          type="button"
+          className={`${btn} bg-slate-200`}
+          onClick={() => dispatch({ type: "clear" })}
+        >
           Xóa
         </button>
       </div>
@@ -500,12 +610,14 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 9: Đăng nhập bằng PIN quán, trạng thái mạng và giá realtime
 
 **Files:**
+
 - Create: `src/components/order/PinLogin.tsx`, `src/components/order/PriceBanner.tsx`
 - Create: `src/hooks/useOnline.ts`, `src/hooks/useCurrentPrice.ts`
 - Create: `src/app/login/page.tsx`
 - Test: `tests/unit/order/PinLogin.test.tsx`, `tests/unit/order/PriceBanner.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `getBrowserSupabase`, `formatVnd`.
 - Produces:
   - `<PinLogin onLogin={(pin: string) => Promise<string | null>} />`: `onLogin` trả về thông báo lỗi, hoặc `null` nếu thành công.
@@ -525,7 +637,8 @@ import userEvent from "@testing-library/user-event";
 import { PinLogin } from "@/components/order/PinLogin";
 
 async function typePin(user: ReturnType<typeof userEvent.setup>, pin: string) {
-  for (const d of pin) await user.click(screen.getByRole("button", { name: d }));
+  for (const d of pin)
+    await user.click(screen.getByRole("button", { name: d }));
 }
 
 describe("PinLogin", () => {
@@ -597,7 +710,10 @@ describe("PriceBanner", () => {
     const { rerender } = render(<PriceBanner price={null} offline={false} />);
     expect(screen.getByText("Đang tải giá…")).toBeInTheDocument();
     rerender(<PriceBanner price={25000} offline={false} />);
-    expect(screen.getByTestId("price-banner")).toHaveAttribute("data-highlight", "false");
+    expect(screen.getByTestId("price-banner")).toHaveAttribute(
+      "data-highlight",
+      "false",
+    );
   });
 
   it("hiện nhãn Mất mạng", () => {
@@ -621,7 +737,11 @@ import { useState } from "react";
 
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫"];
 
-export function PinLogin({ onLogin }: { onLogin: (pin: string) => Promise<string | null> }) {
+export function PinLogin({
+  onLogin,
+}: {
+  onLogin: (pin: string) => Promise<string | null>;
+}) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -645,14 +765,22 @@ export function PinLogin({ onLogin }: { onLogin: (pin: string) => Promise<string
   return (
     <div className="space-y-4">
       <h1 className="text-center text-2xl font-bold">Nhập PIN quán</h1>
-      <p aria-label="PIN đã nhập" className="text-center text-4xl tracking-[0.5em]">
+      <p
+        aria-label="PIN đã nhập"
+        className="text-center text-4xl tracking-[0.5em]"
+      >
         {"●".repeat(pin.length).padEnd(6, "○")}
       </p>
       <div className="grid grid-cols-3 gap-2">
         {KEYS.map((key, i) =>
           key ? (
-            <button key={i} type="button" aria-label={key === "⌫" ? "Xóa số" : key} onClick={() => press(key)}
-              className="min-h-14 rounded-xl bg-slate-200 text-2xl font-bold active:scale-95">
+            <button
+              key={i}
+              type="button"
+              aria-label={key === "⌫" ? "Xóa số" : key}
+              onClick={() => press(key)}
+              className="min-h-14 rounded-xl bg-slate-200 text-2xl font-bold active:scale-95"
+            >
               {key}
             </button>
           ) : (
@@ -660,9 +788,17 @@ export function PinLogin({ onLogin }: { onLogin: (pin: string) => Promise<string
           ),
         )}
       </div>
-      {error && <p role="alert" className="text-center font-medium text-red-600">{error}</p>}
-      <button type="button" disabled={pin.length !== 6 || busy} onClick={() => void submit()}
-        className="min-h-14 w-full rounded-xl bg-emerald-600 text-xl font-bold text-white disabled:bg-slate-300">
+      {error && (
+        <p role="alert" className="text-center font-medium text-red-600">
+          {error}
+        </p>
+      )}
+      <button
+        type="button"
+        disabled={pin.length !== 6 || busy}
+        onClick={() => void submit()}
+        className="min-h-14 w-full rounded-xl bg-emerald-600 text-xl font-bold text-white disabled:bg-slate-300"
+      >
         Vào
       </button>
     </div>
@@ -677,7 +813,13 @@ export function PinLogin({ onLogin }: { onLogin: (pin: string) => Promise<string
 import { useEffect, useRef, useState } from "react";
 import { formatVnd } from "@/lib/money";
 
-export function PriceBanner({ price, offline }: { price: number | null; offline: boolean }) {
+export function PriceBanner({
+  price,
+  offline,
+}: {
+  price: number | null;
+  offline: boolean;
+}) {
   const [highlight, setHighlight] = useState(false);
   const previous = useRef(price);
 
@@ -691,12 +833,19 @@ export function PriceBanner({ price, offline }: { price: number | null; offline:
   }, [price]);
 
   return (
-    <div data-testid="price-banner" data-highlight={highlight ? "true" : "false"}
-      className={`flex items-center justify-between rounded-xl p-3 transition-colors ${highlight ? "bg-yellow-300" : "bg-slate-100"}`}>
+    <div
+      data-testid="price-banner"
+      data-highlight={highlight ? "true" : "false"}
+      className={`flex items-center justify-between rounded-xl p-3 transition-colors ${highlight ? "bg-yellow-300" : "bg-slate-100"}`}
+    >
       <span className="text-xl font-semibold">
         {price === null ? "Đang tải giá…" : `Đơn giá: ${formatVnd(price)}/cốc`}
       </span>
-      {offline && <span className="rounded-full bg-red-600 px-3 py-1 text-sm font-bold text-white">Mất mạng</span>}
+      {offline && (
+        <span className="rounded-full bg-red-600 px-3 py-1 text-sm font-bold text-white">
+          Mất mạng
+        </span>
+      )}
     </div>
   );
 }
@@ -726,7 +875,11 @@ function subscribe(onChange: () => void) {
 }
 
 export function useOnline(): boolean {
-  return useSyncExternalStore(subscribe, () => navigator.onLine, () => true);
+  return useSyncExternalStore(
+    subscribe,
+    () => navigator.onLine,
+    () => true,
+  );
 }
 ```
 
@@ -744,19 +897,31 @@ export function useCurrentPrice(): number | null {
     const client = getBrowserSupabase();
     let active = true;
     const fetchPrice = async () => {
-      const { data } = await client.from("settings").select("current_price").eq("id", 1).single();
+      const { data } = await client
+        .from("settings")
+        .select("current_price")
+        .eq("id", 1)
+        .single();
       if (active && data) setPrice(data.current_price);
     };
     void fetchPrice();
 
     const channel = client
       .channel("settings-price")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "settings" },
-        (payload) => { if (active) setPrice((payload.new as { current_price: number }).current_price); })
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "settings" },
+        (payload) => {
+          if (active)
+            setPrice((payload.new as { current_price: number }).current_price);
+        },
+      )
       .subscribe();
 
     // iOS ngắt kết nối realtime khi app chạy nền, nên fetch lại khi quay lại
-    const refetch = () => { if (document.visibilityState === "visible") void fetchPrice(); };
+    const refetch = () => {
+      if (document.visibilityState === "visible") void fetchPrice();
+    };
     window.addEventListener("online", refetch);
     document.addEventListener("visibilitychange", refetch);
     return () => {
@@ -794,7 +959,8 @@ export default function StaffLoginPage() {
             router.refresh();
             return null;
           }
-          if (error.status === 429) return "Nhập sai quá nhiều lần, thử lại sau ít phút.";
+          if (error.status === 429)
+            return "Nhập sai quá nhiều lần, thử lại sau ít phút.";
           if (error.status === 400) return "Sai mã PIN.";
           return "Không kết nối được. Kiểm tra mạng rồi thử lại.";
         }}
@@ -822,6 +988,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 10: Màn hình order hoàn chỉnh
 
 **Files:**
+
 - Create: `src/components/order/SeatPicker.tsx`, `src/components/order/RecentOrders.tsx`, `src/components/order/ConfirmBar.tsx`, `src/components/order/OrderScreen.tsx`, `src/lib/haptics.ts`
 - Copy: `docs/brand/nuoc-noi-wordmark.png` và `docs/brand/nuoc-noi-wordmark-small.png` → `public/brand/` (logo nền trong suốt; luôn dùng file này, không vẽ lại logo)
 - Create: `src/app/order/page.tsx`
@@ -829,6 +996,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Test: `tests/unit/order/OrderScreen.test.tsx`
 
 **Interfaces:**
+
 - Consumes: mọi thứ từ Task 7 đến Task 9.
 - Produces:
   - `type SeatSelection = { kind: "none" } | { kind: "seat"; id: string; name: string } | { kind: "takeaway" }`.
@@ -837,6 +1005,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
   - `<OrderScreen {...OrderScreenProps} />`.
 
 **Hành vi chính** (SRS FR-04, FR-04b):
+
 - Bấm gửi thì nút chuyển sang "Đang gửi…". **Chỉ reset sau khi server xác nhận.**
 - **Gửi thất bại:** giữ nguyên dữ liệu đã nhập. Lần bấm lại dùng **cùng `id`**, vì `pendingId` chỉ được xóa khi gửi thành công.
 - **Server trả `duplicate: true`:** báo cho nhân viên biết đơn này đã được ghi từ lần gửi trước. Số cốc trong thông báo lấy từ kết quả server (`total_amount / unit_price`).
@@ -855,18 +1024,39 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { OrderScreen, type OrderScreenProps } from "@/components/order/OrderScreen";
-import { NetworkError, RpcError, type CreateOrderInput, type CreatedOrder, type StaffApi } from "@/lib/api";
+import {
+  OrderScreen,
+  type OrderScreenProps,
+} from "@/components/order/OrderScreen";
+import {
+  NetworkError,
+  RpcError,
+  type CreateOrderInput,
+  type CreatedOrder,
+  type StaffApi,
+} from "@/lib/api";
 import { getMyOrderIds } from "@/lib/order/myOrders";
 
 const NOW = new Date("2026-10-03T05:00:00Z");
 
-const created = (i: CreateOrderInput, over: Partial<CreatedOrder> = {}): CreatedOrder => ({
-  id: i.id, unit_price: 25000, total_amount: i.quantity * 25000, price_changed: false,
-  created_at: NOW.toISOString(), business_date: "2026-10-03", duplicate: false, ...over,
+const created = (
+  i: CreateOrderInput,
+  over: Partial<CreatedOrder> = {},
+): CreatedOrder => ({
+  id: i.id,
+  unit_price: 25000,
+  total_amount: i.quantity * 25000,
+  price_changed: false,
+  created_at: NOW.toISOString(),
+  business_date: "2026-10-03",
+  duplicate: false,
+  ...over,
 });
 
-function setup(overrides: Partial<OrderScreenProps> = {}, apiOverrides: Partial<StaffApi> = {}) {
+function setup(
+  overrides: Partial<OrderScreenProps> = {},
+  apiOverrides: Partial<StaffApi> = {},
+) {
   const api: StaffApi = {
     createOrder: vi.fn(async (i: CreateOrderInput) => created(i)),
     cancelOrder: vi.fn(async () => {}),
@@ -879,8 +1069,13 @@ function setup(overrides: Partial<OrderScreenProps> = {}, apiOverrides: Partial<
   };
   let n = 0;
   const props: OrderScreenProps = {
-    api, price: 25000, online: true, onUnauthorized: vi.fn(),
-    newId: () => `order-${++n}`, now: () => NOW, ...overrides,
+    api,
+    price: 25000,
+    online: true,
+    onUnauthorized: vi.fn(),
+    newId: () => `order-${++n}`,
+    now: () => NOW,
+    ...overrides,
   };
   const user = userEvent.setup();
   const utils = render(<OrderScreen {...props} />);
@@ -896,10 +1091,21 @@ describe("OrderScreen", () => {
     await user.click(await screen.findByRole("button", { name: "Quầy 1" }));
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
 
-    expect(api.createOrder).toHaveBeenCalledWith({ id: "order-1", quantity: 7, seatId: "s1", isTakeaway: false, clientPrice: 25000 });
-    expect(await screen.findByRole("status")).toHaveTextContent("Đã tạo đơn 7 cốc – 175.000đ");
+    expect(api.createOrder).toHaveBeenCalledWith({
+      id: "order-1",
+      quantity: 7,
+      seatId: "s1",
+      isTakeaway: false,
+      clientPrice: 25000,
+    });
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Đã tạo đơn 7 cốc – 175.000đ",
+    );
     expect(screen.getByLabelText("Số lượng cốc")).toHaveValue("");
-    expect(screen.getByRole("button", { name: "Quầy 1" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Quầy 1" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
     expect(getMyOrderIds()).toEqual(["order-1"]);
   });
 
@@ -907,9 +1113,16 @@ describe("OrderScreen", () => {
     setup();
     const counterGroup = await screen.findByRole("group", { name: "Ghế quầy" });
     const tableGroup = screen.getByRole("group", { name: "Bàn" });
-    expect(within(counterGroup).getByRole("button", { name: "Quầy 1" })).toBeInTheDocument();
-    expect(within(tableGroup).getByRole("button", { name: "Bàn 1" })).toBeInTheDocument();
-    expect(counterGroup.compareDocumentPosition(tableGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      within(counterGroup).getByRole("button", { name: "Quầy 1" }),
+    ).toBeInTheDocument();
+    expect(
+      within(tableGroup).getByRole("button", { name: "Bàn 1" }),
+    ).toBeInTheDocument();
+    expect(
+      counterGroup.compareDocumentPosition(tableGroup) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByRole("button", { name: "Mang về" })).toBeInTheDocument();
   });
 
@@ -922,11 +1135,14 @@ describe("OrderScreen", () => {
     const { user } = setup({ online: false });
     await user.click(screen.getByRole("button", { name: "+1" }));
     expect(screen.getByRole("button", { name: "Xác nhận đơn" })).toBeDisabled();
-    expect(screen.getByText("Mất mạng – chưa gửi được đơn")).toBeInTheDocument();
+    expect(
+      screen.getByText("Mất mạng – chưa gửi được đơn"),
+    ).toBeInTheDocument();
   });
 
   it("gửi thất bại vì mạng thì giữ dữ liệu, bấm lại dùng cùng id", async () => {
-    const createOrder = vi.fn()
+    const createOrder = vi
+      .fn()
       .mockRejectedValueOnce(new NetworkError())
       .mockImplementationOnce(async (i: CreateOrderInput) => created(i));
     const { user } = setup({}, { createOrder });
@@ -937,25 +1153,46 @@ describe("OrderScreen", () => {
 
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
     await screen.findByRole("status");
-    expect(createOrder.mock.calls.map((c) => c[0].id)).toEqual(["order-1", "order-1"]);
+    expect(createOrder.mock.calls.map((c) => c[0].id)).toEqual([
+      "order-1",
+      "order-1",
+    ]);
   });
 
   it("server báo đơn đã được ghi từ lần gửi trước", async () => {
-    const { user } = setup({}, {
-      createOrder: vi.fn(async (i: CreateOrderInput) => created(i, { duplicate: true, total_amount: 75000 })),
-    });
+    const { user } = setup(
+      {},
+      {
+        createOrder: vi.fn(async (i: CreateOrderInput) =>
+          created(i, { duplicate: true, total_amount: 75000 }),
+        ),
+      },
+    );
     await user.click(screen.getByRole("button", { name: "+1" }));
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("đã được ghi từ lần gửi trước (3 cốc)");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "đã được ghi từ lần gửi trước (3 cốc)",
+    );
   });
 
   it("server tính giá khác thì báo cho nhân viên", async () => {
-    const { user } = setup({}, {
-      createOrder: vi.fn(async (i: CreateOrderInput) => created(i, { unit_price: 30000, total_amount: 30000, price_changed: true })),
-    });
+    const { user } = setup(
+      {},
+      {
+        createOrder: vi.fn(async (i: CreateOrderInput) =>
+          created(i, {
+            unit_price: 30000,
+            total_amount: 30000,
+            price_changed: true,
+          }),
+        ),
+      },
+    );
     await user.click(screen.getByRole("button", { name: "+1" }));
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Giá đã đổi: đơn được tính 30.000đ/cốc, thành tiền 30.000đ.");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Giá đã đổi: đơn được tính 30.000đ/cốc, thành tiền 30.000đ.",
+    );
   });
 
   it("Hoàn tác gọi cancelOrder", async () => {
@@ -963,12 +1200,17 @@ describe("OrderScreen", () => {
     await user.click(screen.getByRole("button", { name: "+1" }));
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
     await user.click(await screen.findByRole("button", { name: "Hoàn tác" }));
-    await waitFor(() => expect(api.cancelOrder).toHaveBeenCalledWith("order-1"));
+    await waitFor(() =>
+      expect(api.cancelOrder).toHaveBeenCalledWith("order-1"),
+    );
   });
 
   it("gửi thành công thì rung 30ms", async () => {
     const vibrate = vi.fn();
-    Object.defineProperty(navigator, "vibrate", { value: vibrate, configurable: true });
+    Object.defineProperty(navigator, "vibrate", {
+      value: vibrate,
+      configurable: true,
+    });
     const { user } = setup();
     await user.click(screen.getByRole("button", { name: "+1" }));
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
@@ -982,32 +1224,60 @@ describe("OrderScreen", () => {
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
     await screen.findByRole("button", { name: "Hoàn tác" });
     await user.click(screen.getByRole("button", { name: "+2" }));
-    expect(screen.queryByRole("button", { name: "Hoàn tác" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Hoàn tác" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Xác nhận đơn" })).toBeEnabled();
   });
 
   it("chỉ hiện nút Hủy cho đơn còn trong cửa sổ hủy 5 phút", async () => {
     // getMyOrderIds lọc theo đồng hồ thật, nên `at` dùng Date.now() chứ không dùng NOW
-    localStorage.setItem("pos.myOrders", JSON.stringify([
-      { id: "new", at: Date.now() }, { id: "old", at: Date.now() },
-    ]));
-    setup({}, {
-      listOrdersByIds: vi.fn(async () => [
-        { id: "new", quantity: 1, unit_price: 25000, total_amount: 25000, seat_name: null, status: "paid" as const,
-          created_at: new Date(NOW.getTime() - 60_000).toISOString() },
-        { id: "old", quantity: 2, unit_price: 25000, total_amount: 50000, seat_name: "Quầy 1", status: "paid" as const,
-          created_at: new Date(NOW.getTime() - 6 * 60_000).toISOString() },
+    localStorage.setItem(
+      "pos.myOrders",
+      JSON.stringify([
+        { id: "new", at: Date.now() },
+        { id: "old", at: Date.now() },
       ]),
-    });
+    );
+    setup(
+      {},
+      {
+        listOrdersByIds: vi.fn(async () => [
+          {
+            id: "new",
+            quantity: 1,
+            unit_price: 25000,
+            total_amount: 25000,
+            seat_name: null,
+            status: "paid" as const,
+            created_at: new Date(NOW.getTime() - 60_000).toISOString(),
+          },
+          {
+            id: "old",
+            quantity: 2,
+            unit_price: 25000,
+            total_amount: 50000,
+            seat_name: "Quầy 1",
+            status: "paid" as const,
+            created_at: new Date(NOW.getTime() - 6 * 60_000).toISOString(),
+          },
+        ]),
+      },
+    );
     const list = await screen.findByRole("region", { name: "Đơn vừa tạo" });
     await waitFor(() => expect(list.querySelectorAll("li")).toHaveLength(2));
     expect(screen.getAllByRole("button", { name: "Hủy" })).toHaveLength(1);
   });
 
   it("phiên bị thu hồi (FORBIDDEN) thì gọi onUnauthorized", async () => {
-    const { props } = setup({}, {
-      listActiveSeats: vi.fn(async () => { throw new RpcError("FORBIDDEN"); }),
-    });
+    const { props } = setup(
+      {},
+      {
+        listActiveSeats: vi.fn(async () => {
+          throw new RpcError("FORBIDDEN");
+        }),
+      },
+    );
     await waitFor(() => expect(props.onUnauthorized).toHaveBeenCalled());
   });
 });
@@ -1025,7 +1295,10 @@ Chạy `npm test`. Kết quả mong đợi: FAIL vì chưa có `OrderScreen`.
 "use client";
 import type { ActiveSeat } from "@/lib/api";
 
-export type SeatSelection = { kind: "none" } | { kind: "seat"; id: string; name: string } | { kind: "takeaway" };
+export type SeatSelection =
+  | { kind: "none" }
+  | { kind: "seat"; id: string; name: string }
+  | { kind: "takeaway" };
 
 const base = "min-h-14 rounded-xl px-2 text-lg font-semibold active:scale-95";
 const on = "bg-indigo-600 text-white";
@@ -1037,7 +1310,11 @@ const GROUPS = [
   { kind: "table", label: "Bàn" },
 ] as const;
 
-type Props = { seats: ActiveSeat[]; selection: SeatSelection; onChange: (s: SeatSelection) => void };
+type Props = {
+  seats: ActiveSeat[];
+  selection: SeatSelection;
+  onChange: (s: SeatSelection) => void;
+};
 
 export function SeatPicker({ seats, selection, onChange }: Props) {
   const takeaway = selection.kind === "takeaway";
@@ -1048,14 +1325,31 @@ export function SeatPicker({ seats, selection, onChange }: Props) {
         const items = seats.filter((s) => s.kind === g.kind);
         if (items.length === 0) return null;
         return (
-          <div key={g.kind} role="group" aria-label={g.label} className="space-y-1">
+          <div
+            key={g.kind}
+            role="group"
+            aria-label={g.label}
+            className="space-y-1"
+          >
             <p className="text-sm font-semibold text-slate-600">{g.label}</p>
             <div className="grid grid-cols-4 gap-2">
               {items.map((s) => {
-                const active = selection.kind === "seat" && selection.id === s.id;
+                const active =
+                  selection.kind === "seat" && selection.id === s.id;
                 return (
-                  <button key={s.id} type="button" aria-pressed={active} className={`${base} ${active ? on : off}`}
-                    onClick={() => onChange(active ? { kind: "none" } : { kind: "seat", id: s.id, name: s.name })}>
+                  <button
+                    key={s.id}
+                    type="button"
+                    aria-pressed={active}
+                    className={`${base} ${active ? on : off}`}
+                    onClick={() =>
+                      onChange(
+                        active
+                          ? { kind: "none" }
+                          : { kind: "seat", id: s.id, name: s.name },
+                      )
+                    }
+                  >
                     {s.name}
                   </button>
                 );
@@ -1065,8 +1359,14 @@ export function SeatPicker({ seats, selection, onChange }: Props) {
         );
       })}
       <div className="grid grid-cols-4 gap-2">
-        <button type="button" aria-pressed={takeaway} className={`${base} ${takeaway ? on : off}`}
-          onClick={() => onChange(takeaway ? { kind: "none" } : { kind: "takeaway" })}>
+        <button
+          type="button"
+          aria-pressed={takeaway}
+          className={`${base} ${takeaway ? on : off}`}
+          onClick={() =>
+            onChange(takeaway ? { kind: "none" } : { kind: "takeaway" })
+          }
+        >
           Mang về
         </button>
       </div>
@@ -1105,7 +1405,14 @@ type Props = {
   onFeedbackEnd: () => void;
 };
 
-export function ConfirmBar({ canSubmit, sending, feedback, onSubmit, onUndo, onFeedbackEnd }: Props) {
+export function ConfirmBar({
+  canSubmit,
+  sending,
+  feedback,
+  onSubmit,
+  onUndo,
+  onFeedbackEnd,
+}: Props) {
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(onFeedbackEnd, 5000);
@@ -1115,17 +1422,27 @@ export function ConfirmBar({ canSubmit, sending, feedback, onSubmit, onUndo, onF
   if (feedback) {
     return (
       <div className="flex min-h-16 items-center justify-between gap-3 rounded-2xl bg-slate-800 px-4 text-white">
-        <span role="status" className="font-semibold">{feedback.text}</span>
-        <button type="button" onClick={() => onUndo(feedback.orderId)}
-          className="min-h-12 rounded-lg border border-white/60 px-4 font-bold">
+        <span role="status" className="font-semibold">
+          {feedback.text}
+        </span>
+        <button
+          type="button"
+          onClick={() => onUndo(feedback.orderId)}
+          className="min-h-12 rounded-lg border border-white/60 px-4 font-bold"
+        >
           Hoàn tác
         </button>
       </div>
     );
   }
   return (
-    <button type="button" aria-label="Xác nhận đơn" disabled={!canSubmit || sending} onClick={onSubmit}
-      className="min-h-16 w-full rounded-2xl bg-emerald-600 text-2xl font-bold text-white active:scale-[0.98] disabled:bg-slate-300">
+    <button
+      type="button"
+      aria-label="Xác nhận đơn"
+      disabled={!canSubmit || sending}
+      onClick={onSubmit}
+      className="min-h-16 w-full rounded-2xl bg-emerald-600 text-2xl font-bold text-white active:scale-[0.98] disabled:bg-slate-300"
+    >
       {sending ? "Đang gửi…" : "Xác nhận đơn"}
     </button>
   );
@@ -1143,7 +1460,11 @@ import { formatVnTime } from "@/lib/time";
 
 const CANCEL_WINDOW_MS = 5 * 60 * 1000;
 
-type Props = { orders: MyOrder[]; now: () => Date; onCancel: (orderId: string) => void };
+type Props = {
+  orders: MyOrder[];
+  now: () => Date;
+  onCancel: (orderId: string) => void;
+};
 
 export function RecentOrders({ orders, now, onCancel }: Props) {
   // Render lại định kỳ để nút Hủy tự ẩn khi hết cửa sổ hủy
@@ -1162,15 +1483,26 @@ export function RecentOrders({ orders, now, onCancel }: Props) {
       <ul className="divide-y divide-slate-200">
         {orders.map((o) => {
           const cancelled = o.status === "cancelled";
-          const cancellable = !cancelled && nowMs - Date.parse(o.created_at) <= CANCEL_WINDOW_MS;
+          const cancellable =
+            !cancelled && nowMs - Date.parse(o.created_at) <= CANCEL_WINDOW_MS;
           return (
-            <li key={o.id} className="flex items-center justify-between gap-2 py-2">
+            <li
+              key={o.id}
+              className="flex items-center justify-between gap-2 py-2"
+            >
               <span className={cancelled ? "text-slate-400 line-through" : ""}>
-                {formatVnTime(o.created_at)} · {o.seat_name ?? "—"} · {o.quantity} cốc · {formatVnd(o.total_amount)}
+                {formatVnTime(o.created_at)} · {o.seat_name ?? "—"} ·{" "}
+                {o.quantity} cốc · {formatVnd(o.total_amount)}
               </span>
-              {cancelled && <span className="text-sm text-slate-500">Đã hủy</span>}
+              {cancelled && (
+                <span className="text-sm text-slate-500">Đã hủy</span>
+              )}
               {cancellable && (
-                <button type="button" onClick={() => onCancel(o.id)} className="min-h-10 rounded-lg bg-red-100 px-3 font-semibold text-red-700">
+                <button
+                  type="button"
+                  onClick={() => onCancel(o.id)}
+                  className="min-h-10 rounded-lg bg-red-100 px-3 font-semibold text-red-700"
+                >
                   Hủy
                 </button>
               )}
@@ -1190,7 +1522,13 @@ export function RecentOrders({ orders, now, onCancel }: Props) {
 ```tsx
 "use client";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { NetworkError, RpcError, type ActiveSeat, type MyOrder, type StaffApi } from "@/lib/api";
+import {
+  NetworkError,
+  RpcError,
+  type ActiveSeat,
+  type MyOrder,
+  type StaffApi,
+} from "@/lib/api";
 import { formatVnd } from "@/lib/money";
 import { getMyOrderIds, rememberOrder } from "@/lib/order/myOrders";
 import { quantityReducer, type QuantityAction } from "@/lib/order/quantity";
@@ -1219,8 +1557,12 @@ export type OrderScreenProps = {
 };
 
 export function OrderScreen({
-  api, price, online, onUnauthorized,
-  newId = () => crypto.randomUUID(), now = () => new Date(),
+  api,
+  price,
+  online,
+  onUnauthorized,
+  newId = () => crypto.randomUUID(),
+  now = () => new Date(),
 }: OrderScreenProps) {
   const [quantity, dispatch] = useReducer(quantityReducer, 0);
   const [selection, setSelection] = useState<SeatSelection>({ kind: "none" });
@@ -1232,12 +1574,18 @@ export function OrderScreen({
   // Giữ nguyên id cho tới khi gửi thành công, để bấm lại sau lỗi mạng không tạo đơn thứ hai
   const pendingId = useRef<string | null>(null);
 
-  const handleError = useCallback((e: unknown) => {
-    if (e instanceof RpcError && e.code === "FORBIDDEN") return onUnauthorized();
-    if (e instanceof RpcError) return setNotice(ERROR_TEXT[e.code] ?? `Lỗi: ${e.code}`);
-    if (e instanceof NetworkError) return setNotice("Chưa gửi được – kiểm tra mạng rồi bấm lại.");
-    setNotice("Có lỗi xảy ra.");
-  }, [onUnauthorized]);
+  const handleError = useCallback(
+    (e: unknown) => {
+      if (e instanceof RpcError && e.code === "FORBIDDEN")
+        return onUnauthorized();
+      if (e instanceof RpcError)
+        return setNotice(ERROR_TEXT[e.code] ?? `Lỗi: ${e.code}`);
+      if (e instanceof NetworkError)
+        return setNotice("Chưa gửi được – kiểm tra mạng rồi bấm lại.");
+      setNotice("Có lỗi xảy ra.");
+    },
+    [onUnauthorized],
+  );
 
   const refreshRecent = useCallback(async () => {
     try {
@@ -1248,15 +1596,26 @@ export function OrderScreen({
   }, [api, handleError]);
 
   useEffect(() => {
-    api.listActiveSeats().then(setSeats).catch((e) => { if (!(e instanceof NetworkError)) handleError(e); });
+    api
+      .listActiveSeats()
+      .then(setSeats)
+      .catch((e) => {
+        if (!(e instanceof NetworkError)) handleError(e);
+      });
     void refreshRecent();
   }, [api, handleError, refreshRecent]);
 
   const endFeedback = useCallback(() => setFeedback(null), []);
 
   // Chạm vào số lượng hay chỗ ngồi nghĩa là bắt đầu đơn mới: thanh trở lại thành Xác nhận
-  const changeQuantity = (a: QuantityAction) => { setFeedback(null); dispatch(a); };
-  const changeSeat = (s: SeatSelection) => { setFeedback(null); setSelection(s); };
+  const changeQuantity = (a: QuantityAction) => {
+    setFeedback(null);
+    dispatch(a);
+  };
+  const changeSeat = (s: SeatSelection) => {
+    setFeedback(null);
+    setSelection(s);
+  };
 
   async function handleSubmit() {
     if (quantity === 0 || price === null || !online || sending) return;
@@ -1276,12 +1635,19 @@ export function OrderScreen({
       dispatch({ type: "clear" });
       setSelection({ kind: "none" });
       const cups = Math.round(res.total_amount / res.unit_price);
-      setFeedback({ orderId: res.id, text: `Đã tạo đơn ${cups} cốc – ${formatVnd(res.total_amount)}` });
+      setFeedback({
+        orderId: res.id,
+        text: `Đã tạo đơn ${cups} cốc – ${formatVnd(res.total_amount)}`,
+      });
       buzz();
       if (res.duplicate) {
-        setNotice(`Đơn này đã được ghi từ lần gửi trước (${cups} cốc). Kiểm tra lại trước khi tạo đơn mới.`);
+        setNotice(
+          `Đơn này đã được ghi từ lần gửi trước (${cups} cốc). Kiểm tra lại trước khi tạo đơn mới.`,
+        );
       } else if (res.price_changed) {
-        setNotice(`Giá đã đổi: đơn được tính ${formatVnd(res.unit_price)}/cốc, thành tiền ${formatVnd(res.total_amount)}.`);
+        setNotice(
+          `Giá đã đổi: đơn được tính ${formatVnd(res.unit_price)}/cốc, thành tiền ${formatVnd(res.total_amount)}.`,
+        );
       }
       await refreshRecent();
     } catch (e) {
@@ -1304,13 +1670,24 @@ export function OrderScreen({
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 p-4">
       <PriceBanner price={price} offline={!online} />
-      {!online && <p className="rounded-lg bg-red-100 p-3 font-semibold text-red-800">Mất mạng – chưa gửi được đơn</p>}
-      <p data-testid="total" className="text-center text-4xl font-extrabold tabular-nums">
+      {!online && (
+        <p className="rounded-lg bg-red-100 p-3 font-semibold text-red-800">
+          Mất mạng – chưa gửi được đơn
+        </p>
+      )}
+      <p
+        data-testid="total"
+        className="text-center text-4xl font-extrabold tabular-nums"
+      >
         {price === null ? "—" : formatVnd(quantity * price)}
       </p>
       <SeatPicker seats={seats} selection={selection} onChange={changeSeat} />
       <QuantityPad quantity={quantity} dispatch={changeQuantity} />
-      {notice && <p role="alert" className="rounded-lg bg-amber-100 p-3 text-amber-900">{notice}</p>}
+      {notice && (
+        <p role="alert" className="rounded-lg bg-amber-100 p-3 text-amber-900">
+          {notice}
+        </p>
+      )}
       <div className="sticky bottom-0 bg-white pb-2 pt-1">
         <ConfirmBar
           canSubmit={quantity > 0 && price !== null && online}
@@ -1321,7 +1698,11 @@ export function OrderScreen({
           onFeedbackEnd={endFeedback}
         />
       </div>
-      <RecentOrders orders={recent} now={now} onCancel={(id) => void handleCancel(id)} />
+      <RecentOrders
+        orders={recent}
+        now={now}
+        onCancel={(id) => void handleCancel(id)}
+      />
     </main>
   );
 }
@@ -1351,10 +1732,19 @@ export default function OrderPage() {
   const online = useOnline();
   const api = useMemo(() => createStaffApi(getRpcClient), []);
   const onUnauthorized = useCallback(() => {
-    void getBrowserSupabase().auth.signOut({ scope: "local" }).finally(() => router.replace("/login"));
+    void getBrowserSupabase()
+      .auth.signOut({ scope: "local" })
+      .finally(() => router.replace("/login"));
   }, [router]);
 
-  return <OrderScreen api={api} price={price} online={online} onUnauthorized={onUnauthorized} />;
+  return (
+    <OrderScreen
+      api={api}
+      price={price}
+      online={online}
+      onUnauthorized={onUnauthorized}
+    />
+  );
 }
 ```
 
@@ -1369,6 +1759,7 @@ export default function Home() {
 ```
 
 `src/app/layout.tsx`:
+
 - Đổi `<html lang="en">` thành `<html lang="vi">`.
 - Đổi `metadata` thành `{ title: "Quán Nước", description: "Gọi món nhanh cho quán nước đồng giá" }`.
 

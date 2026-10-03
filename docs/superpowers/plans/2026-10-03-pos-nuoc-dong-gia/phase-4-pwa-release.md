@@ -9,6 +9,7 @@
 ### Task 14: Manifest, tài liệu và kiểm tra tay
 
 **Files:**
+
 - Create: `src/app/manifest.ts`, `src/app/icons/[size]/route.tsx`
 - Modify: `src/app/layout.tsx` (thêm `viewport` và `appleWebApp`)
 - Create: `docs/deploy.md`, `docs/manual-test.md`
@@ -16,6 +17,7 @@
 - Test: `tests/unit/manifest.test.ts`
 
 **Interfaces:**
+
 - Produces:
   - Manifest tại `/manifest.webmanifest`, với `start_url: "/order"` và `display: "standalone"`.
   - Icon PNG tại `/icons/192` và `/icons/512`.
@@ -66,7 +68,12 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: "/icons/192", sizes: "192x192", type: "image/png" },
       { src: "/icons/512", sizes: "512x512", type: "image/png" },
-      { src: "/icons/512", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      {
+        src: "/icons/512",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
     ],
   };
 }
@@ -83,17 +90,29 @@ export function generateStaticParams() {
   return SIZES.map((size) => ({ size }));
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ size: string }> }) {
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ size: string }> },
+) {
   const { size } = await params;
   if (!SIZES.includes(size)) return new Response("Not found", { status: 404 });
   const px = Number(size);
   return new ImageResponse(
-    (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "#059669", color: "#ffffff", fontSize: px * 0.55, fontWeight: 800 }}>
-        N
-      </div>
-    ),
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#059669",
+        color: "#ffffff",
+        fontSize: px * 0.55,
+        fontWeight: 800,
+      }}
+    >
+      N
+    </div>,
     { width: px, height: px },
   );
 }
@@ -111,7 +130,11 @@ export const metadata: Metadata = {
   icons: { apple: "/icons/192" },
 };
 
-export const viewport: Viewport = { themeColor: "#059669", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = {
+  themeColor: "#059669",
+  width: "device-width",
+  initialScale: 1,
+};
 ```
 
 - [ ] **Step 4: Chạy test và xác nhận nó đã qua**
@@ -120,7 +143,7 @@ Chạy `npm test`. Kết quả mong đợi: PASS.
 
 - [ ] **Step 5: Viết `docs/manual-test.md`**
 
-````markdown
+```markdown
 # Kiểm tra tay trước khi phát hành
 
 Chạy trên bản production ở local: `npx supabase db reset`, tạo tài khoản theo README, rồi `npm run build && npm run start`.
@@ -128,6 +151,7 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 Đánh dấu `[x]` cho từng bước đã đạt.
 
 ## Nhân viên
+
 - [ ] 1. Mở `/order` khi chưa đăng nhập: bị chuyển sang `/login`.
 - [ ] 2. Nhập PIN sai: thấy "Sai mã PIN.". Nhập PIN đúng: vào `/order`.
 - [ ] 3. Chỗ ngồi chia hai nhóm: "Ghế quầy" (Quầy 1–12) ở trên, "Bàn" (Bàn 1–3) ở dưới, cùng nút "Mang về". Bấm +5, +2, chọn "Quầy 1": thành tiền là 175.000đ. Bấm "Xác nhận đơn": thông báo "Đã tạo đơn 7 cốc – 175.000đ", màn hình reset, và đơn hiện trong "Đơn vừa tạo".
@@ -137,6 +161,7 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 - [ ] 7. Đơn tạo hơn 5 phút trước không còn nút "Hủy".
 
 ## Chủ quán
+
 - [ ] 8. Đăng nhập `/admin/login`. Trang tổng quan đúng doanh thu và số cốc hôm nay (không tính đơn hủy).
 - [ ] 9. Đổi đơn giá chung sang 30.000đ: tab `/order` đổi giá ngay và ô giá nhấp nháy. Lịch sử đổi giá có thêm một dòng.
 - [ ] 10. Thêm chỗ ngồi (chọn loại Bàn hoặc Ghế quầy), đổi tên, sắp xếp trong từng loại, ẩn chỗ ngồi: tải lại `/order` thì thấy thay đổi ở đúng nhóm. Đơn cũ vẫn giữ tên chỗ ngồi cũ.
@@ -145,8 +170,9 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 - [ ] 13. Tài khoản nhân viên mở `/admin/dashboard`: thấy "Tài khoản này không phải tài khoản chủ quán.".
 
 ## Cài ra màn hình chính
+
 - [ ] 14. Chrome Android: menu ⋮ → "Thêm vào màn hình chính" → mở app từ biểu tượng thì vào thẳng `/order`, toàn màn hình.
-````
+```
 
 - [ ] **Step 6: Viết `docs/deploy.md`**
 
@@ -154,6 +180,7 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 # Triển khai Quán Nước
 
 ## 1. Supabase (một lần)
+
 1. Tạo project tại https://supabase.com, chọn region **Singapore**.
 2. Ở máy dev, chạy:
    ```bash
@@ -165,34 +192,41 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 4. Dashboard → Project Settings → API: lấy `Project URL`, `anon key` và `service_role key`.
 
 ## 2. Tạo tài khoản
+
 Tạo file `.env.production.local` ở máy dev (file này **không commit**):
+
 ```text
 NEXT_PUBLIC_SUPABASE_URL=<Project URL>
 SUPABASE_SERVICE_ROLE_KEY=<service_role key>
 ```
+
 ```bash
 node --env-file=.env.production.local scripts/create-user.mjs owner <email chủ quán> <mật khẩu ≥ 8 ký tự>
 node --env-file=.env.production.local scripts/create-user.mjs staff nhanvien@quan.local <PIN quán 6 số>
 ```
 
 ## 3. Vercel
+
 1. Đẩy repo lên GitHub, rồi import vào https://vercel.com.
 2. Environment Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` và `NEXT_PUBLIC_STAFF_EMAIL=nhanvien@quan.local`.
    **Không** thêm service_role key.
 3. Deploy.
 
 ## 4. Cài đặt quán và kiểm tra lần đầu
+
 1. Mở `https://<tên>.vercel.app/admin`, đăng nhập chủ quán. Đặt **đơn giá chung**, **giờ mở cửa**, thêm **chỗ ngồi** (12 ghế quầy và 3 bàn, chọn đúng loại khi thêm).
 2. **Bắt buộc:** thử đổi PIN quán một lần trên production, rồi đăng nhập `/login` bằng PIN mới.
    Bước này xác nhận hàm `set_shop_pin` có quyền ghi vào `auth.users` trên Supabase cloud.
    Nếu thấy lỗi `permission denied`, báo lại trước khi cho nhân viên dùng.
 
 ## 5. Cài lên điện thoại nhân viên
+
 - **Android (Chrome):** mở link, chọn menu ⋮ → "Thêm vào màn hình chính".
 - **iPhone (Safari):** mở link, bấm nút Chia sẻ → "Thêm vào MH chính".
 - Mở app từ biểu tượng và nhập PIN quán.
 
 ## 6. Vận hành
+
 - **Nghỉ hơn 7 ngày:** Supabase gói miễn phí tạm dừng database. Vào Dashboard → bấm **Restore project**.
 - **Sao lưu:** đầu mỗi tháng, vào Lịch sử đơn hàng, lọc cả tháng trước, rồi bấm **Xuất CSV** và lưu file lại.
 - **Nhân viên nghỉ việc:** đổi PIN quán trong trang Cài đặt.
@@ -211,6 +245,7 @@ Web app gọi món cho quán nước đồng giá: màn hình order cho nhân vi
 - Triển khai: [docs/deploy.md](docs/deploy.md) · Kiểm tra tay: [docs/manual-test.md](docs/manual-test.md)
 
 ## Chạy local
+
 Cần Node 22 và Docker Desktop đang chạy.
 
 ```bash
@@ -225,6 +260,7 @@ npm run dev                   # http://localhost:3000 (PIN quán: 123456)
 ```
 
 ## Kiểm thử
+
 ```bash
 npm test                 # unit (Vitest)
 npx supabase test db     # database (pgTAP)
