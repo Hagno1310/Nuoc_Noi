@@ -53,7 +53,7 @@
 |---|---|---|
 | Điều hướng | Thanh dưới cố định: Tổng quan · Lịch sử · Cài đặt · Màn hình order. Logo nhỏ và Đăng xuất ở dải trên. | Cột trái hẹp: logo, bốn mục, Đăng xuất ở cuối. |
 | Tổng quan | Cung và doanh thu đêm nay chiếm màn hình đầu; tháng này ngay dưới, không cuộn mới thấy. | Cung ở giữa vùng nội dung, tháng này bên dưới. |
-| Lịch sử | Bộ lọc Từ ngày – Đến ngày và nút Xuất CSV ở trên; mỗi đơn là một hàng gọn (giờ, chỗ ngồi, số cốc, thành tiền), dòng tổng dính ở đáy trên thanh điều hướng. | Bảng đủ 6 cột, số canh phải, `tabular-nums`, dòng tổng ở cuối bảng. |
+| Lịch sử | Bộ lọc Từ ngày – Đến ngày và nút Xuất CSV ở trên; bảng đủ 6 cột theo SRS FR-07, cuộn ngang trên điện thoại; dòng tổng dính ở đáy trên thanh điều hướng. | Bảng đủ 6 cột, số canh phải, `tabular-nums`, dòng tổng ở cuối bảng. |
 | Cài đặt | Một cột các khối: Đơn giá chung (kèm lịch sử đổi giá), Giờ mở cửa, Chỗ ngồi, PIN quán. | Cùng thứ tự, có thể chia hai cột. |
 
 - Hủy đơn trong Lịch sử: bấm "Hủy" thì nút đổi thành "Chắc chắn hủy?" trong vài giây (theo `ui-craft.md`).

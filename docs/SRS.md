@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 1.6 |
+| **Phiên bản** | 1.7 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v1.7** | Quy định câu báo lỗi khi các trang chủ quán không tải được dữ liệu (R23). |
 | **Thay đổi ở v1.6** | Đơn giá chung tối đa 500.000đ, để thành tiền không vượt giới hạn số nguyên (R21). Một tài khoản chủ quán và cách hiện người đổi giá; xác nhận hai bước khi ẩn chỗ ngồi và đổi PIN quán (R22). |
 | **Thay đổi ở v1.5** | Quy định câu báo lỗi khi chủ quán đăng nhập, mật khẩu chủ quán tối thiểu 8 ký tự, và trường hợp không kiểm tra được quyền chủ quán (R20). |
 | **Thay đổi ở v1.4** | Hủy đơn thất bại vì lỗi mạng: giữ nút Hoàn tác và báo lỗi (R17). Quy định khi nào thông báo trên màn hình order được ẩn (R18). Có mạng trở lại thì tải lại chỗ ngồi và đơn vừa tạo (R19). |
@@ -151,6 +152,8 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 ### 3.3. Cài đặt (chủ quán), `/admin/settings`
 
+- Không tải được cài đặt thì báo "Không tải được cài đặt. Kiểm tra mạng rồi tải lại trang.".
+
 **FR-05: Đơn giá chung**
 - Có ô nhập số tiền (số nguyên VND, từ 1đ đến 500.000đ) và nút "Lưu thay đổi". Server từ chối giá ngoài khoảng này.
 - Giá mới áp dụng cho các đơn tạo sau thời điểm lưu. Đơn cũ giữ nguyên đơn giá của đơn.
@@ -182,6 +185,7 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 - Doanh thu và số cốc của ngày kinh doanh hiện tại.
 - Doanh thu của tháng này: các ngày kinh doanh thuộc tháng dương lịch hiện tại, tính đến hôm nay.
 - Tự tải lại mỗi 60 giây.
+- Không tải được số liệu thì báo "Không tải được số liệu. Kiểm tra mạng; trang sẽ tự thử lại sau 60 giây." và vẫn tự thử lại.
 
 **FR-07: Lịch sử đơn hàng, `/admin/history`**
 - **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số cốc, Đơn giá, Thành tiền, Trạng thái.
@@ -192,6 +196,10 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 - **Đơn đã hủy:** vẫn hiện, có gạch ngang, nhưng không tính vào dòng tổng.
 - **Dòng tổng** của khoảng đang lọc: số đơn, số cốc, doanh thu.
 - **Phân trang:** 50 đơn mỗi trang.
+- **Lỗi khi tải** (đều kèm "Kiểm tra mạng rồi tải lại trang."):
+  - Không xác định được ngày kinh doanh hiện tại: "Không tải được lịch sử đơn hàng.", không hiện bảng.
+  - Không tải được danh sách đơn: "Không tải được danh sách đơn.".
+  - Không tải được dòng tổng: ẩn dòng tổng, báo "Không tải được dòng tổng.".
 - **Hủy đơn:** chủ quán hủy được đơn ngay từ trang này, có bước xác nhận.
 
 **FR-07a: Xuất CSV**
@@ -283,3 +291,4 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R20 (v1.5) | Đăng nhập chủ quán | Ba câu báo lỗi giống cách FR-00a làm cho nhân viên. Mật khẩu chủ quán ≥ 8 ký tự. Lỗi khi kiểm tra quyền thì báo riêng, không báo nhầm là không phải chủ quán. Chỉ chủ quán mới bị chuyển khỏi `/admin/login`. |
 | R21 (v1.6) | Đơn giá chung tối đa | 500.000đ. Giá thật khoảng 200.000đ/cốc; giới hạn chặn gõ thừa số 0 và giữ thành tiền (tối đa 500 cốc) trong giới hạn số nguyên. Server kiểm tra. |
 | R22 (v1.6) | Lịch sử đổi giá, xác nhận | Một tài khoản chủ quán; người đổi hiện email, "Chủ quán khác" hoặc "Khởi tạo". Ẩn chỗ ngồi và đổi PIN quán cần xác nhận hai bước (theo `ui-craft.md`). |
+| R23 (v1.7) | Lỗi tải trang chủ quán | Mỗi trang (Tổng quan, Lịch sử đơn hàng, Cài đặt) có câu báo lỗi riêng nêu vấn đề và cách khắc phục; Tổng quan tự thử lại sau 60 giây. |
