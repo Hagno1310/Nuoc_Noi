@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 1.3 |
+| **Phiên bản** | 1.4 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v1.4** | Hủy đơn thất bại vì lỗi mạng: giữ nút Hoàn tác và báo lỗi (R17). Quy định khi nào thông báo trên màn hình order được ẩn (R18). Có mạng trở lại thì tải lại chỗ ngồi và đơn vừa tạo (R19). |
 | **Thay đổi ở v1.3** | Thay "Bàn" bằng khái niệm chung **Chỗ ngồi**, gồm hai loại: **Bàn** và **Ghế quầy** (R14). Giờ mở cửa mặc định là 20, vì quán mở từ 20:00 đến 02:00 (R15). |
 | **Thay đổi ở v1.2** | Rút gọn phạm vi: bỏ chế độ offline và service worker; nhân viên dùng một tài khoản chung với **PIN quán** là mật khẩu; bỏ quản lý từng thiết bị; nhân viên được hủy bất kỳ đơn nào trong **cửa sổ hủy**; bỏ biểu đồ; bỏ E2E. Xem [Phụ lục A](#phụ-lục-a--nhật-ký-quyết-định). |
 
@@ -111,6 +112,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 **FR-04: Gửi đơn hàng**
 - Nút "Xác nhận đơn" bị khóa khi số lượng bằng 0, khi chưa tải được giá, hoặc khi mất mạng.
 - Khi mất mạng, màn hình hiện thông báo "Mất mạng – chưa gửi được đơn".
+- Có mạng trở lại thì màn hình tải lại danh sách chỗ ngồi và đơn vừa tạo.
 - **Server quyết định đơn giá của đơn**:
   - Client gửi lên `id` (UUID do client sinh), số lượng, chỗ ngồi hoặc mang về, và giá đang hiển thị.
   - Server dùng **đơn giá chung hiện hành**. Nếu giá này khác giá client gửi, server báo lại để màn hình hiện "Giá đã đổi: đơn được tính X đ/cốc, thành tiền Y đ.".
@@ -122,6 +124,9 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - **Gửi thất bại vì lỗi mạng:**
   - Giữ nguyên số lượng và chỗ ngồi đã chọn, rồi báo lỗi.
   - Lần bấm lại dùng **cùng `id`** đơn.
+- **Thông báo trên màn hình order:** thông báo lỗi và thông báo thông tin hiện ở hai ô riêng.
+  - Thông báo lỗi ẩn khi nhân viên bắt đầu đơn mới (đổi số lượng hoặc chỗ ngồi).
+  - Thông báo "Giá đã đổi" và thông báo đơn đã được ghi từ lần gửi trước giữ nguyên đến lần gửi đơn thành công tiếp theo hoặc lần hủy đơn thành công tiếp theo. Gửi hoặc hủy thất bại không làm mất chúng.
 
 **FR-04b: Đơn vừa tạo và hủy đơn**
 - Màn hình order liệt kê các đơn hàng **do chính điện thoại này tạo** trong ngày kinh doanh hiện tại. Mỗi điện thoại tự nhớ danh sách đơn của mình.
@@ -130,6 +135,8 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
   - Nhân viên được hủy **bất kỳ đơn nào** còn trong cửa sổ hủy.
   - Chủ quán được hủy bất kỳ đơn nào, vào bất kỳ lúc nào.
   - Hủy đơn đã hủy thì không báo lỗi.
+- **Đang hủy:** bấm "Hoàn tác" hoặc "Hủy" thì nút vừa bấm hiện "Đang hủy…". Mọi nút hủy trên màn hình bị khóa cho tới khi server trả lời; mỗi lần chỉ hủy một đơn.
+- **Hủy thất bại vì lỗi mạng:** giữ nút "Hoàn tác" (vẫn ẩn sau 5 giây) và hiện "Chưa hủy được – kiểm tra mạng rồi thử lại.". Hủy thành công thì thông báo này biến mất; các lỗi khác (ví dụ lỗi gửi đơn) vẫn giữ.
 - Hủy là đánh dấu **đã hủy**, ghi lại thời điểm và người hủy. Đơn không bao giờ bị xóa.
 
 ### 3.3. Cài đặt (chủ quán), `/admin/settings`
@@ -258,3 +265,6 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R16 (v1.3) | Phản hồi khi gửi đơn | Rung ngắn khi gửi thành công. Thông báo "Đã tạo đơn" kèm nút Hoàn tác hiện ngay trên thanh Xác nhận (theo `docs/design/order-brief.md`). |
 | R15 (v1.3) | Giờ mở cửa | Mặc định là 20. Ca 20:00–02:00 thuộc một ngày kinh doanh, mang ngày của buổi tối. |
 | R13 (v1.2) | Thu hồi phiên | Có hiệu lực ngay: mỗi lần kiểm tra quyền đều xác nhận phiên đăng nhập còn tồn tại |
+| R17 (v1.4) | Hủy thất bại vì lỗi mạng | Mọi nút hủy khóa, nút vừa bấm hiện "Đang hủy…" khi đang chờ server. Lỗi mạng thì giữ nút Hoàn tác và báo "Chưa hủy được – kiểm tra mạng rồi thử lại." |
+| R18 (v1.4) | Ẩn thông báo trên màn hình order | Thông báo lỗi ẩn khi bắt đầu đơn mới. "Giá đã đổi" và đơn trùng ở ô riêng, giữ đến lần gửi thành công hoặc hủy thành công tiếp theo. Trong các thông báo lỗi, hủy thành công chỉ xóa "Chưa hủy được". |
+| R19 (v1.4) | Có mạng trở lại | Tải lại chỗ ngồi và đơn vừa tạo. Lúc mất mạng thì không tải. |

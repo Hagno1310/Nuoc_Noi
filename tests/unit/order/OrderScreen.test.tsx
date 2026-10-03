@@ -147,9 +147,9 @@ describe("OrderScreen", () => {
     );
     await user.click(screen.getByRole("button", { name: "+1" }));
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "đã được ghi từ lần gửi trước (3 cốc)",
-    );
+    expect(
+      await screen.findByText(/đã được ghi từ lần gửi trước \(3 cốc\)/),
+    ).toHaveAttribute("role", "status");
   });
 
   it("server tính giá khác thì báo cho nhân viên", async () => {
@@ -163,13 +163,88 @@ describe("OrderScreen", () => {
             price_changed: true,
           }),
         ),
+        cancelOrder: vi.fn().mockRejectedValue(new NetworkError()),
       },
     );
     await user.click(screen.getByRole("button", { name: "+1" }));
     await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Giá đã đổi: đơn được tính 30.000đ/cốc, thành tiền 30.000đ.",
+    const priceText =
+      "Giá đã đổi: đơn được tính 30.000đ/cốc, thành tiền 30.000đ.";
+    expect(await screen.findByText(priceText)).toHaveAttribute(
+      "role",
+      "status",
     );
+    // Hủy thất bại và bắt đầu đơn mới đều không làm mất thông báo giá (SRS FR-04)
+    await user.click(screen.getByRole("button", { name: "Hoàn tác" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Chưa hủy được");
+    await user.click(screen.getByRole("button", { name: "+1" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByText(priceText)).toBeInTheDocument();
+  });
+
+  it("gửi thất bại giữ thông báo giá; hủy thành công chỉ xóa lỗi hủy", async () => {
+    const createOrder = vi
+      .fn()
+      .mockImplementationOnce(async (i: CreateOrderInput) =>
+        created(i, {
+          unit_price: 30000,
+          total_amount: 30000,
+          price_changed: true,
+        }),
+      )
+      .mockRejectedValueOnce(new NetworkError());
+    const listOrdersByIds = vi.fn(async () => [
+      {
+        id: "order-1",
+        quantity: 1,
+        unit_price: 30000,
+        total_amount: 30000,
+        seat_name: null,
+        status: "paid" as const,
+        created_at: NOW.toISOString(),
+      },
+    ]);
+    const { user } = setup({}, { createOrder, listOrdersByIds });
+    await user.click(screen.getByRole("button", { name: "+1" }));
+    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
+    await screen.findByText(/Giá đã đổi/);
+    await user.click(screen.getByRole("button", { name: "+1" }));
+    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Chưa gửi được");
+    expect(screen.getByText(/Giá đã đổi/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Hủy" }));
+    await waitFor(() =>
+      expect(screen.queryByText(/Giá đã đổi/)).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent("Chưa gửi được");
+  });
+
+  it("đang chờ server hủy thì khóa nút và hiện Đang hủy…", async () => {
+    let finish!: () => void;
+    const cancelOrder = vi.fn(() => new Promise<void>((r) => (finish = r)));
+    const listOrdersByIds = vi.fn(async () => [
+      {
+        id: "order-1",
+        quantity: 1,
+        unit_price: 25000,
+        total_amount: 25000,
+        seat_name: null,
+        status: "paid" as const,
+        created_at: NOW.toISOString(),
+      },
+    ]);
+    const { user } = setup({}, { cancelOrder, listOrdersByIds });
+    await user.click(screen.getByRole("button", { name: "+1" }));
+    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
+    await screen.findByRole("button", { name: "Hủy" });
+    await user.click(screen.getByRole("button", { name: "Hoàn tác" }));
+    // Chỉ nút vừa bấm hiện "Đang hủy…"; nút Hủy cùng đơn trong danh sách chỉ bị khóa
+    expect(screen.getByRole("button", { name: "Đang hủy…" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Hủy" })).toBeDisabled();
+    finish();
+    expect(
+      await screen.findByRole("button", { name: "Xác nhận đơn" }),
+    ).toBeInTheDocument();
   });
 
   it("Hoàn tác gọi cancelOrder", async () => {
@@ -256,5 +331,40 @@ describe("OrderScreen", () => {
       },
     );
     await waitFor(() => expect(props.onUnauthorized).toHaveBeenCalled());
+  });
+
+  it("Hoàn tác thất bại vì mạng thì giữ nút Hoàn tác và báo chưa hủy được", async () => {
+    const cancelOrder = vi
+      .fn()
+      .mockRejectedValueOnce(new NetworkError())
+      .mockResolvedValueOnce(undefined);
+    const { user } = setup({}, { cancelOrder });
+    await user.click(screen.getByRole("button", { name: "+1" }));
+    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
+    await user.click(await screen.findByRole("button", { name: "Hoàn tác" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Chưa hủy được");
+    expect(
+      screen.getByRole("button", { name: "Hoàn tác" }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Hoàn tác" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole("button", { name: "Xác nhận đơn" }),
+    ).toBeInTheDocument();
+  });
+
+  it("tải lại chỗ ngồi khi có mạng trở lại", async () => {
+    const listActiveSeats = vi.fn(async () => [
+      { id: "s1", name: "Quầy 1", kind: "counter" as const },
+    ]);
+    const { props, rerender } = setup({ online: false }, { listActiveSeats });
+    expect(listActiveSeats).not.toHaveBeenCalled();
+    rerender(<OrderScreen {...props} online={true} />);
+    expect(
+      await screen.findByRole("button", { name: "Quầy 1" }),
+    ).toBeInTheDocument();
+    expect(listActiveSeats).toHaveBeenCalled();
   });
 });

@@ -7,6 +7,8 @@ type Props = {
   canSubmit: boolean;
   sending: boolean;
   feedback: Feedback | null;
+  cancelBusy: boolean;
+  undoing: boolean;
   onSubmit: () => void;
   onUndo: (orderId: string) => void;
   onFeedbackEnd: () => void;
@@ -16,6 +18,8 @@ export function ConfirmBar({
   canSubmit,
   sending,
   feedback,
+  cancelBusy,
+  undoing,
   onSubmit,
   onUndo,
   onFeedbackEnd,
@@ -34,10 +38,11 @@ export function ConfirmBar({
         </span>
         <button
           type="button"
+          disabled={cancelBusy}
           onClick={() => onUndo(feedback.orderId)}
-          className="min-h-12 rounded-lg border border-white/60 px-4 font-bold"
+          className="min-h-12 rounded-lg border border-white/60 px-4 font-bold disabled:opacity-60"
         >
-          Hoàn tác
+          {undoing ? "Đang hủy…" : "Hoàn tác"}
         </button>
       </div>
     );

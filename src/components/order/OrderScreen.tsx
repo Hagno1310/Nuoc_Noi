@@ -25,6 +25,8 @@ const ERROR_TEXT: Record<string, string> = {
   CANCEL_WINDOW_EXPIRED: "Đã quá 5 phút, nhờ chủ quán hủy đơn.",
 };
 
+const CANCEL_NETWORK_ERROR = "Chưa hủy được – kiểm tra mạng rồi thử lại.";
+
 export type OrderScreenProps = {
   api: StaffApi;
   price: number | null;
@@ -47,8 +49,15 @@ export function OrderScreen({
   const [seats, setSeats] = useState<ActiveSeat[]>([]);
   const [recent, setRecent] = useState<MyOrder[]>([]);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  // Lỗi ẩn khi bắt đầu đơn mới; info ("Giá đã đổi", đơn trùng) giữ tới lần gửi/hủy thành công (SRS FR-04)
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  // Nhớ cả nút đã bấm: chỉ nút đó hiện "Đang hủy…", mọi nút hủy khác bị khóa (SRS FR-04b)
+  const [cancelling, setCancelling] = useState<{
+    id: string;
+    from: "undo" | "list";
+  } | null>(null);
   // Giữ nguyên id cho tới khi gửi thành công, để bấm lại sau lỗi mạng không tạo đơn thứ hai
   const pendingId = useRef<string | null>(null);
 
@@ -57,10 +66,10 @@ export function OrderScreen({
       if (e instanceof RpcError && e.code === "FORBIDDEN")
         return onUnauthorized();
       if (e instanceof RpcError)
-        return setNotice(ERROR_TEXT[e.code] ?? `Lỗi: ${e.code}`);
+        return setError(ERROR_TEXT[e.code] ?? `Lỗi: ${e.code}`);
       if (e instanceof NetworkError)
-        return setNotice("Chưa gửi được – kiểm tra mạng rồi bấm lại.");
-      setNotice("Có lỗi xảy ra.");
+        return setError("Chưa gửi được – kiểm tra mạng rồi bấm lại.");
+      setError("Có lỗi xảy ra.");
     },
     [onUnauthorized],
   );
@@ -74,6 +83,7 @@ export function OrderScreen({
   }, [api, handleError]);
 
   useEffect(() => {
+    if (!online) return;
     api
       .listActiveSeats()
       .then(setSeats)
@@ -81,17 +91,19 @@ export function OrderScreen({
         if (!(e instanceof NetworkError)) handleError(e);
       });
     void refreshRecent();
-  }, [api, handleError, refreshRecent]);
+  }, [api, online, handleError, refreshRecent]);
 
   const endFeedback = useCallback(() => setFeedback(null), []);
 
   // Chạm vào số lượng hay chỗ ngồi nghĩa là bắt đầu đơn mới: thanh trở lại thành Xác nhận
   const changeQuantity = (a: QuantityAction) => {
     setFeedback(null);
+    setError(null);
     dispatch(a);
   };
   const changeSeat = (s: SeatSelection) => {
     setFeedback(null);
+    setError(null);
     setSelection(s);
   };
 
@@ -99,7 +111,7 @@ export function OrderScreen({
     if (quantity === 0 || price === null || !online || sending) return;
     const id = (pendingId.current ??= newId());
     setSending(true);
-    setNotice(null);
+    setError(null);
     try {
       const res = await api.createOrder({
         id,
@@ -109,6 +121,7 @@ export function OrderScreen({
         clientPrice: price,
       });
       pendingId.current = null;
+      setInfo(null);
       rememberOrder(res.id);
       dispatch({ type: "clear" });
       setSelection({ kind: "none" });
@@ -119,11 +132,11 @@ export function OrderScreen({
       });
       buzz();
       if (res.duplicate) {
-        setNotice(
+        setInfo(
           `Đơn này đã được ghi từ lần gửi trước (${cups} cốc). Kiểm tra lại trước khi tạo đơn mới.`,
         );
       } else if (res.price_changed) {
-        setNotice(
+        setInfo(
           `Giá đã đổi: đơn được tính ${formatVnd(res.unit_price)}/cốc, thành tiền ${formatVnd(res.total_amount)}.`,
         );
       }
@@ -135,13 +148,20 @@ export function OrderScreen({
     }
   }
 
-  async function handleCancel(orderId: string) {
-    setFeedback((f) => (f?.orderId === orderId ? null : f));
+  async function handleCancel(orderId: string, from: "undo" | "list") {
+    if (cancelling) return;
+    setCancelling({ id: orderId, from });
     try {
       await api.cancelOrder(orderId);
+      setError((e) => (e === CANCEL_NETWORK_ERROR ? null : e));
+      setInfo(null);
+      setFeedback((f) => (f?.orderId === orderId ? null : f));
       await refreshRecent();
     } catch (e) {
-      handleError(e);
+      if (e instanceof NetworkError) setError(CANCEL_NETWORK_ERROR);
+      else handleError(e);
+    } finally {
+      setCancelling(null);
     }
   }
 
@@ -161,9 +181,14 @@ export function OrderScreen({
       </p>
       <SeatPicker seats={seats} selection={selection} onChange={changeSeat} />
       <QuantityPad quantity={quantity} dispatch={changeQuantity} />
-      {notice && (
+      {info && (
+        <p role="status" className="rounded-lg bg-amber-100 p-3 text-amber-900">
+          {info}
+        </p>
+      )}
+      {error && (
         <p role="alert" className="rounded-lg bg-amber-100 p-3 text-amber-900">
-          {notice}
+          {error}
         </p>
       )}
       <div className="sticky bottom-0 bg-white pb-2 pt-1">
@@ -171,15 +196,21 @@ export function OrderScreen({
           canSubmit={quantity > 0 && price !== null && online}
           sending={sending}
           feedback={feedback}
+          cancelBusy={cancelling !== null}
+          undoing={
+            cancelling?.from === "undo" && cancelling.id === feedback?.orderId
+          }
           onSubmit={() => void handleSubmit()}
-          onUndo={(id) => void handleCancel(id)}
+          onUndo={(id) => void handleCancel(id, "undo")}
           onFeedbackEnd={endFeedback}
         />
       </div>
       <RecentOrders
         orders={recent}
         now={now}
-        onCancel={(id) => void handleCancel(id)}
+        cancelBusy={cancelling !== null}
+        cancellingId={cancelling?.from === "list" ? cancelling.id : null}
+        onCancel={(id) => void handleCancel(id, "list")}
       />
     </main>
   );

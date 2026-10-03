@@ -9,10 +9,18 @@ const CANCEL_WINDOW_MS = 5 * 60 * 1000;
 type Props = {
   orders: MyOrder[];
   now: () => Date;
+  cancelBusy: boolean;
+  cancellingId: string | null;
   onCancel: (orderId: string) => void;
 };
 
-export function RecentOrders({ orders, now, onCancel }: Props) {
+export function RecentOrders({
+  orders,
+  now,
+  cancelBusy,
+  cancellingId,
+  onCancel,
+}: Props) {
   // Render lại định kỳ để nút Hủy tự ẩn khi hết cửa sổ hủy
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -46,10 +54,11 @@ export function RecentOrders({ orders, now, onCancel }: Props) {
               {cancellable && (
                 <button
                   type="button"
+                  disabled={cancelBusy}
                   onClick={() => onCancel(o.id)}
-                  className="min-h-12 rounded-lg bg-red-100 px-3 font-semibold text-red-700"
+                  className="min-h-12 rounded-lg bg-red-100 px-3 font-semibold text-red-700 disabled:opacity-60"
                 >
-                  Hủy
+                  {cancellingId === o.id ? "Đang hủy…" : "Hủy"}
                 </button>
               )}
             </li>
