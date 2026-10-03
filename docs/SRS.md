@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 1.5 |
+| **Phiên bản** | 1.6 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v1.6** | Đơn giá chung tối đa 500.000đ, để thành tiền không vượt giới hạn số nguyên (R21). Một tài khoản chủ quán và cách hiện người đổi giá; xác nhận hai bước khi ẩn chỗ ngồi và đổi PIN quán (R22). |
 | **Thay đổi ở v1.5** | Quy định câu báo lỗi khi chủ quán đăng nhập, mật khẩu chủ quán tối thiểu 8 ký tự, và trường hợp không kiểm tra được quyền chủ quán (R20). |
 | **Thay đổi ở v1.4** | Hủy đơn thất bại vì lỗi mạng: giữ nút Hoàn tác và báo lỗi (R17). Quy định khi nào thông báo trên màn hình order được ẩn (R18). Có mạng trở lại thì tải lại chỗ ngồi và đơn vừa tạo (R19). |
 | **Thay đổi ở v1.3** | Thay "Bàn" bằng khái niệm chung **Chỗ ngồi**, gồm hai loại: **Bàn** và **Ghế quầy** (R14). Giờ mở cửa mặc định là 20, vì quán mở từ 20:00 đến 02:00 (R15). |
@@ -151,11 +152,12 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 ### 3.3. Cài đặt (chủ quán), `/admin/settings`
 
 **FR-05: Đơn giá chung**
-- Có ô nhập số tiền (số nguyên VND, lớn hơn 0) và nút "Lưu thay đổi".
+- Có ô nhập số tiền (số nguyên VND, từ 1đ đến 500.000đ) và nút "Lưu thay đổi". Server từ chối giá ngoài khoảng này.
 - Giá mới áp dụng cho các đơn tạo sau thời điểm lưu. Đơn cũ giữ nguyên đơn giá của đơn.
 
 **FR-05a: Lịch sử đổi giá**
 - Hiển thị 20 lần đổi giá gần nhất, gồm mức giá, thời điểm và người đổi.
+- Quán có **một** tài khoản chủ quán. Người đổi hiện bằng email của chủ quán đang đăng nhập; lần đổi của tài khoản chủ quán khác (nếu có) hiện "Chủ quán khác"; giá ban đầu lúc khởi tạo hệ thống hiện "Khởi tạo".
 
 **FR-05b: Giờ mở cửa**
 - Chọn từ 0 đến 23 giờ, mặc định 20:00 (quán mở từ 20:00 đến 02:00 sáng hôm sau).
@@ -164,11 +166,12 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 **FR-05c: Chỗ ngồi**
 - Chủ quán thêm chỗ ngồi (chọn loại **Bàn** hoặc **Ghế quầy**), đổi tên, sắp xếp thứ tự trong từng loại, ẩn và hiện lại chỗ ngồi đã ẩn.
+- Ẩn chỗ ngồi cần xác nhận hai bước: bấm "Ẩn" thì nút đổi thành "Chắc chắn ẩn?" trong vài giây.
 - Chỗ ngồi không bao giờ bị xóa hẳn.
 - Mỗi đơn lưu **tên chỗ ngồi tại thời điểm tạo**, nên đổi tên chỗ ngồi không làm thay đổi đơn cũ.
 
 **FR-05d: PIN quán**
-- Chủ quán nhập PIN mới (6 số, nhập 2 lần) để đổi.
+- Chủ quán nhập PIN mới (6 số, nhập 2 lần) để đổi. Cần xác nhận hai bước: bấm "Đổi PIN quán" thì nút đổi thành "Chắc chắn đổi PIN?" trong vài giây.
 - Đổi PIN thì **mọi điện thoại của nhân viên bị đăng xuất ngay**: lần thao tác tiếp theo bị từ chối, và màn hình quay về `/login`.
 
 ### 3.4. Báo cáo (chủ quán)
@@ -278,3 +281,5 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R18 (v1.4) | Ẩn thông báo trên màn hình order | Thông báo lỗi ẩn khi bắt đầu đơn mới. "Giá đã đổi" và đơn trùng ở ô riêng, giữ đến lần gửi thành công hoặc hủy thành công tiếp theo. Trong các thông báo lỗi, hủy thành công chỉ xóa "Chưa hủy được". |
 | R19 (v1.4) | Có mạng trở lại | Tải lại chỗ ngồi và đơn vừa tạo. Lúc mất mạng thì không tải. |
 | R20 (v1.5) | Đăng nhập chủ quán | Ba câu báo lỗi giống cách FR-00a làm cho nhân viên. Mật khẩu chủ quán ≥ 8 ký tự. Lỗi khi kiểm tra quyền thì báo riêng, không báo nhầm là không phải chủ quán. Chỉ chủ quán mới bị chuyển khỏi `/admin/login`. |
+| R21 (v1.6) | Đơn giá chung tối đa | 500.000đ. Giá thật khoảng 200.000đ/cốc; giới hạn chặn gõ thừa số 0 và giữ thành tiền (tối đa 500 cốc) trong giới hạn số nguyên. Server kiểm tra. |
+| R22 (v1.6) | Lịch sử đổi giá, xác nhận | Một tài khoản chủ quán; người đổi hiện email, "Chủ quán khác" hoặc "Khởi tạo". Ẩn chỗ ngồi và đổi PIN quán cần xác nhận hai bước (theo `ui-craft.md`). |
