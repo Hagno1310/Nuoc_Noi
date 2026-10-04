@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(42);
+select plan(45);
 
 insert into auth.users (id, email, aud, role) values
   ('00000000-0000-0000-0000-0000000000b1', 'staff@test.vn', 'authenticated', 'authenticated');
@@ -145,6 +145,20 @@ select throws_ok($$select public.create_order(gen_random_uuid(), null, true, 0,
     {"menu_item_id":"00000000-0000-0000-0000-0000000000e5","quantity":99,"client_price":5000000},
     {"menu_item_id":"00000000-0000-0000-0000-0000000000e6","quantity":99,"client_price":5000000}]')$$,
   'P0001', 'TOTAL_TOO_LARGE', 'tạm tính trên 1.000.000.000đ bị từ chối');
+
+-- Review đợt 1: một dòng thiếu số lượng trong đơn nhiều dòng không được lộ lỗi Postgres thô
+select throws_ok($$select public.create_order(gen_random_uuid(), null, true, 0,
+  '[{"menu_item_id":"00000000-0000-0000-0000-0000000000e1","quantity":1,"client_price":190000},
+    {"menu_item_id":"00000000-0000-0000-0000-0000000000e2","client_price":100000}]')$$,
+  'P0001', 'INVALID_QUANTITY', 'một dòng thiếu số lượng trong đơn nhiều dòng → INVALID_QUANTITY');
+-- Review đợt 1: đơn đã ghi nhưng mất phản hồi, rồi bị hủy, máy gửi lại cùng id
+select public.cancel_order('00000000-0000-0000-0000-000000000002');
+select is((select r ->> 'status' from (select public.create_order(
+  '00000000-0000-0000-0000-000000000002', null, true, 15,
+  '[{"menu_item_id":"00000000-0000-0000-0000-0000000000e1","quantity":1,"client_price":190000}]') as r) x),
+  'cancelled', 'gửi lại đơn đã bị hủy trả về trạng thái, để màn order không báo nhầm "Đã tạo đơn"');
+select ok(not has_function_privilege('anon', 'public.discount_amount(bigint, integer)', 'execute'),
+  'anon không gọi được discount_amount');
 
 select ok(exists (select 1 from public.list_active_seats() where name = 'Quầy 9' and kind = 'counter'), 'có ghế quầy đang dùng, kèm loại');
 select ok(not exists (select 1 from public.list_active_seats() where name = 'Ghế cũ'), 'không trả về chỗ ngồi đã ẩn');

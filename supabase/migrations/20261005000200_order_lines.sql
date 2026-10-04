@@ -193,7 +193,7 @@ begin
 end
 $$;
 
--- SRS FR-06, FR-07: doanh thu sau giảm, số món, tổng tiền đã giảm. owner_stats dùng lại hàm này.
+-- SRS FR-06, FR-07: doanh thu sau giảm, số món, tổng số tiền đã giảm. owner_stats dùng lại hàm này.
 create or replace function public.history_totals(p_from date, p_to date)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare
