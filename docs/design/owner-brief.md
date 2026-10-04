@@ -3,6 +3,7 @@
 > Chốt qua `/impeccable shape` ngày 2026-10-04. Thế giới hình ảnh: **Phơi sáng dài**, kế thừa từ `docs/design/order-brief.md`. Bố cục: **Đồng hồ ca** (seed `a922e4bb`, dealt lead, code-led).
 > Khi bắt đầu dựng (Task 11–13), ghi phần "Direction contract" vào surface brief theo mục 5 của `new-work` trong impeccable, dựa trên file này.
 > Hành vi lấy theo `docs/SRS.md` (FR-00b, FR-05 đến FR-07a). Hoàn cảnh sử dụng lấy theo `PRODUCT.md`.
+> **Cập nhật 2026-10-05:** thế giới thiết kế đổi sang **Bao diêm quán bar** (seed `73f06246`). Hợp đồng thiết kế nằm trong surface brief `src/app/admin/(protected)/dashboard/page.tsx`; các mục về hình thức bên dưới đã bị thay thế, phần hành vi vẫn giữ.
 
 ## 1. Người dùng và nhiệm vụ (Operate)
 
