@@ -14,7 +14,7 @@ export default function OwnerLoginPage() {
         width={97}
         height={90}
         priority
-        className="halo"
+        className="h-auto w-[97px]"
       />
       <LoginForm
         onLogin={async (email, password) => {

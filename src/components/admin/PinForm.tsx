@@ -38,7 +38,7 @@ export function PinForm({
     set(v);
   };
   const field =
-    "mt-1 min-h-12 w-40 rounded-lg border border-edge bg-transparent p-3 text-xl tracking-widest";
+    "mt-1 min-h-12 w-40 rounded-lg border border-edge bg-transparent p-3 text-xlst";
   return (
     <form onSubmit={submit} className="space-y-2">
       <p className="text-sm text-warn">

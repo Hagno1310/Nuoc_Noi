@@ -1,4 +1,5 @@
 import { BusinessHourForm } from "@/components/admin/BusinessHourForm";
+import { SectionTitle } from "@/components/admin/SectionTitle";
 import { SeatsManager, type OwnerSeat } from "@/components/admin/SeatsManager";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { PinSection } from "./SettingsForms";
@@ -29,7 +30,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="font-display text-3xl tracking-wide">Cài đặt</h1>
+      <h1 className="font-display text-3xl">Cài đặt</h1>
       {/* Laptop: cài đặt ngắn bên trái, danh sách chỗ ngồi (dài) bên phải. Điện thoại: chỗ ngồi xuống cuối.
           Giá món nằm ở trang Thực đơn (SRS v3.0 FR-05). */}
       <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-16">
@@ -64,15 +65,5 @@ export default async function SettingsPage() {
         </section>
       </div>
     </div>
-  );
-}
-
-// Tiêu đề mục: chữ poster + vệt sáng, thay cho khung viền (DESIGN.md)
-function SectionTitle({ children }: { children: string }) {
-  return (
-    <h2 className="flex items-center gap-3 font-display text-2xl tracking-wide">
-      {children}
-      <span aria-hidden="true" className="streak flex-1 opacity-40" />
-    </h2>
   );
 }

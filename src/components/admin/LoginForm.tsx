@@ -20,7 +20,7 @@ export function LoginForm({
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <h1 className="font-display text-3xl tracking-wide">
+      <h1 className="font-display text-3xl">
         Đăng nhập chủ quán
       </h1>
       <label className="block">

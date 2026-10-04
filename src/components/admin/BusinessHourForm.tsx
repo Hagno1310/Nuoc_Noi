@@ -48,7 +48,7 @@ export function BusinessHourForm({
             setSaved(false);
             setHour(Number(e.target.value));
           }}
-          className="min-h-12 rounded-lg border border-edge bg-transparent px-3 font-display text-2xl tracking-wide tabular-nums"
+          className="min-h-12 rounded-lg border border-edge bg-transparent px-3 font-display text-2xl tabular-nums"
         >
           {Array.from({ length: 24 }, (_, h) => (
             <option key={h} value={h} className="bg-bg font-sans text-base">

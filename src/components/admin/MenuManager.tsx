@@ -188,7 +188,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                 </form>
               ) : (
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="min-w-0 break-words font-display text-xl tracking-wide">
+                  <span className="min-w-0 break-words font-display text-xl">
                     {item.name}
                   </span>
                   <span className="shrink-0 font-semibold tabular-nums">{formatVnd(item.price)}</span>
