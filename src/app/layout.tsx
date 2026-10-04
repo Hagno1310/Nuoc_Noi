@@ -19,6 +19,14 @@ const anton = Anton({
 export const metadata: Metadata = {
   title: "Nước Nôi",
   description: "Tạo đơn hàng nhanh cho quán nước đồng giá",
+  // Ảnh xem trước khi gửi link (SRS R29): ảnh lấy từ src/app/opengraph-image.png
+  openGraph: {
+    title: "Nước Nôi",
+    description: "Tạo đơn hàng nhanh cho quán nước đồng giá",
+    siteName: "Nước Nôi",
+    locale: "vi_VN",
+    type: "website",
+  },
   appleWebApp: { capable: true, title: "Nước Nôi", statusBarStyle: "black" },
   icons: { apple: "/icons/192" },
 };

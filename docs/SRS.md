@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 2.1 |
+| **Phiên bản** | 2.2 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v2.2** | Gửi link app vào ứng dụng chat thì hiện ảnh xem trước theo thương hiệu (R29). |
 | **Thay đổi ở v2.1** | Chủ quán mở màn hình order thì có liên kết quay lại trang chủ quán (R28). |
 | **Thay đổi ở v2.0** | Thêm giờ đóng cửa (R26). Tổng quan theo dõi ngày kinh doanh, tuần và tháng, so với cùng đoạn kỳ trước, có hai biểu đồ doanh thu; đưa biểu đồ trở lại phạm vi (R27). |
 | **Thay đổi ở v1.9** | Trạng thái trống của Đơn vừa tạo; Lịch sử đơn hàng dạng dòng hai tầng trên điện thoại (R25). |
@@ -60,7 +61,7 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước b
 
 | Thành phần | Công nghệ |
 |---|---|
-| Frontend | Next.js 15 (App Router) + Tailwind CSS. Có web app manifest để cài app ra màn hình chính. **Không có service worker.** |
+| Frontend | Next.js 15 (App Router) + Tailwind CSS. Có web app manifest để cài app ra màn hình chính, và ảnh xem trước khi gửi link (Open Graph). **Không có service worker.** |
 | Backend | Supabase: Postgres, RPC, Realtime, Auth |
 | Hosting | Vercel và Supabase, đều dùng gói miễn phí |
 
@@ -318,3 +319,4 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R26 (v2.0) | Giờ đóng cửa | Thêm vào Cài đặt, mặc định 02:00, không trùng giờ mở cửa. Chỉ để vẽ đồng hồ giờ mở cửa; ngày kinh doanh không đổi. |
 | R27 (v2.0) | Thống kê | Ngày kinh doanh, tuần (T2–CN), tháng; doanh thu, số cốc, số đơn; so với cùng đoạn kỳ trước; biểu đồ doanh thu theo ngày trong tháng và trong tuần. Cả ba chỉ số của ba kỳ đều so sánh; phần trăm làm tròn số nguyên; ngày chưa tới để trống. Biểu đồ trở lại phạm vi. |
 | R28 (v2.1) | Điều hướng | Chủ quán vào /order có liên kết "Trang chủ quán" quay lại /admin/dashboard; nhân viên không thấy. |
+| R29 (v2.2) | Ảnh xem trước | Gửi link app vào ứng dụng chat thì hiện ảnh 1200×630: logo trên nền thương hiệu và câu mô tả app. Một ảnh tĩnh chung cho mọi trang, không chứa số liệu của quán. |
