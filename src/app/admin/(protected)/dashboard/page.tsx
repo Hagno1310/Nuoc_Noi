@@ -61,12 +61,12 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-10 lg:space-y-14">
       <AutoRefresh seconds={60} />
-      <h1 className="font-display text-3xl tracking-wide lg:sr-only">
+      <h1 className="font-display text-3xl lg:sr-only">
         Tổng quan
       </h1>
       {/* Laptop: đồng hồ và sổ so sánh cùng một hàng; hai biểu đồ ở hàng dưới */}
       <div className="space-y-8 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:items-center lg:gap-12 lg:space-y-0">
-        <div className="develop">
+        <div>
           <BusinessDayArc
             fraction={win.fraction}
             closed={win.closed}
@@ -75,11 +75,12 @@ export default async function DashboardPage() {
             nowLabel={formatVnTime(now.toISOString())}
           >
             <p className="text-sm text-ink-muted">Ngày kinh doanh {day}</p>
-            <p className="font-display text-[clamp(2rem,12cqw,4.5rem)] leading-none tracking-wide tabular-nums">
+            {/* Tấm in đảo màu duy nhất của màn (surface brief): doanh thu ngày kinh doanh */}
+            <p className="rounded-md bg-ember px-3 py-1 font-display text-[clamp(2rem,12cqw,4.5rem)] leading-none text-ember-ink tabular-nums">
               <AnimatedNumber value={s.day.current.revenue} kind="vnd" />
             </p>
-            <p className="font-display text-2xl tracking-wide tabular-nums">
-              <AnimatedNumber value={s.day.current.cups} /> cốc ·{" "}
+            <p className="font-display text-xl tabular-nums">
+              <AnimatedNumber value={s.day.current.item_count} /> món ·{" "}
               <AnimatedNumber value={s.day.current.order_count} /> đơn
             </p>
           </BusinessDayArc>

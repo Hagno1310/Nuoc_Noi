@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatVnd } from "@/lib/money";
 import type { DayPoint } from "@/lib/admin/stats";
 
-// Cột đôi doanh thu theo ngày: kỳ này (than hồng) cạnh kỳ trước (xanh ngọc), SRS FR-06.
+// Cột đôi doanh thu theo ngày: kỳ này tô mực cam, kỳ trước chỉ viền (cùng độ sáng nên phân biệt bằng tô/viền), SRS FR-06.
 // Một trục, cột neo đáy, bo 4px đầu cột, khe 2px giữa hai cột; chú giải + tooltip + bảng cho trình đọc màn hình (dataviz).
 const H = 180;
 const PAD_TOP = 12;
@@ -64,7 +64,7 @@ export function RevenueBars({
   return (
     <figure className="space-y-3">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-display text-xl tracking-wide">{title}</span>
+        <span className="font-display text-xl">{title}</span>
         <span className="flex gap-4 text-xs text-ink-muted">
           <span className="inline-flex items-center gap-1.5">
             <span
@@ -76,7 +76,7 @@ export function RevenueBars({
           <span className="inline-flex items-center gap-1.5">
             <span
               aria-hidden="true"
-              className="size-2.5 rounded-sm bg-chart-previous"
+              className="size-2.5 rounded-sm border border-chart-previous"
             />
             {previousLabel}
           </span>
@@ -122,17 +122,15 @@ export function RevenueBars({
                   {p.previous_revenue !== null && (
                     <path
                       d={bar(x0 + barW + gap, barW, p.previous_revenue, max)}
-                      fill="var(--chart-previous)"
-                      className="bar-rise"
-                      style={{ "--i": i } as CSSProperties}
+                      fill="none"
+                      stroke="var(--chart-previous)"
+                      strokeWidth="1"
                     />
                   )}
                   {p.revenue !== null && (
                     <path
                       d={bar(x0, barW, p.revenue, max)}
                       fill="var(--chart-current)"
-                      className="bar-rise"
-                      style={{ "--i": i } as CSSProperties}
                     />
                   )}
                   {ticks.includes(i) && (
@@ -163,7 +161,7 @@ export function RevenueBars({
         {hovered && width > 0 && active !== null && (
           <div
             role="status"
-            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-edge bg-raised px-3 py-2 text-xs shadow-[0_6px_20px_rgb(0_0_0/0.45)]"
+            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-edge bg-raised px-3 py-2 text-xs"
             style={{
               left: Math.min(
                 Math.max(0, GUTTER + active * slot - 60),
