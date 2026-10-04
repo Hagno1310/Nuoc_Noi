@@ -37,7 +37,7 @@ Tổng số lượng các dòng đơn của một đơn, hoặc của nhiều đ
 _Avoid_: Số cốc, số ly
 
 **Chỗ ngồi** (Seat):
-Một vị trí cố định trong quán nơi khách ngồi, do chủ quán đặt tên. Chỗ ngồi có hai loại: bàn và ghế quầy. Mỗi đơn hàng gắn với đúng một chỗ ngồi, hoặc là mang về.
+Một vị trí cố định trong quán nơi khách ngồi, do chủ quán đặt tên. Chỗ ngồi có hai loại: bàn và ghế quầy. Mỗi đơn hàng gắn với đúng một chỗ ngồi.
 _Avoid_: Vị trí, tên khách, ghi chú, "bàn" (khi muốn nói chung cho cả bàn và ghế quầy)
 
 **Bàn** (Table):
@@ -51,10 +51,6 @@ _Avoid_: Quầy (khi muốn chỉ một ghế cụ thể), ghế bar, ghế cao
 **Chỗ ngồi đã ẩn** (Archived seat):
 Chỗ ngồi không còn được chọn khi tạo đơn mới, nhưng vẫn hiện tên trên các đơn cũ.
 _Avoid_: Chỗ ngồi đã xóa
-
-**Mang về** (Takeaway):
-Đơn hàng mà khách không ngồi tại quán. Đây là một lựa chọn cố định, không phải một chỗ ngồi.
-_Avoid_: Take away, đem về, mua mang đi
 
 ## Giá và tiền
 

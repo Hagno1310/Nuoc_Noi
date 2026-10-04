@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 3.1 |
+| **Phiên bản** | 3.2 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.2** | Bỏ "Mang về": mọi đơn bắt buộc chọn một chỗ ngồi (R38). |
 | **Thay đổi ở v3.1** | Gửi lại một đơn đã bị hủy thì báo và giữ giỏ đơn; lịch sử đổi giá có trạng thái trống và câu lỗi riêng; nút chính trên trang chủ quán cao ít nhất 48px (R37). |
 | **Thay đổi ở v3.0** | Bỏ đồng giá: **thực đơn** nhiều món do chủ quán quản lý ở trang Thực đơn, đơn hàng gồm các **dòng đơn**, **giảm giá** theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi; thống kê theo **số món**; lịch sử mở xem dòng đơn; CSV 8 cột. Xóa dữ liệu thử một lần trước khi dùng thật (R32–R36). Thiết kế: `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md`. |
 | **Thay đổi ở v2.3** | Trang chủ quán hiện thông báo đơn mới ngay khi nhân viên tạo đơn và cập nhật số liệu, qua Realtime (R30). Đồng hồ giờ mở cửa có vệt mờ cho phần giờ chưa tới. Trên điện thoại, thanh điều hướng chỉ hiện icon và cỡ chữ gốc nhỏ hơn (R31). |
@@ -138,10 +139,10 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - Số trên giỏ đơn chỉ để hiển thị; số được lưu là số server tính (FR-04).
 
 **FR-03b: Chọn chỗ ngồi**
-- Hiển thị các **chỗ ngồi** chưa bị ẩn, chia thành hai nhóm: **Ghế quầy** và **Bàn**. Có thêm nút cố định **"Mang về"**.
+- Hiển thị các **chỗ ngồi** chưa bị ẩn, chia thành hai nhóm: **Ghế quầy** và **Bàn**.
 - Mỗi nhóm được sắp theo `sort_order`. Ghế quầy được xếp sao cho giống thứ tự ghế ngoài quầy thật.
 - Trong nhóm Ghế quầy, nút bỏ tiền tố "Quầy " của tên ("Quầy 7" hiện "7"); tên khác hiện nguyên. Đơn hàng vẫn lưu tên đầy đủ, và trình đọc màn hình đọc tên đầy đủ.
-- **Bắt buộc chọn** một chỗ ngồi hoặc Mang về trước khi gửi. Bấm lại vào lựa chọn đang chọn thì bỏ chọn.
+- **Bắt buộc chọn** một chỗ ngồi trước khi gửi. Bấm lại vào lựa chọn đang chọn thì bỏ chọn.
 - Nút Ghế quầy và Bàn cao ít nhất 56px, số dùng font hiển thị cỡ lớn; nút đang chọn có nền màu nhấn. Ngay trên nút Xác nhận đơn có dải "Đang chọn: <tên chỗ ngồi>" hoặc "Chưa chọn chỗ ngồi".
 
 **FR-04: Gửi đơn hàng**
@@ -149,7 +150,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - Khi mất mạng, màn hình hiện thông báo "Mất mạng – chưa gửi được đơn".
 - Có mạng trở lại thì màn hình tải lại danh sách chỗ ngồi và đơn vừa tạo.
 - **Server quyết định mọi số tiền của đơn**:
-  - Client gửi lên `id` (UUID do client sinh), chỗ ngồi hoặc mang về, phần trăm giảm giá, và các dòng đơn (món, số lượng, giá đang hiển thị).
+  - Client gửi lên `id` (UUID do client sinh), chỗ ngồi, phần trăm giảm giá, và các dòng đơn (món, số lượng, giá đang hiển thị).
   - Server dùng **giá hiện hành của từng món** và tính tạm tính, số tiền giảm, thành tiền. Nếu có dòng lệch giá hoặc món đã bị ẩn, server **từ chối cả đơn** và trả về thực đơn hiện hành; giỏ đơn cập nhật theo FR-01 và màn hình hiện "Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.".
 - Gửi lại cùng một `id` thì **không tạo đơn thứ hai**. Trường hợp này xảy ra khi mạng chập chờn và nhân viên bấm gửi lại.
 - Nếu đơn có `id` đó **đã bị hủy** (đơn đã ghi nhưng mất phản hồi, rồi bị hủy trước lần gửi lại), màn hình hiện "Đơn này đã bị hủy – bấm Xác nhận đơn để tạo đơn mới." ở ô thông báo, giữ nguyên giỏ đơn, giảm giá và chỗ ngồi; lần bấm sau dùng `id` mới.
@@ -234,7 +235,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 - Không tải được số liệu thì báo "Không tải được số liệu. Kiểm tra mạng; trang sẽ tự thử lại sau 60 giây." và vẫn tự thử lại.
 
 **FR-06a: Thông báo đơn mới**
-- Khi nhân viên tạo đơn thành công, mọi trang chủ quán đang mở hiện thông báo "Đơn mới: <tên chỗ ngồi hoặc Mang về> · N món · 25.000đ" trong 5 giây (`role="status"`), không che thanh điều hướng. Bấm vào thông báo thì mở Lịch sử đơn hàng với đơn đó mở sẵn.
+- Khi nhân viên tạo đơn thành công, mọi trang chủ quán đang mở hiện thông báo "Đơn mới: <tên chỗ ngồi> · N món · 25.000đ" trong 5 giây (`role="status"`), không che thanh điều hướng. Bấm vào thông báo thì mở Lịch sử đơn hàng với đơn đó mở sẵn.
 - Cùng lúc, số liệu trên trang (Tổng quan, Lịch sử đơn hàng) được tải lại, không cần đợi chu kỳ 60 giây.
 - Dùng Supabase Realtime trên bảng đơn hàng; RLS vẫn áp dụng, chỉ chủ quán nhận được sự kiện. Số món và thành tiền lấy từ đơn trên server (đọc lại theo mã đơn), không tính ở trình duyệt.
 - Mất kết nối Realtime thì không có thông báo; Tổng quan vẫn tự tải lại mỗi 60 giây.
@@ -279,7 +280,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | `menu_price_history` | `menu_item_id`, `price`, `effective_from`, `changed_by` (ghi bằng trigger khi thêm món hoặc đổi giá) |
 | `seats` | `name`, `kind` (`table` = Bàn, `counter` = Ghế quầy), `sort_order`, `is_archived` |
 | `app_roles` | `user_id`, `role` (`owner` hoặc `staff`). Chỉ có **một** tài khoản `staff`. |
-| `orders` | `id` (do client sinh), `item_count`, `subtotal_amount`, `discount_percent` (0–100), `discount_amount`, `total_amount`, `seat_id`, `seat_name`, `is_takeaway` (bắt buộc có `seat_id` hoặc `is_takeaway`), `status` (`paid`/`cancelled`), `created_by`, `created_at`, `business_date`, `cancelled_at`, `cancelled_by` |
+| `orders` | `id` (do client sinh), `item_count`, `subtotal_amount`, `discount_percent` (0–100), `discount_amount`, `total_amount`, `seat_id` (bắt buộc), `seat_name`, `status` (`paid`/`cancelled`), `created_by`, `created_at`, `business_date`, `cancelled_at`, `cancelled_by` |
 | `order_lines` | `order_id`, `menu_item_id`, `item_name`, `unit_price`, `quantity` (1–99), `line_amount` (cột tự tính = `quantity × unit_price`), `sort_order` |
 
 **Quy tắc tính `business_date`:** lấy giờ Việt Nam của thời điểm tạo đơn, lùi lại `business_day_start_hour` giờ, rồi lấy phần ngày. Giá trị này được tính một lần lúc tạo đơn và lưu vào đơn.
@@ -364,3 +365,4 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | R35 (v3.0) | Báo cáo | Số cốc đổi thành số món. Lịch sử mở xem dòng đơn, `?order=` mở sẵn đơn. CSV 8 cột, mỗi dòng đơn một hàng, thêm hàng "Giảm giá" mang số âm. Chưa có thống kê theo món. |
 | R36 (v3.0) | Dữ liệu thử | App chưa dùng thật: migration v3.0 xóa toàn bộ đơn hàng và lịch sử đổi giá một lần (local và prod), sau khi chủ quán xác nhận số đơn trên prod. Sau đó NFR-05 áp dụng lại. |
 | R37 (v3.1) | Đơn đã hủy, lịch sử giá, nút chính | Gửi lại đơn đã bị hủy: báo "Đơn này đã bị hủy…" và giữ giỏ đơn, lần sau dùng id mới. Lịch sử đổi giá có trạng thái trống và câu lỗi riêng, không làm mất danh sách món. Nút chính trang chủ quán ≥ 48px (dùng trên máy tính/tablet, không trong cảnh một tay giữa giờ đông); màn order giữ ≥ 56px. |
+| R38 (v3.2) | Bỏ Mang về | Quán không dùng lựa chọn Mang về. Mọi đơn bắt buộc có một chỗ ngồi; server từ chối đơn không có chỗ ngồi (`SEAT_REQUIRED`), bỏ cột `is_takeaway`. Khách mang về thì ghi vào một chỗ ngồi; chủ quán có thể tạo chỗ ngồi riêng nếu cần. |
