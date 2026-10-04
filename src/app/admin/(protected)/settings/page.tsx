@@ -1,37 +1,22 @@
 import { BusinessHourForm } from "@/components/admin/BusinessHourForm";
 import { SeatsManager, type OwnerSeat } from "@/components/admin/SeatsManager";
-import { formatVnd } from "@/lib/money";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { formatVnDateTime } from "@/lib/time";
-import { PinSection, PriceSection } from "./SettingsForms";
+import { PinSection } from "./SettingsForms";
 
 export default async function SettingsPage() {
   const supabase = await createServerSupabase();
-  const [
-    { data: settings, error },
-    { data: history },
-    { data: seats },
-    {
-      data: { user },
-    },
-  ] = await Promise.all([
+  const [{ data: settings, error }, { data: seats }] = await Promise.all([
     supabase
       .from("settings")
-      .select("current_price, business_day_start_hour, business_day_end_hour")
+      .select("business_day_start_hour, business_day_end_hour")
       .eq("id", 1)
       .single(),
-    supabase
-      .from("price_history")
-      .select("id, price, effective_from, changed_by")
-      .order("effective_from", { ascending: false })
-      .limit(20),
     supabase
       .from("seats")
       .select("id, name, kind, sort_order, is_archived")
       .order("kind")
       .order("sort_order")
       .order("name"),
-    supabase.auth.getUser(),
   ]);
 
   if (error || !settings) {
@@ -45,39 +30,10 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-8">
       <h1 className="font-display text-3xl tracking-wide">Cài đặt</h1>
-      {/* Laptop: cài đặt ngắn bên trái, danh sách chỗ ngồi (dài) bên phải. Điện thoại: chỗ ngồi xuống cuối */}
+      {/* Laptop: cài đặt ngắn bên trái, danh sách chỗ ngồi (dài) bên phải. Điện thoại: chỗ ngồi xuống cuối.
+          Giá món nằm ở trang Thực đơn (SRS v3.0 FR-05). */}
       <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-16">
         <div className="space-y-12">
-          <section className="space-y-4">
-            <SectionTitle>Đơn giá chung</SectionTitle>
-            <PriceSection currentPrice={settings.current_price} />
-            <div className="space-y-2 pt-2">
-              <h3 className="text-sm font-medium text-ink-muted">
-                Lịch sử đổi giá
-              </h3>
-              <ul className="divide-y divide-line text-sm tabular-nums">
-                {(history ?? []).map((h) => (
-                  <li
-                    key={h.id}
-                    className="grid grid-cols-[auto_1fr_auto] items-baseline gap-3 py-1.5"
-                  >
-                    <span className="text-ink-muted">
-                      {formatVnDateTime(h.effective_from)}
-                    </span>
-                    <span className="truncate text-ink-muted">
-                      {h.changed_by === null
-                        ? "Khởi tạo"
-                        : h.changed_by === user?.id && user
-                          ? user.email
-                          : "Chủ quán khác"}
-                    </span>
-                    <span className="font-semibold">{formatVnd(h.price)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-
           <section className="space-y-4">
             <SectionTitle>Giờ mở cửa và giờ đóng cửa</SectionTitle>
             <div className="grid gap-6 sm:grid-cols-2">
