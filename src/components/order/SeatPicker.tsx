@@ -44,14 +44,14 @@ export function SeatPicker({
   return (
     <div className="space-y-3">
       {counters.length > 0 && (
-        <div role="group" aria-label="Ghế quầy" className="space-y-1.5">
-          <p className="text-xs font-medium text-ink-muted">Ghế quầy</p>
+        <div role="group" aria-label="Ghế quầy" className="space-y-2">
+          <p className="font-display text-xl text-ink">Ghế quầy</p>
           <div className="grid grid-cols-6 gap-1.5">{counters}</div>
         </div>
       )}
       {tables.length > 0 && (
-        <div role="group" aria-label="Bàn" className="space-y-1.5">
-          <p className="text-xs font-medium text-ink-muted">Bàn</p>
+        <div role="group" aria-label="Bàn" className="space-y-2">
+          <p className="font-display text-xl text-ink">Bàn</p>
           <div className="grid grid-cols-4 gap-1.5">{tables}</div>
         </div>
       )}

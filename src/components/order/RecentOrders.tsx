@@ -33,7 +33,7 @@ export function RecentOrders({
 
   return (
     <section aria-label="Đơn vừa tạo" className="space-y-2 pt-8 pb-8">
-      <h2 className="border-b border-line pb-2 font-display text-xl text-ink-muted">Đơn vừa tạo</h2>
+      <h2 className="border-b border-line pb-2 font-display text-2xl text-ink">Đơn vừa tạo</h2>
       {orders.length === 0 && (
         <div className="flex items-center gap-4 py-4 text-ink-muted">
           <Image src="/brand/motif-cocktail.png" alt="" width={40} height={49} className="opacity-40" />

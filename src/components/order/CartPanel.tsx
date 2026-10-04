@@ -49,7 +49,7 @@ export function CartPanel({
   return (
     <section aria-label="Giỏ đơn" className="flex flex-col gap-5">
       <div className="flex items-center gap-2 border-b border-line pb-2">
-        <h2 className="flex-1 font-display text-2xl">Giỏ đơn</h2>
+        <h2 className="flex-1 font-display text-3xl text-ink">Giỏ đơn</h2>
         {cart.length > 0 && (
           <button
             type="button"
@@ -206,7 +206,7 @@ function Discount({ value, onChange }: { value: number; onChange: (p: number) =>
   };
   return (
     <fieldset className="space-y-2">
-      <legend className="text-sm font-medium text-ink-muted">Giảm giá</legend>
+      <legend className="pb-1 font-display text-xl text-ink">Giảm giá</legend>
       <div className="flex flex-wrap items-center gap-2">
         {PRESETS.map((p) => (
           <button

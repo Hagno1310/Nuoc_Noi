@@ -26,7 +26,7 @@ describe("token Bao diêm quán bar", () => {
       ["bg", "surface", "raised", "line", "edge", "ink", "ink-muted"].map(token),
     );
     expect([...neutrals].sort()).toEqual(
-      ["#141210", "#221f1b", "#3a352e", "#958d81", "#efe6d2"].sort(),
+      ["#1a1e15", "#232819", "#4a5238", "#a9b08f", "#e6d8b4"].sort(),
     );
   });
 

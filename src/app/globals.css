@@ -5,15 +5,15 @@
    Trung tính khóa đúng 5 bậc: bg, raised/surface, line, edge/ink-muted, ink. */
 :root {
   color-scheme: dark;
-  --bg: #141210; /* bìa đen mờ */
-  --surface: #221f1b; /* sidebar, dòng tổng: cùng bậc với raised */
-  --raised: #221f1b;
-  --line: #3a352e; /* đường kẻ 1px, hệ đường kẻ duy nhất */
-  --edge: #958d81; /* viền điều khiển, 5.7:1 trên nền */
-  --ink: #efe6d2; /* chữ kem, 15:1 */
-  --ink-muted: #958d81; /* chữ phụ, 5.7:1 trên nền, 5.0:1 trên raised */
+  --bg: #1a1e15; /* bìa ô liu tối */
+  --surface: #232819; /* sidebar, dòng tổng: cùng bậc với raised */
+  --raised: #232819;
+  --line: #4a5238; /* đường kẻ 1px, hệ đường kẻ duy nhất */
+  --edge: #a9b08f; /* viền điều khiển, 7.5:1 trên nền */
+  --ink: #e6d8b4; /* chữ kem, 12:1 */
+  --ink-muted: #a9b08f; /* chữ phụ, 7.5:1 trên nền, 6.6:1 trên raised */
   --ember: #e8572c; /* mực in cam: hành động chính, lựa chọn đang có hiệu lực, focus, một tấm in đảo màu mỗi màn */
-  --ember-ink: #141210; /* chữ trên mực cam, 5.2:1 (chữ kem trên cam chỉ 2.9:1) */
+  --ember-ink: #1a1e15; /* chữ trên mực cam, 4.7:1 (chữ kem trên cam chỉ 2.9:1) */
   --ok: #8fbf7a;
   --warn: #e8b04a;
   --danger: #ef6f7a;
