@@ -4,7 +4,21 @@ import { useState } from "react";
 import { ownerErrorText } from "@/lib/admin/errors";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 
-export function BusinessHourForm({ currentHour }: { currentHour: number }) {
+type HourRpc =
+  "update_business_day_start_hour" | "update_business_day_end_hour";
+
+// Dùng cho cả giờ mở cửa và giờ đóng cửa (SRS FR-05b)
+export function BusinessHourForm({
+  label,
+  rpc,
+  currentHour,
+  note,
+}: {
+  label: string;
+  rpc: HourRpc;
+  currentHour: number;
+  note: string;
+}) {
   const router = useRouter();
   const [hour, setHour] = useState(currentHour);
   const [error, setError] = useState<string | null>(null);
@@ -14,10 +28,7 @@ export function BusinessHourForm({ currentHour }: { currentHour: number }) {
   async function save() {
     setBusy(true);
     setSaved(false);
-    const { error } = await getBrowserSupabase().rpc(
-      "update_business_day_start_hour",
-      { p_hour: hour },
-    );
+    const { error } = await getBrowserSupabase().rpc(rpc, { p_hour: hour });
     setBusy(false);
     setError(error ? ownerErrorText(error) : null);
     setSaved(!error);
@@ -27,7 +38,7 @@ export function BusinessHourForm({ currentHour }: { currentHour: number }) {
   return (
     <div className="space-y-2">
       <label className="flex flex-wrap items-center gap-3">
-        <span>Giờ mở cửa</span>
+        <span>{label}</span>
         <select
           value={hour}
           onChange={(e) => {
@@ -43,22 +54,20 @@ export function BusinessHourForm({ currentHour }: { currentHour: number }) {
           ))}
         </select>
       </label>
-      <p className="text-sm text-ink-muted">
-        Chỉ áp dụng cho đơn mới. Nên đổi khi quán đã đóng cửa.
-      </p>
+      <p className="text-sm text-ink-muted">{note}</p>
       {error && (
         <p role="alert" className="text-danger">
           {error}
         </p>
       )}
-      {saved && <p role="status">Đã lưu giờ mở cửa.</p>}
+      {saved && <p role="status">Đã lưu {label.toLowerCase()}.</p>}
       <button
         type="button"
         disabled={busy}
         onClick={() => void save()}
         className="min-h-12 rounded-lg border border-edge px-6 font-bold disabled:opacity-50"
       >
-        {busy ? "Đang lưu…" : "Lưu giờ mở cửa"}
+        {busy ? "Đang lưu…" : `Lưu ${label.toLowerCase()}`}
       </button>
     </div>
   );

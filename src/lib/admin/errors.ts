@@ -2,7 +2,8 @@
 const TEXT: Record<string, string> = {
   FORBIDDEN: "Phiên chủ quán đã hết. Đăng nhập lại rồi thử lại.",
   INVALID_PRICE: "Giá phải là số nguyên từ 1đ đến 500.000đ.",
-  INVALID_HOUR: "Giờ mở cửa phải từ 0 đến 23.",
+  INVALID_HOUR:
+    "Giờ phải từ 0 đến 23, và giờ mở cửa không được trùng giờ đóng cửa.",
   INVALID_PIN_FORMAT: "PIN quán phải gồm đúng 6 chữ số.",
   ORDER_NOT_FOUND: "Không tìm thấy đơn. Tải lại trang rồi thử lại.",
   STAFF_ACCOUNT_MISSING:

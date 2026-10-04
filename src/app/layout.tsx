@@ -6,7 +6,7 @@ import "./globals.css";
 const beVietnam = Be_Vietnam_Pro({
   variable: "--font-be-vietnam",
   subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "800"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 // Font hiển thị kiểu poster retro, chỉ cho con số lớn và tiêu đề (gần nét dày của logo vẽ tay)

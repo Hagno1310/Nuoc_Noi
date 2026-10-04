@@ -19,7 +19,7 @@ export default async function SettingsPage() {
   ] = await Promise.all([
     supabase
       .from("settings")
-      .select("current_price, business_day_start_hour")
+      .select("current_price, business_day_start_hour, business_day_end_hour")
       .eq("id", 1)
       .single(),
     supabase
@@ -46,7 +46,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Cài đặt</h1>
+      <h1 className="font-display text-3xl tracking-wide">Cài đặt</h1>
 
       <section className={section}>
         <h2 className="text-lg font-bold">Đơn giá chung</h2>
@@ -69,8 +69,19 @@ export default async function SettingsPage() {
       </section>
 
       <section className={section}>
-        <h2 className="text-lg font-bold">Giờ mở cửa</h2>
-        <BusinessHourForm currentHour={settings.business_day_start_hour} />
+        <h2 className="text-lg font-bold">Giờ mở cửa và giờ đóng cửa</h2>
+        <BusinessHourForm
+          label="Giờ mở cửa"
+          rpc="update_business_day_start_hour"
+          currentHour={settings.business_day_start_hour}
+          note="Chỉ áp dụng cho đơn mới. Nên đổi khi quán đã đóng cửa."
+        />
+        <BusinessHourForm
+          label="Giờ đóng cửa"
+          rpc="update_business_day_end_hour"
+          currentHour={settings.business_day_end_hour}
+          note="Chỉ dùng để vẽ đồng hồ giờ mở cửa ở Tổng quan; không đổi ngày kinh doanh của đơn."
+        />
       </section>
 
       <section className={section}>

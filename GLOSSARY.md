@@ -88,11 +88,23 @@ _Avoid_: Mật khẩu nhân viên, mã đăng nhập
 Mốc giờ mà chủ quán chọn để bắt đầu một ngày kinh doanh mới. Nước Nôi mở từ 20:00 đến 02:00, nên giờ mở cửa là 20: các đơn hàng sau nửa đêm vẫn thuộc ngày kinh doanh của buổi tối trước đó.
 _Avoid_: Giờ chuyển ngày, giờ chốt sổ
 
+**Giờ đóng cửa** (Business day end hour):
+Mốc giờ quán đóng cửa, mặc định 02:00. Chỉ dùng để hiển thị khoảng giờ quán mở; không quyết định đơn hàng thuộc ngày kinh doanh nào.
+_Avoid_: Giờ kết ca, giờ chốt sổ
+
 **Ngày kinh doanh** (Business date):
 Khoảng 24 giờ bắt đầu từ giờ mở cửa. Mỗi đơn hàng thuộc đúng một ngày kinh doanh, và ngày đó không đổi kể cả khi giờ mở cửa được đổi về sau.
 _Avoid_: Ngày, ca, hôm nay (khi nói về báo cáo)
 
 ## Báo cáo
+
+**Tuần** (Business week):
+Bảy ngày kinh doanh từ thứ Hai đến Chủ nhật. Đơn lúc 01:00 sáng thứ Hai thuộc ngày kinh doanh Chủ nhật, nên thuộc tuần trước.
+_Avoid_: 7 ngày gần nhất
+
+**Kỳ trước** (Previous period):
+Cùng đoạn của kỳ liền trước, dùng để so sánh: hôm trước, cùng các ngày của tuần trước, hoặc cùng các ngày của tháng trước.
+_Avoid_: Cùng kỳ năm trước
 
 **Lịch sử đơn hàng** (Order history):
 Danh sách mọi đơn hàng trong một khoảng ngày, gồm cả đơn đã hủy.

@@ -5,3 +5,16 @@ export function elapsedHours(now: Date, startHour: number): number {
   const hours = vn.getUTCHours() + vn.getUTCMinutes() / 60;
   return (hours - startHour + 24) % 24;
 }
+
+// Phần đã trôi qua của khoảng giờ quán mở (giờ mở cửa → giờ đóng cửa), 0 đến 1 (SRS FR-06).
+// Sau giờ đóng cửa, tới giờ mở cửa kế tiếp, khoảng này đầy và quán đã đóng.
+export function openWindow(
+  now: Date,
+  startHour: number,
+  endHour: number,
+): { fraction: number; closed: boolean } {
+  const openHours = (endHour - startHour + 24) % 24;
+  const elapsed = elapsedHours(now, startHour);
+  if (elapsed >= openHours) return { fraction: 1, closed: true };
+  return { fraction: elapsed / openHours, closed: false };
+}

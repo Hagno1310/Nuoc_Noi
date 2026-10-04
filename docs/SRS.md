@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 1.9 |
+| **Phiên bản** | 2.0 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v2.0** | Thêm giờ đóng cửa (R26). Tổng quan theo dõi ngày kinh doanh, tuần và tháng, so với cùng đoạn kỳ trước, có hai biểu đồ doanh thu; đưa biểu đồ trở lại phạm vi (R27). |
 | **Thay đổi ở v1.9** | Trạng thái trống của Đơn vừa tạo; Lịch sử đơn hàng dạng dòng hai tầng trên điện thoại (R25). |
 | **Thay đổi ở v1.8** | Thành tiền hiển thị ngay dưới số cốc; nút ghế quầy chỉ hiện phần số (R24). |
 | **Thay đổi ở v1.7** | Quy định câu báo lỗi khi các trang chủ quán không tải được dữ liệu (R23). |
@@ -36,8 +37,8 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước b
 
 **Trong phạm vi:**
 - Tạo đơn hàng và hủy đơn.
-- Cấu hình đơn giá chung (kèm lịch sử đổi giá), danh sách chỗ ngồi, giờ mở cửa và PIN quán.
-- Thống kê doanh thu hôm nay và tháng này.
+- Cấu hình đơn giá chung (kèm lịch sử đổi giá), danh sách chỗ ngồi, giờ mở cửa, giờ đóng cửa và PIN quán.
+- Thống kê doanh thu, số cốc và số đơn theo ngày kinh doanh, tuần và tháng, so với kỳ trước, kèm biểu đồ doanh thu theo ngày.
 - Lịch sử đơn hàng và xuất CSV.
 
 **Ngoài phạm vi:**
@@ -47,7 +48,6 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước b
 - Nhiều chi nhánh.
 - Tài khoản riêng cho từng nhân viên.
 - Danh sách thiết bị và thu hồi từng thiết bị.
-- Biểu đồ.
 - Thực đơn nhiều món, quản lý kho, in hóa đơn.
 - Đa ngôn ngữ (giao diện chỉ có tiếng Việt).
 
@@ -166,10 +166,12 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - Hiển thị 20 lần đổi giá gần nhất, gồm mức giá, thời điểm và người đổi.
 - Quán có **một** tài khoản chủ quán. Người đổi hiện bằng email của chủ quán đang đăng nhập; lần đổi của tài khoản chủ quán khác (nếu có) hiện "Chủ quán khác"; giá ban đầu lúc khởi tạo hệ thống hiện "Khởi tạo".
 
-**FR-05b: Giờ mở cửa**
-- Chọn từ 0 đến 23 giờ, mặc định 20:00 (quán mở từ 20:00 đến 02:00 sáng hôm sau).
-- Chỉ áp dụng cho đơn mới; ngày kinh doanh của đơn cũ không đổi.
-- Bên cạnh có ghi chú "Nên đổi khi quán đã đóng cửa".
+**FR-05b: Giờ mở cửa và giờ đóng cửa**
+- **Giờ mở cửa:** chọn từ 0 đến 23 giờ, mặc định 20:00 (quán mở từ 20:00 đến 02:00 sáng hôm sau).
+  - Chỉ áp dụng cho đơn mới; ngày kinh doanh của đơn cũ không đổi.
+  - Bên cạnh có ghi chú "Nên đổi khi quán đã đóng cửa".
+- **Giờ đóng cửa:** chọn từ 0 đến 23 giờ, mặc định 02:00. Không được trùng giờ mở cửa; server từ chối nếu trùng.
+  - Chỉ dùng để hiển thị khoảng giờ quán mở trên Tổng quan. Không ảnh hưởng ngày kinh doanh của đơn hàng (ngày kinh doanh vẫn bắt đầu từ giờ mở cửa và kéo dài 24 giờ).
 
 **FR-05c: Chỗ ngồi**
 - Chủ quán thêm chỗ ngồi (chọn loại **Bàn** hoặc **Ghế quầy**), đổi tên, sắp xếp thứ tự trong từng loại, ẩn và hiện lại chỗ ngồi đã ẩn.
@@ -186,8 +188,19 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 
 **FR-06: Tổng quan, `/admin/dashboard`**
-- Doanh thu và số cốc của ngày kinh doanh hiện tại.
-- Doanh thu của tháng này: các ngày kinh doanh thuộc tháng dương lịch hiện tại, tính đến hôm nay.
+- **Đồng hồ giờ mở cửa:** vẽ khoảng từ giờ mở cửa đến giờ đóng cửa (ví dụ 20:00–02:00, 6 tiếng), đánh dấu giờ hiện tại. Sau giờ đóng cửa và trước giờ mở cửa kế tiếp, đồng hồ đầy và ghi "Đã đóng cửa".
+- **Ba kỳ:** ngày kinh doanh hiện tại, tuần này (thứ Hai đến Chủ nhật, theo ngày kinh doanh, tính đến hôm nay), tháng này (các ngày kinh doanh thuộc tháng dương lịch hiện tại, tính đến hôm nay).
+- **Mỗi kỳ có:** doanh thu, số cốc, số đơn (chỉ tính đơn đã thanh toán).
+- **So với kỳ trước, cùng đoạn:**
+  - Ngày kinh doanh hiện tại so với cả ngày kinh doanh hôm trước.
+  - Tuần này (thứ Hai đến hôm nay) so với cùng các ngày đó của tuần trước.
+  - Tháng này (ngày 1 đến hôm nay) so với ngày 1 đến cùng ngày của tháng trước (nếu tháng trước ngắn hơn thì tính đến hết tháng trước).
+  - Cả ba chỉ số (doanh thu, số cốc, số đơn) của cả ba kỳ đều có so sánh.
+  - Hiển thị phần trăm tăng hoặc giảm, làm tròn đến số nguyên. Kỳ trước bằng 0 thì không tính phần trăm, chỉ hiện số của kỳ trước.
+- **Biểu đồ:**
+  - Doanh thu từng ngày kinh doanh trong tháng này, đặt cạnh doanh thu cùng ngày của tháng trước.
+  - Doanh thu 7 ngày của tuần này (thứ Hai đến Chủ nhật), đặt cạnh tuần trước.
+  - Ở cả hai biểu đồ, ngày chưa tới thì để trống cột kỳ này.
 - Tự tải lại mỗi 60 giây.
 - Không tải được số liệu thì báo "Không tải được số liệu. Kiểm tra mạng; trang sẽ tự thử lại sau 60 giây." và vẫn tự thử lại.
 
@@ -223,7 +236,7 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 
 | Bảng | Nội dung chính |
 |---|---|
-| `settings` | Một dòng duy nhất: `current_price`, `business_day_start_hour`, `updated_at` |
+| `settings` | Một dòng duy nhất: `current_price`, `business_day_start_hour`, `business_day_end_hour` (mặc định 2, khác giờ mở cửa), `updated_at` |
 | `price_history` | `price`, `effective_from`, `changed_by` |
 | `seats` | `name`, `kind` (`table` = Bàn, `counter` = Ghế quầy), `sort_order`, `is_archived` |
 | `app_roles` | `user_id`, `role` (`owner` hoặc `staff`). Chỉ có **một** tài khoản `staff`. |
@@ -281,7 +294,7 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R1 (v1.2) | Offline | **Bỏ.** Mất mạng thì khóa nút Xác nhận và báo cho nhân viên. |
 | R2 (v1.2) | Nhân viên đăng nhập | Một tài khoản nhân viên chung, PIN quán là mật khẩu |
 | R3 (v1.2) | Quyền hủy đơn | Nhân viên hủy được bất kỳ đơn nào trong 5 phút; chủ quán hủy được mọi lúc |
-| R6 (v1.2) | Báo cáo | Bỏ biểu đồ |
+| R6 (v1.2) | Báo cáo | Bỏ biểu đồ. **Thay bởi R27 (v2.0).** |
 | R7 (v1.2) | Kiểm thử | pgTAP + Vitest, cộng danh sách kiểm tra tay. Không có E2E. |
 | R9 (v1.2) | Đơn vừa tạo | Chỉ hiện đơn do chính điện thoại đó tạo |
 | R10 (v1.2) | Đổi PIN | Đổi trong trang Cài đặt |
@@ -299,3 +312,5 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R23 (v1.7) | Lỗi tải trang chủ quán | Mỗi trang (Tổng quan, Lịch sử đơn hàng, Cài đặt) có câu báo lỗi riêng nêu vấn đề và cách khắc phục; Tổng quan tự thử lại sau 60 giây. |
 | R24 (v1.8) | Bố cục màn hình order | Thành tiền ngay dưới số cốc (đọc cùng một cái liếc); nút ghế quầy chỉ hiện phần số để vừa 2 hàng 6 như mép quầy. |
 | R25 (v1.9) | Giao diện | Đơn vừa tạo trống thì hiện "Chưa có đơn nào."; Lịch sử đơn hàng dạng dòng hai tầng trên điện thoại, bảng 6 cột từ tablet. |
+| R26 (v2.0) | Giờ đóng cửa | Thêm vào Cài đặt, mặc định 02:00, không trùng giờ mở cửa. Chỉ để vẽ đồng hồ giờ mở cửa; ngày kinh doanh không đổi. |
+| R27 (v2.0) | Thống kê | Ngày kinh doanh, tuần (T2–CN), tháng; doanh thu, số cốc, số đơn; so với cùng đoạn kỳ trước; biểu đồ doanh thu theo ngày trong tháng và trong tuần. Cả ba chỉ số của ba kỳ đều so sánh; phần trăm làm tròn số nguyên; ngày chưa tới để trống. Biểu đồ trở lại phạm vi. |
