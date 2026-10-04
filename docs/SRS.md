@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 2.0 |
+| **Phiên bản** | 2.1 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v2.1** | Chủ quán mở màn hình order thì có liên kết quay lại trang chủ quán (R28). |
 | **Thay đổi ở v2.0** | Thêm giờ đóng cửa (R26). Tổng quan theo dõi ngày kinh doanh, tuần và tháng, so với cùng đoạn kỳ trước, có hai biểu đồ doanh thu; đưa biểu đồ trở lại phạm vi (R27). |
 | **Thay đổi ở v1.9** | Trạng thái trống của Đơn vừa tạo; Lịch sử đơn hàng dạng dòng hai tầng trên điện thoại (R25). |
 | **Thay đổi ở v1.8** | Thành tiền hiển thị ngay dưới số cốc; nút ghế quầy chỉ hiện phần số (R24). |
@@ -103,6 +104,8 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - Chủ quán đã đăng nhập mà vào `/admin/login` thì chuyển sang `/admin/dashboard`. Tài khoản khác (ví dụ điện thoại đang đăng nhập bằng PIN quán) vẫn thấy form đăng nhập; chủ quán đăng nhập trên máy đó thì thay phiên của nhân viên.
 
 ### 3.2. Màn hình order (nhân viên)
+
+- Khi tài khoản đang dùng là chủ quán, màn hình order có liên kết "Trang chủ quán" để quay lại `/admin/dashboard`. Điện thoại của nhân viên không thấy liên kết này.
 
 **FR-01: Nhập số lượng**
 - Các nút **+1, +2, +5, +10** cộng dồn vào số lượng.
@@ -314,3 +317,4 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R25 (v1.9) | Giao diện | Đơn vừa tạo trống thì hiện "Chưa có đơn nào."; Lịch sử đơn hàng dạng dòng hai tầng trên điện thoại, bảng 6 cột từ tablet. |
 | R26 (v2.0) | Giờ đóng cửa | Thêm vào Cài đặt, mặc định 02:00, không trùng giờ mở cửa. Chỉ để vẽ đồng hồ giờ mở cửa; ngày kinh doanh không đổi. |
 | R27 (v2.0) | Thống kê | Ngày kinh doanh, tuần (T2–CN), tháng; doanh thu, số cốc, số đơn; so với cùng đoạn kỳ trước; biểu đồ doanh thu theo ngày trong tháng và trong tuần. Cả ba chỉ số của ba kỳ đều so sánh; phần trăm làm tròn số nguyên; ngày chưa tới để trống. Biểu đồ trở lại phạm vi. |
+| R28 (v2.1) | Điều hướng | Chủ quán vào /order có liên kết "Trang chủ quán" quay lại /admin/dashboard; nhân viên không thấy. |

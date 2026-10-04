@@ -7,7 +7,9 @@ import {
   type MyOrder,
   type StaffApi,
 } from "@/lib/api";
+import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatVnd } from "@/lib/money";
 import { getMyOrderIds, rememberOrder } from "@/lib/order/myOrders";
 import { quantityReducer, type QuantityAction } from "@/lib/order/quantity";
@@ -35,6 +37,8 @@ export type OrderScreenProps = {
   onUnauthorized: () => void;
   newId?: () => string;
   now?: () => Date;
+  // Có khi tài khoản là chủ quán: hiện liên kết quay lại trang chủ quán (SRS §3.2)
+  ownerHome?: string;
 };
 
 export function OrderScreen({
@@ -44,6 +48,7 @@ export function OrderScreen({
   onUnauthorized,
   newId = () => crypto.randomUUID(),
   now = () => new Date(),
+  ownerHome,
 }: OrderScreenProps) {
   const [quantity, dispatch] = useReducer(quantityReducer, 0);
   const [selection, setSelection] = useState<SeatSelection>({ kind: "none" });
@@ -179,7 +184,18 @@ export function OrderScreen({
             priority
             className="halo h-9 w-auto [@media(min-height:740px)]:h-[50px]"
           />
-          <PriceBanner price={price} offline={!online} />
+          <div className="flex flex-col items-end gap-1">
+            {ownerHome && (
+              <Link
+                href={ownerHome}
+                className="inline-flex min-h-12 items-center gap-1 text-sm text-ink-muted hover:text-ink"
+              >
+                <ChevronLeft aria-hidden="true" size={16} />
+                Trang chủ quán
+              </Link>
+            )}
+            <PriceBanner price={price} offline={!online} />
+          </div>
         </header>
         {!online && (
           <p className="rounded-lg border border-danger/60 px-3 py-2 font-semibold text-danger">

@@ -367,4 +367,18 @@ describe("OrderScreen", () => {
     ).toBeInTheDocument();
     expect(listActiveSeats).toHaveBeenCalled();
   });
+
+  it("chủ quán thấy liên kết quay lại trang chủ quán (SRS §3.2)", () => {
+    setup({ ownerHome: "/admin/dashboard" });
+    expect(
+      screen.getByRole("link", { name: /Trang chủ quán/ }),
+    ).toHaveAttribute("href", "/admin/dashboard");
+  });
+
+  it("nhân viên không thấy liên kết trang chủ quán", () => {
+    setup();
+    expect(
+      screen.queryByRole("link", { name: /Trang chủ quán/ }),
+    ).not.toBeInTheDocument();
+  });
 });

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { formatVnd } from "@/lib/money";
 import type { DayPoint } from "@/lib/admin/stats";
 
@@ -123,12 +123,16 @@ export function RevenueBars({
                     <path
                       d={bar(x0 + barW + gap, barW, p.previous_revenue, max)}
                       fill="var(--chart-previous)"
+                      className="bar-rise"
+                      style={{ "--i": i } as CSSProperties}
                     />
                   )}
                   {p.revenue !== null && (
                     <path
                       d={bar(x0, barW, p.revenue, max)}
                       fill="var(--chart-current)"
+                      className="bar-rise"
+                      style={{ "--i": i } as CSSProperties}
                     />
                   )}
                   {ticks.includes(i) && (
@@ -183,29 +187,34 @@ export function RevenueBars({
           </div>
         )}
       </div>
-      <table className="sr-only">
-        <caption>{title}</caption>
-        <thead>
-          <tr>
-            <th>Ngày kinh doanh</th>
-            <th>{currentLabel}</th>
-            <th>{previousLabel}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {points.map((p, i) => (
-            <tr key={i}>
-              <td>{p.label}</td>
-              <td>{p.revenue === null ? "chưa tới" : formatVnd(p.revenue)}</td>
-              <td>
-                {p.previous_revenue === null
-                  ? "—"
-                  : formatVnd(p.previous_revenue)}
-              </td>
+      {/* sr-only trên <table> không cắt được hàng (bảng bỏ qua overflow/height) và kéo dài trang: bọc trong div */}
+      <div className="sr-only">
+        <table>
+          <caption>{title}</caption>
+          <thead>
+            <tr>
+              <th>Ngày kinh doanh</th>
+              <th>{currentLabel}</th>
+              <th>{previousLabel}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {points.map((p, i) => (
+              <tr key={i}>
+                <td>{p.label}</td>
+                <td>
+                  {p.revenue === null ? "chưa tới" : formatVnd(p.revenue)}
+                </td>
+                <td>
+                  {p.previous_revenue === null
+                    ? "—"
+                    : formatVnd(p.previous_revenue)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }

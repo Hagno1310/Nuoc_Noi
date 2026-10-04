@@ -60,7 +60,7 @@ export function RecentOrders({
           const cancellable =
             !cancelled && nowMs - Date.parse(o.created_at) <= CANCEL_WINDOW_MS;
           return (
-            <li key={o.id} className="flex items-center gap-3 py-2.5">
+            <li key={o.id} className="row-in flex items-center gap-3 py-2.5">
               <div className="min-w-0 flex-1 space-y-1.5">
                 <p
                   className={`tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}

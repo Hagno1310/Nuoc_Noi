@@ -5,8 +5,6 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { formatVnDateTime } from "@/lib/time";
 import { PinSection, PriceSection } from "./SettingsForms";
 
-const section = "space-y-3 rounded-xl border border-line p-4";
-
 export default async function SettingsPage() {
   const supabase = await createServerSupabase();
   const [
@@ -45,54 +43,80 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <h1 className="font-display text-3xl tracking-wide">Cài đặt</h1>
+      {/* Laptop: cài đặt ngắn bên trái, danh sách chỗ ngồi (dài) bên phải. Điện thoại: chỗ ngồi xuống cuối */}
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-16">
+        <div className="space-y-12">
+          <section className="space-y-4">
+            <SectionTitle>Đơn giá chung</SectionTitle>
+            <PriceSection currentPrice={settings.current_price} />
+            <div className="space-y-2 pt-2">
+              <h3 className="text-sm font-medium text-ink-muted">
+                Lịch sử đổi giá
+              </h3>
+              <ul className="divide-y divide-line text-sm tabular-nums">
+                {(history ?? []).map((h) => (
+                  <li
+                    key={h.id}
+                    className="grid grid-cols-[auto_1fr_auto] items-baseline gap-3 py-1.5"
+                  >
+                    <span className="text-ink-muted">
+                      {formatVnDateTime(h.effective_from)}
+                    </span>
+                    <span className="truncate text-ink-muted">
+                      {h.changed_by === null
+                        ? "Khởi tạo"
+                        : h.changed_by === user?.id && user
+                          ? user.email
+                          : "Chủ quán khác"}
+                    </span>
+                    <span className="font-semibold">{formatVnd(h.price)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
 
-      <section className={section}>
-        <h2 className="text-lg font-bold">Đơn giá chung</h2>
-        <PriceSection currentPrice={settings.current_price} />
-        <h3 className="pt-2 font-semibold">Lịch sử đổi giá</h3>
-        <ul className="text-sm tabular-nums">
-          {(history ?? []).map((h) => (
-            <li key={h.id}>
-              {formatVnDateTime(h.effective_from)}:{" "}
-              <strong>{formatVnd(h.price)}</strong>
-              {" · "}
-              {h.changed_by === null
-                ? "Khởi tạo"
-                : h.changed_by === user?.id && user
-                  ? user.email
-                  : "Chủ quán khác"}
-            </li>
-          ))}
-        </ul>
-      </section>
+          <section className="space-y-4">
+            <SectionTitle>Giờ mở cửa và giờ đóng cửa</SectionTitle>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <BusinessHourForm
+                label="Giờ mở cửa"
+                rpc="update_business_day_start_hour"
+                currentHour={settings.business_day_start_hour}
+                note="Chỉ áp dụng cho đơn mới. Nên đổi khi quán đã đóng cửa."
+              />
+              <BusinessHourForm
+                label="Giờ đóng cửa"
+                rpc="update_business_day_end_hour"
+                currentHour={settings.business_day_end_hour}
+                note="Chỉ dùng để vẽ đồng hồ giờ mở cửa ở Tổng quan; không đổi ngày kinh doanh của đơn."
+              />
+            </div>
+          </section>
 
-      <section className={section}>
-        <h2 className="text-lg font-bold">Giờ mở cửa và giờ đóng cửa</h2>
-        <BusinessHourForm
-          label="Giờ mở cửa"
-          rpc="update_business_day_start_hour"
-          currentHour={settings.business_day_start_hour}
-          note="Chỉ áp dụng cho đơn mới. Nên đổi khi quán đã đóng cửa."
-        />
-        <BusinessHourForm
-          label="Giờ đóng cửa"
-          rpc="update_business_day_end_hour"
-          currentHour={settings.business_day_end_hour}
-          note="Chỉ dùng để vẽ đồng hồ giờ mở cửa ở Tổng quan; không đổi ngày kinh doanh của đơn."
-        />
-      </section>
+          <section className="space-y-4">
+            <SectionTitle>PIN quán</SectionTitle>
+            <PinSection />
+          </section>
+        </div>
 
-      <section className={section}>
-        <h2 className="text-lg font-bold">Chỗ ngồi</h2>
-        <SeatsManager seats={(seats ?? []) as OwnerSeat[]} />
-      </section>
-
-      <section className={section}>
-        <h2 className="text-lg font-bold">PIN quán</h2>
-        <PinSection />
-      </section>
+        <section className="space-y-4">
+          <SectionTitle>Chỗ ngồi</SectionTitle>
+          <SeatsManager seats={(seats ?? []) as OwnerSeat[]} />
+        </section>
+      </div>
     </div>
+  );
+}
+
+// Tiêu đề mục: chữ poster + vệt sáng, thay cho khung viền (DESIGN.md)
+function SectionTitle({ children }: { children: string }) {
+  return (
+    <h2 className="flex items-center gap-3 font-display text-2xl tracking-wide">
+      {children}
+      <span aria-hidden="true" className="streak flex-1 opacity-40" />
+    </h2>
   );
 }

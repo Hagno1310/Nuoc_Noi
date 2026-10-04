@@ -78,6 +78,8 @@ export function BusinessDayArc({
               strokeLinecap="round"
               opacity="0.45"
               filter="url(#glow)"
+              pathLength={1}
+              className="arc-draw"
             />
             <path
               d={d}
@@ -85,11 +87,13 @@ export function BusinessDayArc({
               stroke="url(#trail)"
               strokeWidth="1.6"
               strokeLinecap="round"
+              pathLength={1}
+              className="arc-draw"
             />
           </>
         )}
         {!closed && (
-          <>
+          <g className="after-draw">
             <circle
               cx={b.x}
               cy={b.y}
@@ -99,7 +103,7 @@ export function BusinessDayArc({
               filter="url(#glow)"
             />
             <circle cx={b.x} cy={b.y} r="3.2" fill="var(--ember)" />
-          </>
+          </g>
         )}
         <text
           x={a.x}

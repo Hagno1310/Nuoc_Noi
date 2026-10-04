@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { QuantityAction } from "@/lib/order/quantity";
 
 const QUICK_ADDS = [1, 2, 5, 10];
@@ -17,10 +17,28 @@ export function QuantityPad({
   // Nằm giữa số cốc và các phím (thành tiền, chỗ ngồi), để phím rơi vào vùng ngón cái
   children?: ReactNode;
 }) {
+  // Số cốc nảy nhẹ mỗi lần đổi: xác nhận phím đã ăn (bỏ khi người dùng giảm chuyển động)
+  const input = useRef<HTMLInputElement>(null);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const el = input.current;
+    if (!el?.animate || matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return;
+    el.animate([{ transform: "scale(1.08)" }, { transform: "scale(1)" }], {
+      duration: 160,
+      easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+    });
+  }, [quantity]);
+
   return (
     <>
       <label className="flex items-baseline justify-center gap-2">
         <input
+          ref={input}
           aria-label="Số lượng cốc"
           inputMode="numeric"
           pattern="[0-9]*"

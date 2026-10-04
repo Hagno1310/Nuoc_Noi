@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { OrderScreen } from "@/components/order/OrderScreen";
 import { useCurrentPrice } from "@/hooks/useCurrentPrice";
@@ -12,6 +12,13 @@ export default function OrderPage() {
   const price = useCurrentPrice();
   const online = useOnline();
   const api = useMemo(() => createStaffApi(getRpcClient), []);
+  // Chủ quán cũng dùng được /order (SRS §2.2): hiện đường quay lại trang chủ quán
+  const [isOwner, setIsOwner] = useState(false);
+  useEffect(() => {
+    void getBrowserSupabase()
+      .rpc("is_owner")
+      .then(({ data }) => setIsOwner(data === true));
+  }, []);
   const onUnauthorized = useCallback(() => {
     void getBrowserSupabase()
       .auth.signOut({ scope: "local" })
@@ -24,6 +31,7 @@ export default function OrderPage() {
       price={price}
       online={online}
       onUnauthorized={onUnauthorized}
+      ownerHome={isOwner ? "/admin/dashboard" : undefined}
     />
   );
 }

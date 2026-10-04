@@ -138,9 +138,80 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   animation: exposure-streak 250ms var(--ease-exposure) both;
 }
 
+/* Ảnh hiện dần: số liệu đi từ nhòe sang rõ như phim đang tráng (khoảnh khắc chính của Tổng quan) */
+@keyframes develop {
+  from {
+    opacity: 0.15;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+.develop {
+  animation: develop 700ms var(--ease-exposure) both;
+}
+
+/* Cung đồng hồ tự vẽ từ giờ mở cửa tới bây giờ (path có pathLength="1") */
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.arc-draw {
+  stroke-dasharray: 1;
+  animation: draw 800ms var(--ease-exposure) both;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.after-draw {
+  animation: fade-in 300ms ease-out 650ms both;
+}
+
+/* Cột biểu đồ mọc từ đáy, lần lượt (trễ tối đa ~300ms) */
+@keyframes rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+.bar-rise {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: rise 450ms var(--ease-exposure) both;
+  animation-delay: calc(min(var(--i, 0), 16) * 18ms);
+}
+
+/* Đơn mới trượt vào Đơn vừa tạo */
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.row-in {
+  animation: row-in 240ms var(--ease-exposure) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .exposure-streak {
     display: none;
+  }
+  /* Bỏ di chuyển, giữ thay đổi độ mờ để trạng thái vẫn đọc được */
+  .develop,
+  .row-in {
+    animation: fade-in 200ms ease-out both;
+  }
+  .arc-draw,
+  .bar-rise,
+  .after-draw {
+    animation: none;
   }
   *,
   *::before,

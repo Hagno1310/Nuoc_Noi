@@ -37,38 +37,42 @@ export function BusinessHourForm({
 
   return (
     <div className="space-y-2">
-      <label className="flex flex-wrap items-center gap-3">
-        <span>{label}</span>
+      <label className="block text-sm text-ink-muted" htmlFor={rpc}>
+        {label}
+      </label>
+      <div className="flex flex-wrap gap-2">
         <select
+          id={rpc}
           value={hour}
           onChange={(e) => {
             setSaved(false);
             setHour(Number(e.target.value));
           }}
-          className="min-h-12 rounded-lg border border-edge bg-transparent p-2 tabular-nums"
+          className="min-h-12 rounded-lg border border-edge bg-transparent px-3 font-display text-2xl tracking-wide tabular-nums"
         >
           {Array.from({ length: 24 }, (_, h) => (
-            <option key={h} value={h}>
+            <option key={h} value={h} className="bg-bg font-sans text-base">
               {String(h).padStart(2, "0")}:00
             </option>
           ))}
         </select>
-      </label>
-      <p className="text-sm text-ink-muted">{note}</p>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void save()}
+          aria-label={`Lưu ${label.toLowerCase()}`}
+          className="min-h-12 rounded-lg border border-edge px-4 font-semibold disabled:opacity-50"
+        >
+          {busy ? "Đang lưu…" : "Lưu"}
+        </button>
+      </div>
+      <p className="text-xs text-ink-muted">{note}</p>
       {error && (
         <p role="alert" className="text-danger">
           {error}
         </p>
       )}
       {saved && <p role="status">Đã lưu {label.toLowerCase()}.</p>}
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => void save()}
-        className="min-h-12 rounded-lg border border-edge px-6 font-bold disabled:opacity-50"
-      >
-        {busy ? "Đang lưu…" : `Lưu ${label.toLowerCase()}`}
-      </button>
     </div>
   );
 }

@@ -1,10 +1,10 @@
+import { AnimatedNumber } from "@/components/admin/AnimatedNumber";
 import { AutoRefresh } from "@/components/admin/AutoRefresh";
 import { BusinessDayArc } from "@/components/admin/BusinessDayArc";
 import { PeriodComparison } from "@/components/admin/PeriodComparison";
 import { RevenueBars } from "@/components/admin/RevenueBars";
 import { openWindow } from "@/lib/admin/businessDay";
 import type { PeriodTotals } from "@/lib/admin/stats";
-import { formatVnd } from "@/lib/money";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { formatIsoDate, formatVnTime } from "@/lib/time";
 
@@ -59,29 +59,31 @@ export default async function DashboardPage() {
   const lastDay = s.month_days.length;
 
   return (
-    <div className="space-y-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-10 lg:space-y-0">
+    <div className="space-y-10 lg:space-y-14">
       <AutoRefresh seconds={60} />
       <h1 className="font-display text-3xl tracking-wide lg:sr-only">
         Tổng quan
       </h1>
-      <div className="lg:sticky lg:top-4">
-        <BusinessDayArc
-          fraction={win.fraction}
-          closed={win.closed}
-          startLabel={hh(start)}
-          endLabel={hh(end)}
-          nowLabel={formatVnTime(now.toISOString())}
-        >
-          <p className="text-sm text-ink-muted">Ngày kinh doanh {day}</p>
-          <p className="font-display text-[clamp(2rem,12cqw,4.5rem)] leading-none tracking-wide tabular-nums">
-            {formatVnd(s.day.current.revenue)}
-          </p>
-          <p className="font-display text-2xl tracking-wide tabular-nums">
-            {s.day.current.cups} cốc · {s.day.current.order_count} đơn
-          </p>
-        </BusinessDayArc>
-      </div>
-      <div className="space-y-10">
+      {/* Laptop: đồng hồ và sổ so sánh cùng một hàng; hai biểu đồ ở hàng dưới */}
+      <div className="space-y-8 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:items-center lg:gap-12 lg:space-y-0">
+        <div className="develop">
+          <BusinessDayArc
+            fraction={win.fraction}
+            closed={win.closed}
+            startLabel={hh(start)}
+            endLabel={hh(end)}
+            nowLabel={formatVnTime(now.toISOString())}
+          >
+            <p className="text-sm text-ink-muted">Ngày kinh doanh {day}</p>
+            <p className="font-display text-[clamp(2rem,12cqw,4.5rem)] leading-none tracking-wide tabular-nums">
+              <AnimatedNumber value={s.day.current.revenue} kind="vnd" />
+            </p>
+            <p className="font-display text-2xl tracking-wide tabular-nums">
+              <AnimatedNumber value={s.day.current.cups} /> cốc ·{" "}
+              <AnimatedNumber value={s.day.current.order_count} /> đơn
+            </p>
+          </BusinessDayArc>
+        </div>
         <PeriodComparison
           periods={[
             {
@@ -101,6 +103,8 @@ export default async function DashboardPage() {
             },
           ]}
         />
+      </div>
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12">
         <RevenueBars
           title="Doanh thu từng ngày kinh doanh trong tuần"
           currentLabel="Tuần này"

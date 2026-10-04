@@ -29,33 +29,38 @@ export function PriceForm({ currentPrice, onSave }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-2">
-      <p>
-        Đơn giá chung hiện tại:{" "}
-        <strong className="tabular-nums">{formatVnd(currentPrice)}/cốc</strong>
+    <form onSubmit={submit} className="space-y-3">
+      <p className="flex items-baseline gap-2">
+        <span className="font-display text-4xl tracking-wide tabular-nums">
+          {formatVnd(currentPrice)}
+        </span>
+        <span className="text-sm text-ink-muted">/cốc, đang áp dụng</span>
       </p>
-      <label className="block">
-        <span>Đơn giá chung mới (đ/cốc)</span>
+      <label htmlFor="new-price" className="block text-sm text-ink-muted">
+        Đơn giá chung mới (đ/cốc)
+      </label>
+      <div className="flex flex-wrap gap-2">
         <input
+          id="new-price"
           inputMode="numeric"
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
-          className="mt-1 min-h-12 w-full max-w-xs rounded-lg border border-edge bg-transparent p-3 text-xl tabular-nums"
+          className="min-h-12 w-40 rounded-lg border border-edge bg-transparent px-3 text-xl tabular-nums"
         />
-      </label>
+        <button
+          type="submit"
+          disabled={busy}
+          className="min-h-12 rounded-lg bg-ember px-6 font-bold text-ember-ink disabled:opacity-50"
+        >
+          {busy ? "Đang lưu…" : "Lưu thay đổi"}
+        </button>
+      </div>
       {error && (
         <p role="alert" className="text-danger">
           {error}
         </p>
       )}
       {saved && <p role="status">Đã lưu đơn giá chung mới.</p>}
-      <button
-        type="submit"
-        disabled={busy}
-        className="min-h-12 rounded-lg bg-ember px-6 font-bold text-ember-ink disabled:opacity-50"
-      >
-        {busy ? "Đang lưu…" : "Lưu thay đổi"}
-      </button>
     </form>
   );
 }

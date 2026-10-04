@@ -182,7 +182,7 @@ Thế giới này từ chối lưới ô màu sáng của POS có thực đơn v
 Bảng màu ô liu tối lấy từ nền logo, chữ kem đã giảm sáng để không chói trong phòng tối, và một ánh than hồng duy nhất.
 
 ### Primary
-- **Ember / Than hồng** (`--ember`): màu nhấn duy nhất. Nền nút Xác nhận đơn và nút lưu/lọc, ghế đang chọn, viền focus (`2px`, offset `2px`), con trỏ nhập, vùng bôi chọn, gạch chân mục điều hướng hiện tại, đốm than ở đầu cung giờ, sắc ấm trong vệt sáng. Dùng làm chữ đạt ≥ 4.9:1 nhưng hiện chỉ xuất hiện ở dạng nền và nét.
+- **Ember / Than hồng** (`--ember`): màu nhấn duy nhất. Nền nút Xác nhận đơn và nút lưu/lọc, ghế đang chọn, viền focus (`2px`, offset `2px`), con trỏ nhập, vùng bôi chọn, icon của mục điều hướng hiện tại, đốm than ở đầu cung giờ, sắc ấm trong vệt sáng. Dùng làm chữ đạt ≥ 4.9:1 nhưng hiện chỉ xuất hiện ở dạng nền và nét.
 - **Ember Ink** (`--ember-ink`): chữ trên mọi nền đặc sáng (ember, danger, warn). Cùng giá trị với nền, 6.5:1 trên ember.
 
 ### Neutral
@@ -216,7 +216,7 @@ Bảng màu ô liu tối lấy từ nền logo, chữ kem đã giảm sáng đ�
 ### Hierarchy
 - **Display Count** (Anton 400, 4.5rem → 6rem khi cao ≥ 740px → 8rem khi rộng ≥ 380px và cao ≥ 740px, line-height 1): số cốc trên màn hình order.
 - **Display Total** (Anton 400, 2.25rem → 3.75rem khi cao ≥ 740px, tracking 0.025em): Thành tiền.
-- **Display Revenue** (Anton 400, `clamp(2.75rem, 9vmin, 5.5rem)`, line-height 1): doanh thu hôm nay trong tâm cung giờ.
+- **Display Revenue** (Anton 400, `clamp(2.75rem, 9vmin, 5.5rem)`, line-height 1): doanh thu của ngày kinh doanh trong tâm cung giờ (cỡ theo bề rộng cung: `clamp(2rem, 12cqw, 4.5rem)`).
 - **Headline** (Anton 400, 1.875rem, tracking 0.025em): tiêu đề trang Tổng quan, doanh thu tháng, phím +1 +2 +5 +10.
 - **Title** (Anton 400, 1.25rem–1.5rem, tracking 0.025em): tiêu đề mục "Đơn vừa tạo" (màu sage), số cốc dưới doanh thu, chữ "cốc" cạnh số cốc.
 - **Label Confirm** (Anton 400, 1.5rem, tracking 0.025em): nhãn "Xác nhận đơn".
@@ -236,7 +236,7 @@ Một cột, ưu tiên điện thoại. Màn hình order là `max-w-md` (448px) 
 
 **Màn hình order vừa một khung, không cuộn**, ở 390×844 và 360×640: header (logo trái, Đơn giá phải) → số cốc → Thành tiền + vệt sáng → Ghế quầy 2 hàng × 6 cột như mép quầy thật → Bàn · Mang về 4 cột → phím `+1 +2 +5 +10` (4 cột) và `−1 / Xóa` (2 cột) đẩy xuống vùng ngón cái bằng `mt-auto` → thanh Xác nhận đơn dính đáy, có `safe-area-inset-bottom`. Khung đầu cao `calc(100dvh - 6rem)`. Con số chỉ phóng to và khoảng cách chỉ nới ra khi `min-height: 740px`; dưới mức đó mọi thứ giữ cỡ nhỏ để vừa khung. "Đơn vừa tạo" nằm dưới, phải cuộn tới.
 
-**Trang chủ quán:** dưới `lg` (1024px) là dải trên (logo + Đăng xuất), nội dung, và thanh điều hướng 4 cột cố định ở đáy (nội dung chừa `pb-16`). Từ `lg` là cột trái 224px (logo lớn, điều hướng dọc, Đăng xuất ở đáy) cạnh nội dung. Cung giờ rộng `min(100%, 70vh, 560px)`, vuông, và trên máy tính được căn giữa theo chiều dọc.
+**Trang chủ quán:** dưới `lg` (1024px) là dải trên (logo + Đăng xuất), nội dung, và thanh điều hướng 4 cột cố định ở đáy (nội dung chừa `pb-16`). Từ `lg` là **sidebar cố định** bên trái, rộng 256px, nền `--surface`, mép phải là vệt sáng dọc 1px (ember 50%): logo lớn + "Trang chủ quán", điều hướng dọc có icon, "Màn hình order" tách riêng dưới một đường kẻ, Đăng xuất (nút viền + icon) ở đáy; chỉ phần nội dung bên phải cuộn. Đệm đáy trên điện thoại vừa bằng thanh điều hướng (`3.75rem + safe-area`). Tổng quan trên `lg`: hàng trên là cung giờ cạnh sổ so sánh dạng bảng (hàng tiêu đề Doanh thu / Số cốc / Số đơn, số canh phải), hàng dưới là hai biểu đồ (tuần 2fr, tháng 3fr). Cài đặt trên `lg`: hai cột, cài đặt ngắn (Đơn giá chung, Giờ mở/đóng cửa, PIN quán) bên trái, Chỗ ngồi bên phải; điện thoại một cột, Chỗ ngồi cuối. Các mục dùng tiêu đề Anton + vệt sáng thay cho khung viền.
 
 **Sổ đơn hàng:** dưới `sm` (640px) mỗi đơn là một dòng sổ hai tầng (giờ · chỗ ngồi + trạng thái; số cốc × đơn giá ↔ thành tiền). Từ `sm` là bảng 6 cột. Dòng tổng dính đáy, nằm trên thanh điều hướng.
 
@@ -304,10 +304,10 @@ Sau khi tạo đơn, nút Xác nhận nhường chỗ cho thanh `--raised` bo 16
 - **Error:** dòng chữ danger ngay dưới ô, `role="alert"`.
 
 ### Navigation
-Bốn mục: Tổng quan, Lịch sử đơn hàng, Cài đặt, Màn hình order. Chữ label sage 500; mục hiện tại chữ kem 600, gạch chân ember 2px. Điện thoại: thanh 4 cột cố định ở đáy, nền `--bg`, viền trên `--line`, mỗi mục cao 56px. Máy tính (`lg`): cột dọc bên trái dưới logo, chữ 1rem.
+Bốn mục: Tổng quan, Lịch sử đơn hàng, Cài đặt, Màn hình order. Mỗi mục có icon lucide 20px. Chữ label sage 500; mục hiện tại chữ kem, icon ember. Điện thoại: thanh 4 cột cố định ở đáy, icon trên nhãn ngắn (12px; "Lịch sử" cho Lịch sử đơn hàng), nền `--bg`, viền trên `--line`, mỗi mục cao 56px. Máy tính (`lg`): danh sách dọc trong sidebar, chữ 1rem, mục hiện tại có nền `--raised` và chữ 600.
 
 ### Business Day Arc (Đồng hồ ca)
-24 giờ của ngày kinh doanh trải trên 300°, chỉ vẽ phần đã trôi qua. Nét cung 1.6 đơn vị gradient kem 35% → kem → ember, trên một quầng ember mờ; đầu cung là đốm than ember có quầng, như đầu điếu thuốc. Giờ mở cửa ghi nhỏ ở chân cung. Doanh thu hôm nay (Display Revenue), số cốc (Title) và "Bây giờ HH:MM" nằm trong tâm. Không vẽ số liệu lên cung.
+Khoảng giờ mở cửa → giờ đóng cửa (mặc định 20:00–02:00) trải trên 300°, chỉ vẽ phần đã trôi qua; ngoài giờ mở cửa cung đầy và ghi "Đã đóng cửa". Nét cung 1.6 đơn vị gradient kem 35% → kem → ember, trên một quầng ember mờ; đầu cung là đốm than ember có quầng, như đầu điếu thuốc. Giờ mở cửa ghi nhỏ ở chân cung. Doanh thu của ngày kinh doanh (Display Revenue), số cốc · số đơn (Title) và "Bây giờ HH:MM" nằm trong tâm. Không vẽ số liệu lên cung.
 
 ### Brand Marks
 - **Chữ chính vẽ tay** (`/brand/nuoc-noi-wordmark.png`, 1096×1016, nền trong suốt): góc trên trái màn hình order (cao 36px → 50px), dải trên/cột trái trang chủ quán (40px → 80px), trang đăng nhập; luôn có halo. Icon ứng dụng đặt chữ chính ở 60% khung trên nền `#1A1E15`.
@@ -323,7 +323,7 @@ Bốn mục: Tổng quan, Lịch sử đơn hàng, Cài đặt, Màn hình order
 - **Do** hiển thị đơn đã hủy bằng gạch ngang + chữ sage, giữ nguyên dòng; không xóa, không tô đỏ cả dòng.
 - **Do** dùng vệt sáng `.streak` thay cho đường kẻ trang trí đứng một mình.
 - **Do** dùng logo và motif từ file PNG gốc, có halo (trừ motif ly cocktail ở trạng thái trống).
-- **Do** giữ chuyển động trong 150–250ms, chỉ để báo thay đổi trạng thái, và tắt khi `prefers-reduced-motion`.
+- **Do** giữ chuyển động phản hồi trong 120–250ms (số cốc nảy 160ms, đơn mới trượt vào 240ms, vệt sáng khi gửi 250ms). Khoảnh khắc chính duy nhất là "ảnh hiện dần" khi mở Tổng quan: số liệu từ nhòe sang rõ (`develop` 700ms), cung tự vẽ (`arc-draw` 800ms), cột mọc lần lượt (`bar-rise` 450ms, trễ tối đa ~300ms); số chạy 600ms khi tự tải lại. Với `prefers-reduced-motion`: bỏ di chuyển, chỉ giữ đổi độ mờ.
 - **Do** kiểm tra màn hình order ở 360×640 và 390×844: không được cuộn mới tới nút Xác nhận đơn.
 
 ### Don't:
