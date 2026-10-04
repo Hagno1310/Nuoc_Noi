@@ -29,11 +29,11 @@ for (const [w, h, prefix] of [[390, 844, "mobile"], [1440, 900, "desktop"]]) {
   await shot(ctx, "/admin/dashboard", `${prefix}.png`);
   await shot(ctx, "/admin/menu", `${prefix}-menu.png`);
   await shot(ctx, "/admin/settings", `${prefix}-settings.png`);
-  // Hàng đang mở: nút của hàng (Đổi tên, Đổi giá, Ẩn)
-  for (const [path, row, file] of [["/admin/menu", /^BeSpoke/, "menu-open"], ["/admin/settings", /^Quầy 1$/, "settings-open"]]) {
+  // Hộp thoại sửa (nút ⋯ cuối hàng)
+  for (const [path, row, file] of [["/admin/menu", "Sửa BeSpoke", "menu-open"], ["/admin/settings", "Sửa Quầy 1", "settings-open"]]) {
     const p = await ctx.newPage();
     await p.goto(base + path, { waitUntil: "networkidle" });
-    await p.getByRole("button", { name: row }).first().click();
+    await p.getByRole("button", { name: row, exact: true }).click();
     await p.waitForTimeout(300);
     await p.screenshot({ path: `${out}/${prefix}-${file}.png` });
     await p.close();

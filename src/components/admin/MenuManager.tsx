@@ -1,10 +1,14 @@
 "use client";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { SectionTitle } from "@/components/admin/SectionTitle";
+import { GripVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { InlineEdit } from "@/components/admin/InlineEdit";
+import { EditDialog } from "@/components/admin/EditDialog";
+import { SectionTitle } from "@/components/admin/SectionTitle";
 import { ownerErrorText } from "@/lib/admin/errors";
 import { menuNameError, nextSortOrder, normalizeMenuName } from "@/lib/admin/menu";
+import { moveItem, renumber } from "@/lib/admin/reorder";
+import { useDragSort } from "@/lib/admin/useDragSort";
 import { useTwoStep } from "@/lib/admin/useTwoStep";
 import { parsePriceInput, PRICE_RANGE_TEXT } from "@/lib/admin/validate";
 import { formatVnd } from "@/lib/money";
@@ -19,30 +23,25 @@ export type OwnerMenuItem = {
 };
 
 type Result = PromiseLike<{ error: { message: string; code?: string } | null }>;
-type Editing = { id: string; field: "name" | "price"; value: string } | null;
 
 // SRS FR-05: thêm, đổi tên, đổi giá, sắp xếp, ẩn và hiện lại món. Trigger ở DB tự ghi lịch sử giá.
+// Thao tác theo thói quen web/app: chạm tên hoặc giá để sửa tại chỗ, kéo tay cầm ⋮⋮ để đổi thứ tự, menu ⋯ để ẩn.
 export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   const router = useRouter();
   const supabase = getBrowserSupabase();
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState("");
-  const [editing, setEditing] = useState<Editing>(null);
-  // Mỗi món là một dòng sổ: chạm vào hàng mới hiện nút của hàng đó; nút lên/xuống nằm sau "Sắp xếp"
-  const [open, setOpen] = useState<string | null>(null);
-  const [sorting, setSorting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Lỗi khi đang sửa hiện ngay dưới ô sửa (DESIGN.md Inputs), không ở cuối trang
-  const [editError, setEditError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  // Khóa nút tới khi dữ liệu mới về, để không tính thứ tự trên danh sách cũ
+  // Khóa thao tác tới khi dữ liệu mới về, để không tính thứ tự trên danh sách cũ
   const [refreshing, startTransition] = useTransition();
   const locked = busy || refreshing;
   const hide = useTwoStep<string>();
   const active = items.filter((i) => !i.is_archived);
   const archived = items.filter((i) => i.is_archived);
 
-  async function run(ops: (() => Result)[], show: (text: string | null) => void = setError) {
+  // Trả về câu lỗi hoặc null; luôn tải lại dữ liệu sau khi ghi
+  async function run(ops: (() => Result)[]): Promise<string | null> {
     setBusy(true);
     let failure: string | null = null;
     for (const op of ops) {
@@ -53,20 +52,8 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
       }
     }
     setBusy(false);
-    show(failure);
     startTransition(() => router.refresh());
-    return failure === null;
-  }
-
-  function openEdit(next: NonNullable<Editing>) {
-    setEditError(null);
-    setEditing(next);
-  }
-
-  function closeEdit() {
-    setEditError(null);
-    setEditing(null);
-    setOpen(null);
+    return failure;
   }
 
   async function add() {
@@ -74,216 +61,131 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
     if (nameError) return setError(nameError);
     const price = parsePriceInput(newPrice);
     if (price === null) return setError(PRICE_RANGE_TEXT);
-    const name = normalizeMenuName(newName);
-    if (
-      await run([
-        () => supabase.from("menu_items").insert({ name, price, sort_order: nextSortOrder(items) }),
-      ])
-    ) {
+    const failure = await run([
+      () =>
+        supabase
+          .from("menu_items")
+          .insert({ name: normalizeMenuName(newName), price, sort_order: nextSortOrder(items) }),
+    ]);
+    setError(failure);
+    if (!failure) {
       setNewName("");
       setNewPrice("");
     }
   }
 
-  async function saveEdit() {
-    if (!editing) return;
-    const item = items.find((i) => i.id === editing.id);
-    if (!item) return closeEdit();
-    if (editing.field === "name") {
-      const name = normalizeMenuName(editing.value);
-      if (name === item.name) return closeEdit();
-      const nameError = menuNameError(name, items, item.id);
-      if (nameError) return setEditError(nameError);
-      if (await run([() => supabase.from("menu_items").update({ name }).eq("id", item.id)], setEditError))
-        closeEdit();
-      return;
-    }
-    const price = parsePriceInput(editing.value);
-    if (price === null) return setEditError(PRICE_RANGE_TEXT);
-    if (price === item.price) return closeEdit();
-    if (await run([() => supabase.from("menu_items").update({ price }).eq("id", item.id)], setEditError))
-      closeEdit();
+  async function rename(item: OwnerMenuItem, raw: string) {
+    const name = normalizeMenuName(raw);
+    if (name === item.name) return null;
+    const nameError = menuNameError(name, items, item.id);
+    if (nameError) return nameError;
+    return run([() => supabase.from("menu_items").update({ name }).eq("id", item.id)]);
   }
 
-  // Mỗi lệnh update khóa đúng một dòng: không tạo vòng chờ với khóa FOR SHARE của create_order.
-  // ponytail: các lệnh không nằm trong một transaction; lỗi giữa chừng có thể để hai món trùng thứ tự,
-  // lần bấm sau sẽ đánh số lại toàn bộ
-  function move(index: number, delta: -1 | 1) {
-    const a = active[index];
-    const b = active[index + delta];
-    if (!a || !b) return;
-    if (a.sort_order !== b.sort_order) {
-      void run([
-        () => supabase.from("menu_items").update({ sort_order: b.sort_order }).eq("id", a.id),
-        () => supabase.from("menu_items").update({ sort_order: a.sort_order }).eq("id", b.id),
-      ]);
-      return;
-    }
-    // Trùng thứ tự: đổi chỗ hai giá trị bằng nhau không làm gì, nên đánh số lại theo thứ tự đang hiện
-    const order = [...active];
-    order[index] = b;
-    order[index + delta] = a;
+  // Hộp thoại ⋯: lưu tên và giá cùng lúc, chỉ gửi phần đã đổi
+  async function saveBoth(item: OwnerMenuItem, rawName: string, rawPrice: string) {
+    const name = normalizeMenuName(rawName);
+    const nameError = name === item.name ? null : menuNameError(name, items, item.id);
+    if (nameError) return nameError;
+    const price = parsePriceInput(rawPrice);
+    if (price === null) return PRICE_RANGE_TEXT;
+    const ops: (() => Result)[] = [];
+    if (name !== item.name) ops.push(() => supabase.from("menu_items").update({ name }).eq("id", item.id));
+    if (price !== item.price) ops.push(() => supabase.from("menu_items").update({ price }).eq("id", item.id));
+    return ops.length ? run(ops) : null;
+  }
+
+  async function reprice(item: OwnerMenuItem, raw: string) {
+    const price = parsePriceInput(raw);
+    if (price === null) return PRICE_RANGE_TEXT;
+    if (price === item.price) return null;
+    return run([() => supabase.from("menu_items").update({ price }).eq("id", item.id)]);
+  }
+
+  // Đánh số lại theo thứ tự mới (kể cả món đã ẩn, xếp sau), mỗi hàng đổi số là một lệnh riêng
+  function move(from: number, to: number) {
+    const updates = renumber([...moveItem(active, from, to), ...archived]);
     void run(
-      [...order, ...archived].flatMap((item, i) =>
-        item.sort_order === i + 1
-          ? []
-          : [() => supabase.from("menu_items").update({ sort_order: i + 1 }).eq("id", item.id)],
-      ),
-    );
+      updates.map((u) => () => supabase.from("menu_items").update({ sort_order: u.sort_order }).eq("id", u.id)),
+    ).then(setError);
   }
+  const { handleProps, rowStyle, dropMark, drag } = useDragSort(active.length, move, locked);
 
+  // Trả về true khi đã ẩn (bấm lần hai), để hộp thoại đóng lại
   function archive(item: OwnerMenuItem) {
-    if (hide.armed !== item.id) return hide.arm(item.id);
+    if (hide.armed !== item.id) {
+      hide.arm(item.id);
+      return false;
+    }
     hide.reset();
-    setOpen(null);
-    void run([() => supabase.from("menu_items").update({ is_archived: true }).eq("id", item.id)]);
+    void run([() => supabase.from("menu_items").update({ is_archived: true }).eq("id", item.id)]).then(setError);
+    return true;
   }
 
   function restore(item: OwnerMenuItem) {
-    // Món đã ẩn không có nút Đổi tên, nên câu lỗi chỉ cách sửa làm được (ui-craft.md)
+    // Món đã ẩn không sửa tên được, nên câu lỗi chỉ cách sửa làm được (ui-craft.md)
     if (menuNameError(item.name, items, item.id))
       return setError("Đã có món đang bán tên này. Đổi tên hoặc ẩn món đang bán đó rồi hiện lại.");
-    void run([() => supabase.from("menu_items").update({ is_archived: false }).eq("id", item.id)]);
+    void run([() => supabase.from("menu_items").update({ is_archived: false }).eq("id", item.id)]).then(setError);
   }
 
-  // Màu viền tách riêng: nút phá hủy phải có viền danger, không bị border-edge đè (Tailwind xếp tiện ích theo tên)
-  const button =
-    "flex min-h-12 min-w-12 items-center justify-center rounded-md border px-3 text-sm disabled:opacity-40";
-  const small = `${button} border-edge`;
-  const field = "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink placeholder:text-ink-muted";
+  const outline =
+    "flex min-h-12 min-w-12 items-center justify-center rounded-md border border-edge px-3 text-sm transition-[background-color,border-color,transform] duration-150 hover:border-ink active:scale-[0.98] disabled:opacity-40";
+  const field =
+    "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink transition-colors duration-150 placeholder:text-ink-muted focus:border-ember";
   return (
     <div className="space-y-6">
-      <SectionTitle
-        action={
-          active.length > 1 && (
-            <button
-              type="button"
-              className={small}
-              aria-pressed={sorting}
-              onClick={() => {
-                closeEdit();
-                setSorting(!sorting);
-              }}
-            >
-              {sorting ? "Xong" : "Sắp xếp"}
-            </button>
-          )
-        }
-      >
-        Món đang bán
-      </SectionTitle>
+      <SectionTitle>Món đang bán</SectionTitle>
       {active.length === 0 ? (
         <p className="text-sm text-ink-muted">Chưa có món nào đang bán. Thêm món ở ô bên dưới.</p>
       ) : (
-        <ul className="divide-y divide-line border-b border-line">
+        <ul className="-mt-4 divide-y divide-line border-b border-line">
           {active.map((item, i) => (
-            <li key={item.id}>
-              {editing?.id === item.id ? (
-                <form
-                  className="flex flex-wrap gap-2 py-2"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void saveEdit();
-                  }}
-                >
-                  <input
-                    autoFocus
-                    aria-label={
-                      editing.field === "name" ? `Tên mới cho ${item.name}` : `Giá mới cho ${item.name}`
-                    }
-                    inputMode={editing.field === "price" ? "numeric" : undefined}
-                    value={editing.value}
-                    onChange={(e) => setEditing({ ...editing, value: e.target.value })}
-                    onKeyDown={(e) => e.key === "Escape" && closeEdit()}
-                    aria-invalid={editError !== null}
-                    aria-describedby={editError ? `edit-error-${item.id}` : undefined}
-                    className={`${field} min-w-40 flex-1 tabular-nums`}
+            <li
+              key={item.id}
+              style={rowStyle(i)}
+              className={`flex items-center gap-1 transition-colors duration-150 ${drag?.from === i ? "relative z-10 bg-raised" : ""} ${dropMark(i)}`}
+            >
+              <button
+                type="button"
+                aria-label={`Kéo để đổi thứ tự ${item.name}`}
+                {...handleProps(i)}
+                className="flex min-h-12 w-8 shrink-0 cursor-grab items-center justify-center text-ink-muted transition-colors duration-150 hover:text-ink active:cursor-grabbing disabled:opacity-40"
+              >
+                <GripVertical aria-hidden="true" size={18} />
+              </button>
+              <InlineEdit
+                value={item.name}
+                buttonLabel={`Sửa tên ${item.name}`}
+                inputLabel={`Tên mới cho ${item.name}`}
+                onSave={(v) => rename(item, v)}
+                className="min-w-0 flex-1 break-words font-display text-xl"
+              >
+                {item.name}
+              </InlineEdit>
+              <InlineEdit
+                value={item.price.toLocaleString("vi-VN")}
+                buttonLabel={`Sửa giá ${item.name}`}
+                inputLabel={`Giá mới cho ${item.name}`}
+                onSave={(v) => reprice(item, v)}
+                numeric
+                className="w-32 shrink-0 text-right font-semibold"
+              >
+                {formatVnd(item.price)}
+              </InlineEdit>
+              <EditDialog label={`Sửa ${item.name}`} title={item.name}>
+                {(close) => (
+                  <EditMenuItem
+                    item={item}
+                    field={field}
+                    locked={locked}
+                    hideArmed={hide.armed === item.id}
+                    onSave={(n, p) => saveBoth(item, n, p)}
+                    onHide={() => archive(item) && close()}
+                    close={close}
                   />
-                  <button type="submit" disabled={locked} className={small}>
-                    Lưu
-                  </button>
-                  <button type="button" className={small} onClick={closeEdit}>
-                    Bỏ qua
-                  </button>
-                  {editError && (
-                    <p id={`edit-error-${item.id}`} role="alert" className="w-full text-sm text-danger">
-                      {editError}
-                    </p>
-                  )}
-                </form>
-              ) : sorting ? (
-                <div className="flex min-h-12 items-center gap-2 py-1">
-                  <span className="min-w-0 flex-1 break-words font-display text-xl">{item.name}</span>
-                  <button
-                    type="button"
-                    className={small}
-                    aria-label={`Đưa ${item.name} lên`}
-                    disabled={locked || i === 0}
-                    onClick={() => move(i, -1)}
-                  >
-                    <ChevronUp aria-hidden="true" size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    className={small}
-                    aria-label={`Đưa ${item.name} xuống`}
-                    disabled={locked || i === active.length - 1}
-                    onClick={() => move(i, 1)}
-                  >
-                    <ChevronDown aria-hidden="true" size={18} />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    aria-expanded={open === item.id}
-                    onClick={() => setOpen(open === item.id ? null : item.id)}
-                    className="flex min-h-12 w-full items-baseline justify-between gap-3 py-2 text-left"
-                  >
-                    <span className="min-w-0 break-words font-display text-xl">{item.name}</span>
-                    <span className="flex shrink-0 items-center gap-2 font-semibold tabular-nums">
-                      {formatVnd(item.price)}
-                      <ChevronDown
-                        aria-hidden="true"
-                        size={18}
-                        className={`text-ink-muted transition-transform duration-150 ${open === item.id ? "rotate-180" : ""}`}
-                      />
-                    </span>
-                  </button>
-                  {open === item.id && (
-                    <div className="flex gap-2 pb-3">
-                      <button
-                        type="button"
-                        className={small}
-                        aria-label={`Đổi tên ${item.name}`}
-                        disabled={locked}
-                        onClick={() => openEdit({ id: item.id, field: "name", value: item.name })}
-                      >
-                        Đổi tên
-                      </button>
-                      <button
-                        type="button"
-                        className={small}
-                        aria-label={`Đổi giá ${item.name}`}
-                        disabled={locked}
-                        onClick={() => openEdit({ id: item.id, field: "price", value: String(item.price) })}
-                      >
-                        Đổi giá
-                      </button>
-                      <button
-                        type="button"
-                        className={`${button} ml-auto ${hide.armed === item.id ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
-                        aria-label={hide.armed === item.id ? `Chắc chắn ẩn ${item.name}?` : `Ẩn ${item.name}`}
-                        disabled={locked}
-                        onClick={() => archive(item)}
-                      >
-                        {hide.armed === item.id ? "Chắc chắn ẩn?" : "Ẩn"}
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
+                )}
+              </EditDialog>
             </li>
           ))}
         </ul>
@@ -298,12 +200,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
       >
         <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-ink-muted">
           Tên món
-          <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Highball"
-            className={field}
-          />
+          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Highball" className={field} />
         </label>
         <label className="flex w-36 flex-col gap-1 text-sm text-ink-muted">
           Giá
@@ -315,17 +212,17 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
             className={`${field} tabular-nums`}
           />
         </label>
-        <button type="submit" disabled={locked} className={`${small} px-5 font-semibold`}>
+        <button type="submit" disabled={locked} className={`${outline} px-5 font-semibold`}>
           Thêm món
         </button>
       </form>
 
       {archived.length > 0 && (
         <details>
-          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-ink-muted">
+          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-ink-muted transition-colors duration-150 hover:text-ink">
             Món đã ẩn ({archived.length})
           </summary>
-          <ul>
+          <ul className="fade-in">
             {archived.map((item) => (
               <li key={item.id} className="flex items-center gap-3 py-1">
                 <span className="flex flex-1 items-center gap-2 text-ink-muted">
@@ -335,7 +232,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                 <span className="text-sm tabular-nums text-ink-muted">{formatVnd(item.price)}</span>
                 <button
                   type="button"
-                  className={small}
+                  className={outline}
                   aria-label={`Hiện lại ${item.name}`}
                   disabled={locked}
                   onClick={() => restore(item)}
@@ -354,5 +251,77 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
         </p>
       )}
     </div>
+  );
+}
+
+// Nội dung hộp thoại sửa món: hai ô có nhãn, Lưu là hành động chính; Ẩn món (hai bước) đứng riêng bên trái, xa nút Lưu
+function EditMenuItem({
+  item,
+  field,
+  locked,
+  hideArmed,
+  onSave,
+  onHide,
+  close,
+}: {
+  item: OwnerMenuItem;
+  field: string;
+  locked: boolean;
+  hideArmed: boolean;
+  onSave: (name: string, price: string) => Promise<string | null>;
+  onHide: () => void;
+  close: () => void;
+}) {
+  const [name, setName] = useState(item.name);
+  const [price, setPrice] = useState(item.price.toLocaleString("vi-VN"));
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const failure = await onSave(name, price);
+        if (failure) setError(failure);
+        else close();
+      }}
+    >
+      <label className="flex flex-col gap-1 text-sm text-ink-muted">
+        Tên món
+        <input autoFocus value={name} onChange={(e) => setName(e.target.value)} className={field} />
+      </label>
+      <label className="flex flex-col gap-1 text-sm text-ink-muted">
+        Giá
+        <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" className={`${field} tabular-nums`} />
+      </label>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex items-center gap-2 pt-1">
+        <button
+          type="button"
+          disabled={locked}
+          onClick={onHide}
+          className={`min-h-12 rounded-lg border px-3 text-sm font-semibold transition-colors duration-150 disabled:opacity-40 ${hideArmed ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+        >
+          {hideArmed ? "Chắc chắn ẩn?" : "Ẩn món"}
+        </button>
+        <button
+          type="button"
+          onClick={close}
+          className="ml-auto min-h-12 rounded-lg border border-edge px-4 text-sm transition-colors duration-150 hover:border-ink"
+        >
+          Hủy
+        </button>
+        <button
+          type="submit"
+          disabled={locked}
+          className="min-h-12 rounded-lg bg-ember px-5 font-semibold text-ember-ink transition-[transform,opacity] duration-150 active:scale-[0.98] disabled:opacity-40"
+        >
+          Lưu
+        </button>
+      </div>
+    </form>
   );
 }

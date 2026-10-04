@@ -1,4 +1,4 @@
-import { BusinessHourForm } from "@/components/admin/BusinessHourForm";
+import { BusinessHoursForm } from "@/components/admin/BusinessHoursForm";
 import { SectionTitle } from "@/components/admin/SectionTitle";
 import { SeatsManager, type OwnerSeat } from "@/components/admin/SeatsManager";
 import { createServerSupabase } from "@/lib/supabase/server";
@@ -36,19 +36,10 @@ export default async function SettingsPage() {
       <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-16">
         <div className="space-y-12">
           <section className="space-y-4">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <BusinessHourForm
-                label="Giờ mở cửa"
-                rpc="update_business_day_start_hour"
-                currentHour={settings.business_day_start_hour}
-                note="Nên đổi khi quán đã đóng cửa."
-              />
-              <BusinessHourForm
-                label="Giờ đóng cửa"
-                rpc="update_business_day_end_hour"
-                currentHour={settings.business_day_end_hour}
-              />
-            </div>
+            <BusinessHoursForm
+              start={settings.business_day_start_hour}
+              end={settings.business_day_end_hour}
+            />
           </section>
 
           <section className="space-y-4">

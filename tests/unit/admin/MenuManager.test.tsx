@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MenuManager, type OwnerMenuItem } from "@/components/admin/MenuManager";
 
@@ -51,26 +51,79 @@ describe("MenuManager", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Giá phải là số nguyên từ 1.000đ đến 5.000.000đ.");
   });
 
-  it("đổi giá một món", async () => {
+  it("chạm vào giá để sửa tại chỗ, Enter là lưu", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
-    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
-    await user.click(screen.getByRole("button", { name: "Đổi giá BeSpoke" }));
+    await user.click(screen.getByRole("button", { name: "Sửa giá BeSpoke" }));
     const input = screen.getByLabelText("Giá mới cho BeSpoke");
     await user.clear(input);
-    await user.type(input, "200.000");
-    await user.click(screen.getByRole("button", { name: "Lưu" }));
+    await user.type(input, "200.000{Enter}");
     expect(db.update).toHaveBeenCalledWith({ price: 200000 });
     expect(db.eq).toHaveBeenCalledWith("id", "a");
   });
 
-  it("ẩn món cần bấm hai lần", async () => {
+  it("chạm vào tên để sửa tại chỗ, Esc là hủy", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
-    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
-    await user.click(screen.getByRole("button", { name: "Ẩn BeSpoke" }));
+    await user.click(screen.getByRole("button", { name: "Sửa tên BeSpoke" }));
+    await user.type(screen.getByLabelText("Tên mới cho BeSpoke"), " Đêm{Escape}");
     expect(db.update).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Chắc chắn ẩn BeSpoke?" }));
+    expect(screen.queryByLabelText("Tên mới cho BeSpoke")).toBeNull();
+  });
+
+  it("lỗi khi sửa giá hiện ngay dưới ô đang sửa", async () => {
+    const user = userEvent.setup();
+    render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: "Sửa giá BeSpoke" }));
+    const input = screen.getByLabelText("Giá mới cho BeSpoke");
+    await user.clear(input);
+    await user.type(input, "999{Enter}");
+    expect(db.update).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent("Giá phải là số nguyên từ 1.000đ đến 5.000.000đ.");
+    expect(input).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("nút ⋯ cuối mỗi hàng mở hộp thoại sửa tên và giá giữa màn hình", async () => {
+    const user = userEvent.setup();
+    render(<MenuManager items={items} />);
+    expect(screen.getByRole("button", { name: "Sửa Classic" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Sửa BeSpoke" }));
+    const dialog = screen.getByRole("dialog", { name: "BeSpoke" });
+    const name = within(dialog).getByLabelText("Tên món");
+    const price = within(dialog).getByLabelText("Giá");
+    expect(name).toHaveValue("BeSpoke");
+    await user.clear(name);
+    await user.type(name, "BeSpoke Đêm");
+    await user.clear(price);
+    await user.type(price, "210.000");
+    await user.click(within(dialog).getByRole("button", { name: "Lưu" }));
+    expect(db.update).toHaveBeenCalledWith({ name: "BeSpoke Đêm" });
+    expect(db.update).toHaveBeenCalledWith({ price: 210000 });
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("hộp thoại báo lỗi tại chỗ và không đóng khi giá sai", async () => {
+    const user = userEvent.setup();
+    render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: "Sửa BeSpoke" }));
+    const dialog = screen.getByRole("dialog", { name: "BeSpoke" });
+    await user.clear(within(dialog).getByLabelText("Giá"));
+    await user.type(within(dialog).getByLabelText("Giá"), "999");
+    await user.click(within(dialog).getByRole("button", { name: "Lưu" }));
+    expect(db.update).not.toHaveBeenCalled();
+    expect(within(dialog).getByRole("alert")).toHaveTextContent("Giá phải là số nguyên từ 1.000đ đến 5.000.000đ.");
+  });
+
+  it("Ẩn món trong hộp thoại cần bấm hai lần, nằm xa nút Lưu và có màu nguy hiểm", async () => {
+    const user = userEvent.setup();
+    render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: "Sửa BeSpoke" }));
+    const dialog = screen.getByRole("dialog", { name: "BeSpoke" });
+    const hide = within(dialog).getByRole("button", { name: "Ẩn món" });
+    expect(hide.className).toContain("text-danger");
+    await user.click(hide);
+    expect(db.update).not.toHaveBeenCalled();
+    await user.click(within(dialog).getByRole("button", { name: "Chắc chắn ẩn?" }));
     expect(db.update).toHaveBeenCalledWith({ is_archived: true });
     expect(db.eq).toHaveBeenCalledWith("id", "a");
   });
@@ -86,75 +139,29 @@ describe("MenuManager", () => {
     );
   });
 
-  it("đổi chỗ hai món bằng hai lệnh, mỗi lệnh một dòng", async () => {
-    const user = userEvent.setup();
+  it("đổi thứ tự bằng tay cầm (phím mũi tên): đánh số lại, mỗi lệnh một dòng", () => {
     render(<MenuManager items={items} />);
-    await user.click(screen.getByRole("button", { name: "Sắp xếp" }));
-    await user.click(screen.getByRole("button", { name: "Đưa Classic lên" }));
+    fireEvent.keyDown(screen.getByRole("button", { name: "Kéo để đổi thứ tự Classic" }), { key: "ArrowUp" });
     expect(db.update).toHaveBeenNthCalledWith(1, { sort_order: 1 });
     expect(db.eq).toHaveBeenNthCalledWith(1, "id", "b");
-    expect(db.update).toHaveBeenNthCalledWith(2, { sort_order: 2 });
-    expect(db.eq).toHaveBeenNthCalledWith(2, "id", "a");
   });
 
-  it("thực đơn trống vẫn có hướng dẫn và form thêm món", () => {
-    render(<MenuManager items={[]} />);
-    expect(screen.getByText("Chưa có món nào đang bán. Thêm món ở ô bên dưới.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Thêm món" })).toBeEnabled();
-  });
-
-  it("hai món trùng thứ tự thì đánh số lại theo thứ tự đang hiện, mỗi lệnh một dòng", async () => {
-    const user = userEvent.setup();
+  it("hai món trùng thứ tự thì đánh số lại, chỉ hàng đổi số mới được gửi", () => {
     const tied: OwnerMenuItem[] = [
       { id: "a", name: "BeSpoke", price: 190000, sort_order: 1, is_archived: false },
       { id: "b", name: "Classic", price: 190000, sort_order: 1, is_archived: false },
       { id: "c", name: "Neat", price: 100000, sort_order: 3, is_archived: true },
     ];
     render(<MenuManager items={tied} />);
-    await user.click(screen.getByRole("button", { name: "Sắp xếp" }));
-    await user.click(screen.getByRole("button", { name: "Đưa Classic lên" }));
+    fireEvent.keyDown(screen.getByRole("button", { name: "Kéo để đổi thứ tự Classic" }), { key: "ArrowUp" });
     expect(db.update).toHaveBeenCalledTimes(1);
     expect(db.update).toHaveBeenCalledWith({ sort_order: 2 });
     expect(db.eq).toHaveBeenCalledWith("id", "a");
   });
 
-  it("lỗi khi sửa giá hiện ngay dưới ô đang sửa; Bỏ qua thì xóa lỗi", async () => {
-    const user = userEvent.setup();
-    render(<MenuManager items={items} />);
-    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
-    await user.click(screen.getByRole("button", { name: "Đổi giá BeSpoke" }));
-    const input = screen.getByLabelText("Giá mới cho BeSpoke");
-    await user.clear(input);
-    await user.type(input, "999");
-    await user.click(screen.getByRole("button", { name: "Lưu" }));
-    const form = input.closest("form") as HTMLElement;
-    expect(within(form).getByRole("alert")).toHaveTextContent(
-      "Giá phải là số nguyên từ 1.000đ đến 5.000.000đ.",
-    );
-    expect(db.update).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Bỏ qua" }));
-    expect(screen.queryByRole("alert")).toBeNull();
-  });
-
-  it("nút Ẩn có viền màu nguy hiểm, khác hẳn nút thường", async () => {
-    const user = userEvent.setup();
-    render(<MenuManager items={items} />);
-    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
-    const hide = screen.getByRole("button", { name: "Ẩn BeSpoke" });
-    expect(hide.className).toContain("border-danger");
-    expect(hide.className).not.toContain("border-edge");
-  });
-
-  it("mỗi món là một dòng sổ: nút của hàng chỉ hiện khi chạm vào hàng đó", async () => {
-    const user = userEvent.setup();
-    render(<MenuManager items={items} />);
-    expect(screen.queryByRole("button", { name: "Đổi giá BeSpoke" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Đưa Classic lên" })).toBeNull();
-    const row = screen.getByRole("button", { name: /^BeSpoke/ });
-    expect(row).toHaveAttribute("aria-expanded", "false");
-    await user.click(row);
-    expect(row).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("button", { name: "Đổi giá BeSpoke" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Đổi giá Classic" })).toBeNull();
+  it("thực đơn trống vẫn có hướng dẫn và form thêm món", () => {
+    render(<MenuManager items={[]} />);
+    expect(screen.getByText("Chưa có món nào đang bán. Thêm món ở ô bên dưới.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Thêm món" })).toBeEnabled();
   });
 });

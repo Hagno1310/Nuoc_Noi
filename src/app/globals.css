@@ -114,6 +114,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+.fade-in {
+  animation: fade-in 180ms ease-out both;
+}
+
+/* Hộp thoại sửa: nổi lên nhẹ giữa màn hình, nền tối mờ dần */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+.edit-dialog[open] {
+  animation: dialog-in 200ms var(--ease-print) both;
+}
+.edit-dialog::backdrop {
+  animation: fade-in 200ms ease-out both;
+}
+
 /* Đơn mới trượt vào Đơn vừa tạo */
 @keyframes row-in {
   from {
@@ -131,12 +149,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
-/* iOS Safari phóng to trang khi chạm ô nhập có chữ dưới 16px. Nằm trong base để class text-* vẫn thắng */
+/* iOS Safari phóng to trang khi chạm ô nhập có chữ dưới 16px. Nằm trong base để class text-* vẫn thắng.
+   Mọi điều khiển đổi màu, viền, độ mờ mượt trong 150ms; class transition-* của từng component vẫn thắng */
 @layer base {
   input,
   select,
   textarea {
     font-size: max(16px, 1em);
+  }
+  button,
+  a,
+  summary,
+  input,
+  select,
+  textarea {
+    transition-property: color, background-color, border-color, opacity, transform;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease-print);
   }
 }
 
@@ -154,7 +183,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 @media (prefers-reduced-motion: reduce) {
   /* Bỏ di chuyển, giữ thay đổi độ mờ để trạng thái vẫn đọc được */
   .row-in,
-  .toast-in {
+  .toast-in,
+  .edit-dialog[open] {
     animation: fade-in 200ms ease-out both;
   }
   *,
