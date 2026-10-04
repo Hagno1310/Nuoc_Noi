@@ -1,7 +1,7 @@
 # Brief thiết kế: Màn hình order (`/order`, `/login`)
 
 > Chốt lại qua `/impeccable shape` ngày 2026-10-05, theo SRS v3.0 (thực đơn nhiều món, giỏ đơn, giảm giá). Bản trước (2026-10-04, đồng giá, số cốc khổng lồ) đã thay hẳn.
-> Hướng thiết kế: **Phơi sáng dài** (seed `59dd7cf0`, assigned, code-led), giữ nguyên thế giới, đổi nhân vật chính.
+> **Cập nhật 2026-10-05:** thế giới thiết kế đổi sang **Bao diêm quán bar** (seed `73f06246`, re-roll 3, code-led). Hợp đồng thiết kế nằm trong surface brief `src/app/order/page.tsx`. Phần hành vi, trạng thái và dữ liệu (mục 1, 2, 6, 7, 8) vẫn giữ; mục 3–5 bên dưới đã viết lại theo thế giới mới.
 > Khi dựng (đợt 3, `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md` §5), ghi lại phần "Direction contract" trong surface brief `src/app/order/page.tsx` theo mục 5 của `new-work` trong impeccable, dựa trên file này.
 > Hành vi lấy theo `docs/SRS.md` (FR-01–FR-04b). Hoàn cảnh sử dụng lấy theo `PRODUCT.md`. Ống kính phê bình: skill `frontend-design`; khi lệch thì DESIGN.md thắng.
 
@@ -18,41 +18,40 @@
 - Nhân viên **chắc chắn đơn đã gửi** mà không phải nhìn lại.
 - Ánh sáng màn hình không làm phiền khách trong phòng tối.
 
-## 3. Hướng thiết kế: Phơi sáng dài, nhân vật chính mới
+## 3. Hướng thiết kế: Bao diêm quán bar
 
-- **Luận điểm:** lưới món viền mảnh lùi trong bóng tối; chỉ **Thành tiền** cháy sáng ở đáy, trong vùng ngón cái. Ember chỉ dành cho hành động chính (Giỏ đơn, Xác nhận đơn) và chỗ ngồi đang chọn.
-- **Chỉ một chỗ nổi bật nhất:** Thành tiền. Món đã có trong giỏ chỉ đổi viền sang **kem** kèm số lượng kem nhỏ ở góc; không có huy hiệu ember.
-- **Giữ nguyên:** nền ô liu có nhiễu hạt tĩnh, chữ kem (không trắng), một màu nhấn than hồng, Anton cho con số và tên món, Be Vietnam Pro cho mọi chữ khác, logo vẽ tay có quầng sáng, vệt sáng `.streak`, motif điếu thuốc khi đơn vừa tạo, motif ly cocktail khi trống.
-- **Bỏ:** con số cốc khổng lồ, phím `+1 +2 +5 +10 −1 Xóa`, dòng "Đơn giá".
-- **Vẫn từ chối:** ô màu cho từng món, ảnh đồ uống, tab danh mục (8 món vừa một màn), neon, vùng sáng lớn, nhấp nháy, icon bằng emoji hay ký tự Unicode.
-- **Trạng thái như dấu in:** nét mảnh khi nghỉ, khối đặc khi nhấn, gạch ngang khi đã hủy. Mọi ô bấm khớp một lưới cố định.
-- **Bớt chuỗi ghép bằng dấu chấm giữa:** thông tin xếp theo tầng hoặc theo cột, không nối "A · B · C" trên các bề mặt mới. Không viết hoa toàn bộ nhãn.
+- **Luận điểm:** mỗi màn là mặt bao diêm in của Nước Nôi. Thực đơn là bảng giá in đậm; gửi đơn là quẹt một que diêm.
+- **Chỉ một chỗ nổi bật nhất:** tấm in đảo màu mực cam ở đáy, chở Thành tiền.
+- **Chất liệu:** bìa đen mờ phẳng, chữ kem, đúng một màu mực cam lửa cho hành động chính và lựa chọn đang có hiệu lực, dải quẹt diêm nhám là đường chia duy nhất có chất liệu.
+- **Luật:** một họ chữ (Archivo, hẹp đậm cho tiêu đề và con số, thường cho chữ), thang trung tính 5 bậc, một hệ đường kẻ 1px; không quầng sáng, vệt sáng, nhiễu hạt hay bóng đổ; trạng thái như dấu in; món ngừng bán in xám, giữ chỗ.
+- **Giữ:** logo vẽ tay (in phẳng, bỏ quầng sáng), motif điếu thuốc khi đơn vừa tạo.
+- **Từ chối:** POS tối kiểu neon phát sáng, lưới ô màu, ảnh đồ uống, tab danh mục, icon bằng emoji hay ký tự Unicode.
 
 ## 4. Bố cục điện thoại (khung 360×640 và 390×844)
 
 | Vùng, từ trên xuống | Nội dung |
 |---|---|
 | Dải trên | Logo vẽ tay bên trái; liên kết "Trang chủ quán" bên phải nếu là chủ quán |
-| Lưới món | 2 cột × 4 hàng, mỗi ô cao ≥ 72px, viền `--edge`; tên món Anton (tối đa 2 dòng), giá Be Vietnam Pro nhỏ bên dưới. Nhấn: khối kem 150ms. Có trong giỏ: viền kem, số lượng kem ở góc |
+| Bảng giá | Mỗi món một hàng in đậm cao 56px, cách nhau bằng đường kẻ 1px: tên chữ hẹp đậm bên trái (tối đa 2 dòng), giá bên phải. Chạm hàng là +1, nhấn thì hàng đảo màu kem 150ms. Có trong giỏ: số lượng mực cam ở đầu hàng |
 | Cuộn xuống | Đơn vừa tạo, chia cột: giờ và chỗ ngồi bên trái, món ở giữa (xuống dòng được), thành tiền canh phải; có giảm giá thì thêm "−N%" cạnh thành tiền |
-| Sát đáy (dính, cao 64px) | **Thanh giỏ đơn**: trái là "3 món" nhỏ ở trên, **Thành tiền** Anton lớn ở dưới (nảy 160ms mỗi lần thêm món, tự thu nhỏ khi số dài); phải là nút ember **Giỏ đơn**. Giỏ trống: thanh mờ, "Chạm món để thêm", không ember |
+| Sát đáy (dính) | **Dải quẹt diêm** nhám, trên đó **tấm in mực cam** cao 64px: trái là "3 món" nhỏ ở trên, **Thành tiền** chữ hẹp đậm cỡ lớn ở dưới; phải là nút **Giỏ đơn**. Giỏ trống: không có tấm cam, chỉ dải quẹt và chữ "Chạm món để thêm" |
 
 **Tấm giỏ đơn** (trượt lên 250ms, khoảng 85% chiều cao; kéo xuống hoặc chạm nền tối để đóng). Từ trên xuống, càng gần đáy càng là thao tác chính:
 1. Tiêu đề "Giỏ đơn" và **Xóa hết** (viền danger, trên cùng, xa Xác nhận; hai bước "Chắc chắn xóa hết?").
 2. Dòng đơn: tên món và đơn giá; − / ô số / + (mỗi nút 48px); thành tiền dòng canh phải.
 3. Giảm giá: nút 5%, 10%, 15%, 20% và ô nhập "%"; bấm lại nút đang chọn thì bỏ. Tổng: Tạm tính, Giảm N% −X đ, **Thành tiền** cỡ lớn.
-4. Chỗ ngồi: Ghế quầy 2 hàng × 6 như mép quầy thật; Bàn và Mang về 4 cột. Nút cao 56px, số Anton 1.5rem. Đang chọn: khối ember, quầng sáng, các chỗ khác lùi vào bóng tối.
+4. Chỗ ngồi: Ghế quầy 2 hàng × 6 như mép quầy thật; Bàn và Mang về 4 cột. Nút cao 56px, số chữ hẹp đậm 1.5rem. Đang chọn: khối mực cam, chữ đen; các chỗ khác in xám nhạt hơn.
 5. Tên chỗ ngồi đang chọn cỡ lớn ("Ghế 5"), không có chữ "Đang chọn:"; chưa chọn thì "Chưa chọn chỗ ngồi" màu cảnh báo.
-6. **Xác nhận đơn**: ember, cao 64px, dính đáy tấm. Bị khóa thì ghi lý do ngay trên nút.
+6. **Xác nhận đơn**: khối mực cam, cao 64px, dính đáy tấm. Bị khóa thì ghi lý do ngay trên nút.
 
 ## 5. Bố cục màn rộng (≥ 768px)
 
-Lưới món 3–4 cột chiếm khoảng 60% bên trái. Phiếu đơn luôn hiện bên phải, cùng nội dung tấm giỏ đơn; không có thanh giỏ đơn.
+Bảng giá chiếm khoảng 60% bên trái (một hoặc hai cột hàng tùy bề rộng). Phiếu đơn luôn hiện bên phải, cùng nội dung tấm giỏ đơn; không có thanh giỏ đơn.
 
 ## 6. Phản hồi sau khi gửi đơn
 
 - Tấm giỏ đơn đóng. Thanh giỏ đơn nhường chỗ cho thanh phản hồi: motif điếu thuốc bốc khói, "Đã tạo đơn 3 món – 513.000đ", nút **Hoàn tác**, trong 5 giây.
-- Vệt sáng `exposure-streak` chạy như hiện nay (250ms). Điện thoại rung ngắn 30ms (chỉ có tác dụng trên Android).
+- Dải quẹt diêm bùng sáng một lần từ trái sang phải trong 400ms (thay cho `exposure-streak`). Điện thoại rung ngắn 30ms (chỉ có tác dụng trên Android). Khi bật giảm chuyển động: dải đổi màu tức thì rồi trở lại, không chạy.
 - Chạm vào món bất kỳ thì thanh trở lại thành thanh giỏ đơn ngay.
 
 ## 7. Dữ liệu và trạng thái

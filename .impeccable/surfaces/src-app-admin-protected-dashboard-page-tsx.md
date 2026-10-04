@@ -5,13 +5,13 @@ primary_target: "src/app/admin/(protected)/dashboard/page.tsx"
 related_targets: ["src/app/admin","src/components/admin"]
 ---
 
-Scope: `/admin/*` (owner, Operate). Source brief: `docs/design/owner-brief.md`. Behavior: `docs/SRS.md`.
+Scope: `/admin/*` (owner, Operate). Source brief: `docs/design/owner-brief.md` (behavior; its visual sections are superseded by this contract). Behavior: `docs/SRS.md` v3.1.
 
 ## Direction contract
 
-THESIS: The business day as a clock face: one thin ember arc of elapsed time with tonight's revenue burning in its center. Refuses the admin dashboard of stat cards and charts.
-OWN-WORLD: Same world as /order: olive-black grain ground, cream ink, single ember accent, hairline outlines, struck-through cancelled rows, Be Vietnam Pro tabular numerals; dense ledger tables in cream on olive for history. Brand devices (bolder pass, user-approved): hand-drawn main wordmark with ember halo in the top strip / rail; the elapsed arc is a long-exposure light trail (blurred ember glow under a cream→ember stroke) ending in a glowing ember point like a cigarette tip; revenue and month figure in the Anton poster face; streak divider above month revenue; desktop arc scales to min(70vh,560px) and centres vertically.
-STORY: The owner opens the app and knows tonight's revenue in one glance, then drops into the ledger or settings only when needed.
-FIRST VIEWPORT: Phone: wordmark + Đăng xuất strip, arc filling the width with revenue at display scale, cups below, month revenue under the arc, fixed bottom nav. Desktop: left rail nav, arc centered.
-FORM: Đồng hồ ca, seed a922e4bb, dealt lead, code-led.
+THESIS: The owner's side of the same matchbook: tonight's revenue printed as the one reversed plate inside a flat business-day dial, everything else set as a quiet printed ledger. Refuses stat-card dashboards and glowing charts.
+OWN-WORLD: Same world as /order: matte black card, cream ink, one flame-orange spot ink for the primary action, the live selection and the one reversed plate; 5-step neutral ramp; Archivo only, condensed heavy for figures and headings, normal for body; one 1px rule system for ledgers, settings and the menu list; no glow, streak, grain or shadow; cancelled orders keep their row, struck through with a printed HỦY mark; owner primary buttons 48px (SRS NFR-02, R37).
+STORY: The owner opens the app, reads tonight's revenue in one glance, then drops into Thực đơn, the ledger or settings only when needed.
+FIRST VIEWPORT: Phone: flat wordmark and Đăng xuất strip; the business-day dial fills the width as a flat orange stroke over a faint 1px track, the revenue plate centred in it; item count and order count below; comparison rows as a ruled ledger; fixed 5-icon bottom nav. Desktop: left rail with printed nav, dial beside the comparison ledger.
+FORM: Bao diêm quán bar, position 6 of the bar-only list, seed 73f06246 (re-roll 3), assigned, code-led.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
