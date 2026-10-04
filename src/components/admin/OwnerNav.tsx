@@ -4,6 +4,7 @@ import {
   Gauge,
   ScrollText,
   Settings,
+  UtensilsCrossed,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +17,11 @@ const OWNER: Item[] = [
     href: "/admin/dashboard",
     label: "Tổng quan",
     icon: Gauge,
+  },
+  {
+    href: "/admin/menu",
+    label: "Thực đơn",
+    icon: UtensilsCrossed,
   },
   {
     href: "/admin/history",
@@ -60,7 +66,7 @@ export function OwnerNav() {
   return (
     <nav
       aria-label="Trang chủ quán"
-      className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-4 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] lg:static lg:flex lg:flex-1 lg:flex-col lg:gap-1 lg:border-0 lg:bg-transparent lg:pb-0"
+      className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] lg:static lg:flex lg:flex-1 lg:flex-col lg:gap-1 lg:border-0 lg:bg-transparent lg:pb-0"
     >
       {OWNER.map((n) => (
         <NavLink key={n.href} item={n} active={pathname.startsWith(n.href)} />
