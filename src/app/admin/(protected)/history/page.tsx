@@ -199,13 +199,18 @@ export default async function HistoryPage({
       )}
 
       {t && (
-        <p className="sticky bottom-[calc(49px+env(safe-area-inset-bottom))] border-t border-line bg-bg py-3 font-medium tabular-nums lg:bottom-0">
-          {t.order_count} đơn · {t.cups} cốc · Doanh thu{" "}
-          <strong>{formatVnd(t.revenue)}</strong>{" "}
-          <span className="text-sm text-ink-muted">
-            (không tính đơn đã hủy)
-          </span>
-        </p>
+        <div className="sticky bottom-[calc(49px+env(safe-area-inset-bottom))] my-2 flex items-center justify-between gap-3 rounded-lg bg-surface px-4 py-2.5 text-sm tabular-nums lg:bottom-4">
+          <p>
+            {t.order_count} đơn · {t.cups} cốc
+            <span className="block text-xs font-medium text-ink-muted">
+              Không tính đơn đã hủy
+            </span>
+          </p>
+          <p className="text-right">
+            <span className="block text-xs font-medium text-ink-muted">Doanh thu</span>
+            <strong className="text-base font-semibold">{formatVnd(t.revenue)}</strong>
+          </p>
+        </div>
       )}
       {totalsError && (
         <p role="alert" className="text-danger">

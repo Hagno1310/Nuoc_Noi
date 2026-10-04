@@ -36,7 +36,7 @@ Quán chỉ có **một** tài khoản chủ quán (SRS FR-05a).
 1. Đẩy repo lên GitHub, rồi import vào https://vercel.com.
 2. Environment Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` và `NEXT_PUBLIC_STAFF_EMAIL=nhanvien@quan.local`.
    **Không** thêm service_role key (SRS NFR-04).
-3. Deploy.
+3. Deploy. Hàm server chạy ở Singapore (`sin1`, khai báo trong `vercel.json`), cạnh Supabase; đổi region Supabase thì đổi cả dòng này.
 
 ## 4. Cài đặt quán và kiểm tra lần đầu
 
