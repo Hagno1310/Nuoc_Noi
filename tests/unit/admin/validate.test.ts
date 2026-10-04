@@ -1,22 +1,32 @@
 import { describe, expect, it } from "vitest";
-import { isValidPin, MAX_PRICE, parsePriceInput } from "@/lib/admin/validate";
+import {
+  isValidPin,
+  MAX_PRICE,
+  MIN_PRICE,
+  parsePriceInput,
+  PRICE_RANGE_TEXT,
+} from "@/lib/admin/validate";
 
 describe("parsePriceInput", () => {
   it("chấp nhận nhiều cách gõ tiền", () => {
-    expect(parsePriceInput("30000")).toBe(30000);
-    expect(parsePriceInput("30.000")).toBe(30000);
-    expect(parsePriceInput(" 30.000đ ")).toBe(30000);
-    expect(parsePriceInput("30,000")).toBe(30000);
-    expect(parsePriceInput(String(MAX_PRICE))).toBe(500000);
+    expect(parsePriceInput("120000")).toBe(120000);
+    expect(parsePriceInput("120.000")).toBe(120000);
+    expect(parsePriceInput(" 120.000đ ")).toBe(120000);
+    expect(parsePriceInput("120,000")).toBe(120000);
+    expect(parsePriceInput("5.000.000")).toBe(5000000);
+    expect(parsePriceInput(String(MIN_PRICE))).toBe(1000);
   });
-  it("từ chối giá trị không hợp lệ", () => {
+  it("từ chối giá ngoài khoảng 1.000đ–5.000.000đ hoặc gõ sai", () => {
     expect(parsePriceInput("")).toBeNull();
-    expect(parsePriceInput("0")).toBeNull();
+    expect(parsePriceInput("999")).toBeNull();
     expect(parsePriceInput("-5000")).toBeNull();
     expect(parsePriceInput("abc")).toBeNull();
-    expect(parsePriceInput("25,5")).toBeNull();
-    expect(parsePriceInput("2.50")).toBeNull();
+    expect(parsePriceInput("120,5")).toBeNull();
+    expect(parsePriceInput("1.20")).toBeNull();
     expect(parsePriceInput(String(MAX_PRICE + 1))).toBeNull();
+  });
+  it("câu báo lỗi nêu đúng khoảng giá", () => {
+    expect(PRICE_RANGE_TEXT).toBe("Giá phải là số nguyên từ 1.000đ đến 5.000.000đ.");
   });
 });
 
