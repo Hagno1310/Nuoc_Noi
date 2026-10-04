@@ -197,7 +197,7 @@ Bảng màu ô liu tối lấy từ nền logo, chữ kem đã giảm sáng đ�
 - **Amber Warn** (`--warn`): thông báo cần chú ý (giá đã đổi, đơn trùng) ở dạng chữ + viền 50%; nền đặc khi Đơn giá vừa đổi (3 giây).
 - **Coral Danger** (`--danger`): lỗi, mất mạng, nút Hủy. Viền 60–70% khi nghỉ, nền đặc khi đã "Chắc chắn hủy?".
 
-`--surface` và `--ok` được khai báo trong `:root` như một phần của bộ token vai trò nhưng chưa có thành phần nào dùng; chỉ đưa vào khi có chỗ thật cần.
+`--surface` dùng cho sidebar trang chủ quán (`lg`) và dòng tổng của sổ đơn hàng. `--ok` được khai báo trong `:root` như một phần của bộ token vai trò nhưng chưa có thành phần nào dùng; chỉ đưa vào khi có chỗ thật cần.
 
 ### Named Rules
 **The One Ember Rule.** Ember chỉ dành cho hành động chính, lựa chọn đang có hiệu lực, focus và các nguồn sáng của thế giới (vệt sáng, đầu cung). Không dùng ember cho trang trí, nhãn hay trạng thái lỗi.
@@ -240,7 +240,7 @@ Một cột, ưu tiên điện thoại. Màn hình order là `max-w-md` (448px) 
 
 **Trang chủ quán:** dưới `lg` (1024px) là dải trên (logo + Đăng xuất), nội dung, và thanh điều hướng 4 cột cố định ở đáy (nội dung chừa `49px + safe-area`). Từ `lg` là **sidebar cố định** bên trái, rộng 256px, nền `--surface`, mép phải là vệt sáng dọc 1px (ember 50%): logo lớn + "Trang chủ quán", điều hướng dọc có icon, "Màn hình order" tách riêng dưới một đường kẻ, Đăng xuất (nút viền + icon) ở đáy; chỉ phần nội dung bên phải cuộn. Đệm đáy trên điện thoại vừa bằng thanh điều hướng (`49px + safe-area`: 48px + viền 1px). Thông báo đơn mới nổi ở mép trên (điện thoại: cách lề 16px; `lg`: góc trên phải), nền `--raised`, viền `--edge`, bo 8px, hiện 5 giây, vào bằng `toast-in` 200ms. Tổng quan trên `lg`: hàng trên là cung giờ cạnh sổ so sánh dạng bảng (hàng tiêu đề Doanh thu / Số cốc / Số đơn, số canh phải), hàng dưới là hai biểu đồ (tuần 2fr, tháng 3fr). Cài đặt trên `lg`: hai cột, cài đặt ngắn (Đơn giá chung, Giờ mở/đóng cửa, PIN quán) bên trái, Chỗ ngồi bên phải; điện thoại một cột, Chỗ ngồi cuối. Các mục dùng tiêu đề Anton + vệt sáng thay cho khung viền.
 
-**Sổ đơn hàng:** dưới `sm` (640px) mỗi đơn là một dòng sổ hai tầng (giờ · chỗ ngồi + trạng thái; số cốc × đơn giá ↔ thành tiền). Từ `sm` là bảng 6 cột. Dòng tổng dính đáy, nằm trên thanh điều hướng.
+**Sổ đơn hàng:** dưới `sm` (640px) mỗi đơn là một dòng sổ hai tầng (giờ · chỗ ngồi + trạng thái; số cốc × đơn giá ↔ thành tiền). Từ `sm` là bảng 6 cột. Dòng tổng dính đáy, nằm trên thanh điều hướng: khối `--surface` bo 8px, đệm 16px ngang; trái là số đơn · số cốc (0.875rem) kèm "Không tính đơn đã hủy" (Caption), phải là nhãn Doanh thu (Caption) trên số doanh thu (Body Strong).
 
 **Nhịp khoảng cách:** 6px giữa các ghế, 8px giữa các phím và giữa các nhóm hẹp, 12px giữa các nhóm, 16px lề và đệm khung, 24px giữa các mục lớn. Vùng chạm tối thiểu 48px; phím cộng 56px; nút hành động chính 64px; mục điều hướng 48px.
 
