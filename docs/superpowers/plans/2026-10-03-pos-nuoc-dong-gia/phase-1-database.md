@@ -3,6 +3,7 @@
 > Thuộc kế hoạch [POS Quán Nước Đồng Giá](../2026-10-03-pos-nuoc-dong-gia.md). Đọc phần **Global Constraints** và **Hợp đồng dùng chung** trong file đó trước khi làm.
 
 **Cách chạy test DB:** bật Docker Desktop, chạy `npx supabase start` (lần đầu mất vài phút để tải image), sau đó:
+
 - `npx supabase db reset`: áp lại toàn bộ migration và `seed.sql`.
 - `npx supabase test db`: chạy mọi file trong `supabase/tests/`.
 
@@ -22,11 +23,13 @@ select set_config('request.jwt.claims',
 ### Task 1: Khởi tạo dự án
 
 **Files:**
+
 - Create: toàn bộ khung dự án do `create-next-app` tạo ra, `vitest.config.ts`, `tests/setup.ts`, `src/lib/money.ts`
 - Create: `supabase/config.toml` (do `supabase init` tạo, sau đó sửa)
 - Test: `tests/unit/money.test.ts`
 
 **Interfaces:**
+
 - Produces:
   - `formatVnd(amount: number): string`, ví dụ `formatVnd(175000) === "175.000đ"`.
   - Các script npm: `test`, `db:start`, `db:reset`, `db:test`.
@@ -98,6 +101,7 @@ npx supabase init
 ```
 
 Trong `supabase/config.toml`, sửa **cả hai** dòng sau:
+
 - Dưới `[auth]`: `enable_signup = false`.
 - Dưới `[auth.email]`: `enable_signup = false`.
 
@@ -155,10 +159,12 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 2: Schema, RLS và `business_date`
 
 **Files:**
+
 - Create: `supabase/migrations/20261003000100_schema.sql`, `supabase/seed.sql`
 - Test: `supabase/tests/01_schema.test.sql`
 
 **Interfaces:**
+
 - Produces:
   - Các bảng `settings`, `price_history`, `seats`, `orders`, đúng SRS mục 4. `seats.kind` là `table` (Bàn) hoặc `counter` (Ghế quầy).
   - Hàm `public.compute_business_date(ts timestamptz, start_hour smallint) returns date`.
@@ -311,10 +317,12 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 3: Vai trò, kiểm tra phiên đăng nhập và PIN quán
 
 **Files:**
+
 - Create: `supabase/migrations/20261003000200_roles_pin.sql`
 - Test: `supabase/tests/02_roles_pin.test.sql`
 
 **Interfaces:**
+
 - Consumes: các bảng của Task 2.
 - Produces:
   - Bảng `app_roles(user_id uuid pk, role text check in ('owner','staff'))`, có ràng buộc unique: chỉ một dòng `staff`.
@@ -467,16 +475,19 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 4: `create_order` và `list_active_seats`
 
 **Files:**
+
 - Create: `supabase/migrations/20261003000300_create_order.sql`
 - Test: `supabase/tests/03_create_order.test.sql`
 
 **Interfaces:**
+
 - Consumes: `is_staff`, `compute_business_date`, các bảng `settings`, `seats`, `orders`.
 - Produces:
   - `public.create_order(p_id uuid, p_quantity integer, p_seat_id uuid, p_is_takeaway boolean, p_client_price integer) returns jsonb`, trả về các field của `CreatedOrder`.
   - `public.list_active_seats() returns table (id uuid, name text, kind text)`, sắp theo `kind`, `sort_order`, `name` (ghế quầy `counter` đứng trước bàn `table`).
 
 **Quy tắc** (SRS FR-04):
+
 - `unit_price = settings.current_price` và `created_at = now()`.
 - `price_changed = unit_price ≠ client_price`.
 - `id` đã tồn tại thì trả về đơn cũ kèm `duplicate: true`, không ghi thêm.
@@ -653,10 +664,12 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 5: Hủy đơn và danh sách đơn của điện thoại
 
 **Files:**
+
 - Create: `supabase/migrations/20261003000400_cancel_list.sql`
 - Test: `supabase/tests/04_cancel_list.test.sql`
 
 **Interfaces:**
+
 - Consumes: `is_staff`, `is_owner`, `current_business_date`.
 - Produces:
   - `public.cancel_order(p_order_id uuid) returns void`.
@@ -792,10 +805,12 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 6: RPC của chủ quán và báo cáo
 
 **Files:**
+
 - Create: `supabase/migrations/20261003000500_owner_reports.sql`
 - Test: `supabase/tests/05_owner_reports.test.sql`
 
 **Interfaces:**
+
 - Consumes: `is_owner`, `current_business_date`.
 - Produces (tất cả raise `FORBIDDEN` nếu người gọi không phải chủ quán):
   - `public.update_price(p_price integer) returns void`: raise `INVALID_PRICE`; ghi thêm một dòng `price_history`.

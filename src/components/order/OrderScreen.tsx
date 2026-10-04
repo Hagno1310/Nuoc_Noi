@@ -1,0 +1,269 @@
+"use client";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  NetworkError,
+  RpcError,
+  type ActiveSeat,
+  type MyOrder,
+  type StaffApi,
+} from "@/lib/api";
+import { ChevronLeft } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { formatVnd } from "@/lib/money";
+import { getMyOrderIds, rememberOrder } from "@/lib/order/myOrders";
+import { quantityReducer, type QuantityAction } from "@/lib/order/quantity";
+import { PriceBanner } from "./PriceBanner";
+import { QuantityPad } from "./QuantityPad";
+import { RecentOrders } from "./RecentOrders";
+import { buzz } from "@/lib/haptics";
+import { ConfirmBar, type Feedback } from "./ConfirmBar";
+import { SeatPicker, type SeatSelection } from "./SeatPicker";
+
+const ERROR_TEXT: Record<string, string> = {
+  INVALID_QUANTITY: "Số lượng không hợp lệ.",
+  INVALID_SEAT: "Chỗ ngồi không hợp lệ.",
+  SEAT_NOT_FOUND: "Chỗ ngồi không còn tồn tại. Tải lại trang.",
+  ORDER_NOT_FOUND: "Không tìm thấy đơn.",
+  CANCEL_WINDOW_EXPIRED: "Đã quá 5 phút, nhờ chủ quán hủy đơn.",
+};
+
+const CANCEL_NETWORK_ERROR = "Chưa hủy được – kiểm tra mạng rồi thử lại.";
+
+export type OrderScreenProps = {
+  api: StaffApi;
+  price: number | null;
+  online: boolean;
+  onUnauthorized: () => void;
+  newId?: () => string;
+  now?: () => Date;
+  // Có khi tài khoản là chủ quán: hiện liên kết quay lại trang chủ quán (SRS §3.2)
+  ownerHome?: string;
+};
+
+export function OrderScreen({
+  api,
+  price,
+  online,
+  onUnauthorized,
+  newId = () => crypto.randomUUID(),
+  now = () => new Date(),
+  ownerHome,
+}: OrderScreenProps) {
+  const [quantity, dispatch] = useReducer(quantityReducer, 0);
+  const [selection, setSelection] = useState<SeatSelection>({ kind: "none" });
+  const [seats, setSeats] = useState<ActiveSeat[]>([]);
+  const [recent, setRecent] = useState<MyOrder[]>([]);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  // Lỗi ẩn khi bắt đầu đơn mới; info ("Giá đã đổi", đơn trùng) giữ tới lần gửi/hủy thành công (SRS FR-04)
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  // Nhớ cả nút đã bấm: chỉ nút đó hiện "Đang hủy…", mọi nút hủy khác bị khóa (SRS FR-04b)
+  const [cancelling, setCancelling] = useState<{
+    id: string;
+    from: "undo" | "list";
+  } | null>(null);
+  // Giữ nguyên id cho tới khi gửi thành công, để bấm lại sau lỗi mạng không tạo đơn thứ hai
+  const pendingId = useRef<string | null>(null);
+
+  const handleError = useCallback(
+    (e: unknown) => {
+      if (e instanceof RpcError && e.code === "FORBIDDEN")
+        return onUnauthorized();
+      if (e instanceof RpcError)
+        return setError(ERROR_TEXT[e.code] ?? `Lỗi: ${e.code}`);
+      if (e instanceof NetworkError)
+        return setError("Chưa gửi được – kiểm tra mạng rồi bấm lại.");
+      setError("Có lỗi xảy ra.");
+    },
+    [onUnauthorized],
+  );
+
+  const refreshRecent = useCallback(async () => {
+    try {
+      setRecent(await api.listOrdersByIds(getMyOrderIds()));
+    } catch (e) {
+      if (!(e instanceof NetworkError)) handleError(e);
+    }
+  }, [api, handleError]);
+
+  useEffect(() => {
+    if (!online) return;
+    api
+      .listActiveSeats()
+      .then(setSeats)
+      .catch((e) => {
+        if (!(e instanceof NetworkError)) handleError(e);
+      });
+    void refreshRecent();
+  }, [api, online, handleError, refreshRecent]);
+
+  const endFeedback = useCallback(() => setFeedback(null), []);
+
+  // Chạm vào số lượng hay chỗ ngồi nghĩa là bắt đầu đơn mới: thanh trở lại thành Xác nhận
+  const changeQuantity = (a: QuantityAction) => {
+    setFeedback(null);
+    setError(null);
+    dispatch(a);
+  };
+  const changeSeat = (s: SeatSelection) => {
+    setFeedback(null);
+    setError(null);
+    setSelection(s);
+  };
+
+  async function handleSubmit() {
+    if (quantity === 0 || price === null || !online || sending) return;
+    const id = (pendingId.current ??= newId());
+    setSending(true);
+    setError(null);
+    try {
+      const res = await api.createOrder({
+        id,
+        quantity,
+        seatId: selection.kind === "seat" ? selection.id : null,
+        isTakeaway: selection.kind === "takeaway",
+        clientPrice: price,
+      });
+      pendingId.current = null;
+      setInfo(null);
+      rememberOrder(res.id);
+      dispatch({ type: "clear" });
+      setSelection({ kind: "none" });
+      const cups = Math.round(res.total_amount / res.unit_price);
+      setFeedback({
+        orderId: res.id,
+        text: `Đã tạo đơn ${cups} cốc – ${formatVnd(res.total_amount)}`,
+      });
+      buzz();
+      if (res.duplicate) {
+        setInfo(
+          `Đơn này đã được ghi từ lần gửi trước (${cups} cốc). Kiểm tra lại trước khi tạo đơn mới.`,
+        );
+      } else if (res.price_changed) {
+        setInfo(
+          `Giá đã đổi: đơn được tính ${formatVnd(res.unit_price)}/cốc, thành tiền ${formatVnd(res.total_amount)}.`,
+        );
+      }
+      await refreshRecent();
+    } catch (e) {
+      handleError(e);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function handleCancel(orderId: string, from: "undo" | "list") {
+    if (cancelling) return;
+    setCancelling({ id: orderId, from });
+    try {
+      await api.cancelOrder(orderId);
+      setError((e) => (e === CANCEL_NETWORK_ERROR ? null : e));
+      setInfo(null);
+      setFeedback((f) => (f?.orderId === orderId ? null : f));
+      await refreshRecent();
+    } catch (e) {
+      if (e instanceof NetworkError) setError(CANCEL_NETWORK_ERROR);
+      else handleError(e);
+    } finally {
+      setCancelling(null);
+    }
+  }
+
+  return (
+    <main className="mx-auto max-w-md px-4 pt-3">
+      {/* Màn hình đầu: mọi thứ tới nút Xác nhận vừa một khung, phím rơi vào vùng ngón cái (order-brief §6) */}
+      <div className="flex min-h-[calc(100dvh-6rem)] flex-col gap-2 pb-1 [@media(min-height:740px)]:gap-3 [@media(min-height:740px)]:pb-3">
+        <header className="flex items-center justify-between gap-3">
+          <Image
+            src="/brand/nuoc-noi-wordmark.png"
+            alt="Nước Nôi"
+            width={54}
+            height={50}
+            priority
+            className="halo h-9 w-auto [@media(min-height:740px)]:h-[50px]"
+          />
+          <div className="flex flex-col items-end gap-1">
+            {ownerHome && (
+              <Link
+                href={ownerHome}
+                className="inline-flex min-h-12 items-center gap-1 text-sm text-ink-muted hover:text-ink"
+              >
+                <ChevronLeft aria-hidden="true" size={16} />
+                Trang chủ quán
+              </Link>
+            )}
+            <PriceBanner price={price} offline={!online} />
+          </div>
+        </header>
+        {!online && (
+          <p className="rounded-lg border border-danger/60 px-3 py-2 font-semibold text-danger">
+            Mất mạng – chưa gửi được đơn
+          </p>
+        )}
+        <QuantityPad quantity={quantity} dispatch={changeQuantity}>
+          <div className="relative -mt-1 space-y-1.5 text-center">
+            <p
+              data-testid="total"
+              className="font-display text-4xl tracking-wide tabular-nums [@media(min-height:740px)]:text-6xl"
+            >
+              {price === null ? "—" : formatVnd(quantity * price)}
+            </p>
+            {/* Vệt sáng tĩnh dưới con số: đường kẻ của thế giới Phơi sáng dài */}
+            <span aria-hidden="true" className="streak mx-auto block w-4/5" />
+            {feedback && (
+              <span
+                key={feedback.orderId}
+                aria-hidden="true"
+                className="exposure-streak pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-1.5 rounded-full bg-gradient-to-r from-transparent via-ember to-transparent"
+              />
+            )}
+          </div>
+          <SeatPicker
+            seats={seats}
+            selection={selection}
+            onChange={changeSeat}
+          />
+        </QuantityPad>
+        {info && (
+          <p
+            role="status"
+            className="rounded-lg border border-warn/50 px-3 py-2 text-warn"
+          >
+            {info}
+          </p>
+        )}
+        {error && (
+          <p
+            role="alert"
+            className="rounded-lg border border-danger/60 px-3 py-2 text-danger"
+          >
+            {error}
+          </p>
+        )}
+      </div>
+      <div className="sticky bottom-0 z-10 -mx-4 bg-bg/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <ConfirmBar
+          canSubmit={quantity > 0 && price !== null && online}
+          sending={sending}
+          feedback={feedback}
+          cancelBusy={cancelling !== null}
+          undoing={
+            cancelling?.from === "undo" && cancelling.id === feedback?.orderId
+          }
+          onSubmit={() => void handleSubmit()}
+          onUndo={(id) => void handleCancel(id, "undo")}
+          onFeedbackEnd={endFeedback}
+        />
+      </div>
+      <RecentOrders
+        orders={recent}
+        now={now}
+        cancelBusy={cancelling !== null}
+        cancellingId={cancelling?.from === "list" ? cancelling.id : null}
+        onCancel={(id) => void handleCancel(id, "list")}
+      />
+    </main>
+  );
+}
