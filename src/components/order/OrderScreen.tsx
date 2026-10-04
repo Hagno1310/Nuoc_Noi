@@ -174,7 +174,7 @@ export function OrderScreen({
   return (
     <main className="mx-auto max-w-md px-4 pt-3">
       {/* Màn hình đầu: mọi thứ tới nút Xác nhận vừa một khung, phím rơi vào vùng ngón cái (order-brief §6) */}
-      <div className="flex min-h-[calc(100dvh-6rem)] flex-col gap-2 pb-1 [@media(min-height:740px)]:gap-3 [@media(min-height:740px)]:pb-3">
+      <div className="flex min-h-[calc(100dvh-96px)] flex-col gap-2 pb-1 [@media(min-height:740px)]:gap-3 [@media(min-height:740px)]:pb-3">
         <header className="flex items-center justify-between gap-3">
           <Image
             src="/brand/nuoc-noi-wordmark.png"

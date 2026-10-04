@@ -9,25 +9,22 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type Item = { href: string; label: string; short: string; icon: LucideIcon };
+type Item = { href: string; label: string; icon: LucideIcon };
 
 const OWNER: Item[] = [
   {
     href: "/admin/dashboard",
     label: "Tổng quan",
-    short: "Tổng quan",
     icon: Gauge,
   },
   {
     href: "/admin/history",
     label: "Lịch sử đơn hàng",
-    short: "Lịch sử",
     icon: ScrollText,
   },
   {
     href: "/admin/settings",
     label: "Cài đặt",
-    short: "Cài đặt",
     icon: Settings,
   },
 ];
@@ -35,7 +32,6 @@ const OWNER: Item[] = [
 const ORDER: Item = {
   href: "/order",
   label: "Màn hình order",
-  short: "Màn hình order",
   icon: CupSoda,
 };
 
@@ -46,20 +42,19 @@ function NavLink({ item, active }: { item: Item; active: boolean }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       aria-label={item.label}
-      className="group flex min-h-14 flex-col items-center justify-center gap-1 px-2 text-xs font-medium text-ink-muted transition-colors duration-150 aria-[current=page]:text-ink lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-lg lg:px-3 lg:text-base lg:hover:bg-raised/60 lg:hover:text-ink lg:aria-[current=page]:bg-raised lg:aria-[current=page]:font-semibold"
+      className="group flex min-h-12 items-center justify-center px-2 font-medium text-ink-muted transition-colors duration-150 aria-[current=page]:text-ink lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-lg lg:px-3 lg:text-base lg:hover:bg-raised/60 lg:hover:text-ink lg:aria-[current=page]:bg-raised lg:aria-[current=page]:font-semibold"
     >
       <Icon
         aria-hidden="true"
         size={20}
         className="shrink-0 group-aria-[current=page]:text-ember"
       />
-      <span className="lg:hidden">{item.short}</span>
       <span className="hidden lg:inline">{item.label}</span>
     </Link>
   );
 }
 
-// Điện thoại: thanh dưới cố định, icon trên nhãn. Laptop: danh sách dọc trong sidebar cố định.
+// Điện thoại: thanh dưới cố định, chỉ icon (tên nằm trong aria-label). Laptop: danh sách dọc trong sidebar cố định.
 export function OwnerNav() {
   const pathname = usePathname();
   return (

@@ -152,7 +152,7 @@ components:
     backgroundColor: "transparent"
     textColor: "{colors.sage-muted}"
     typography: "{typography.label}"
-    height: "56px"
+    height: "48px"
   nav-item-current:
     textColor: "{colors.cream-ink}"
 ---
@@ -208,6 +208,8 @@ Bảng màu ô liu tối lấy từ nền logo, chữ kem đã giảm sáng đ�
 
 ## Typography
 
+Cỡ chữ gốc 15px dưới `lg` (`html { font-size: 93.75% }`), 16px từ `lg`; mọi cỡ `rem` bên dưới co theo. `--spacing` là 4px nên khoảng cách và vùng chạm không co. Ô nhập giữ chữ ≥ 16px (`max(16px, 1em)`) để iOS Safari không tự phóng to.
+
 **Display Font:** Anton (fallback Be Vietnam Pro, sans-serif), một weight 400, subset `latin` + `vietnamese`.
 **Body Font:** Be Vietnam Pro (fallback system-ui, sans-serif), weight 400/500/600/800, subset `latin` + `vietnamese`.
 
@@ -234,13 +236,13 @@ Bảng màu ô liu tối lấy từ nền logo, chữ kem đã giảm sáng đ�
 
 Một cột, ưu tiên điện thoại. Màn hình order là `max-w-md` (448px) với lề 16px; trang chủ quán là `max-w-6xl` (1152px).
 
-**Màn hình order vừa một khung, không cuộn**, ở 390×844 và 360×640: header (logo trái, Đơn giá phải) → số cốc → Thành tiền + vệt sáng → Ghế quầy 2 hàng × 6 cột như mép quầy thật → Bàn · Mang về 4 cột → phím `+1 +2 +5 +10` (4 cột) và `−1 / Xóa` (2 cột) đẩy xuống vùng ngón cái bằng `mt-auto` → thanh Xác nhận đơn dính đáy, có `safe-area-inset-bottom`. Khung đầu cao `calc(100dvh - 6rem)`. Con số chỉ phóng to và khoảng cách chỉ nới ra khi `min-height: 740px`; dưới mức đó mọi thứ giữ cỡ nhỏ để vừa khung. "Đơn vừa tạo" nằm dưới, phải cuộn tới.
+**Màn hình order vừa một khung, không cuộn**, ở 390×844 và 360×640: header (logo trái, Đơn giá phải) → số cốc → Thành tiền + vệt sáng → Ghế quầy 2 hàng × 6 cột như mép quầy thật → Bàn · Mang về 4 cột → phím `+1 +2 +5 +10` (4 cột) và `−1 / Xóa` (2 cột) đẩy xuống vùng ngón cái bằng `mt-auto` → thanh Xác nhận đơn dính đáy, có `safe-area-inset-bottom`. Khung đầu cao `calc(100dvh - 96px)`. Con số chỉ phóng to và khoảng cách chỉ nới ra khi `min-height: 740px`; dưới mức đó mọi thứ giữ cỡ nhỏ để vừa khung. "Đơn vừa tạo" nằm dưới, phải cuộn tới.
 
-**Trang chủ quán:** dưới `lg` (1024px) là dải trên (logo + Đăng xuất), nội dung, và thanh điều hướng 4 cột cố định ở đáy (nội dung chừa `pb-16`). Từ `lg` là **sidebar cố định** bên trái, rộng 256px, nền `--surface`, mép phải là vệt sáng dọc 1px (ember 50%): logo lớn + "Trang chủ quán", điều hướng dọc có icon, "Màn hình order" tách riêng dưới một đường kẻ, Đăng xuất (nút viền + icon) ở đáy; chỉ phần nội dung bên phải cuộn. Đệm đáy trên điện thoại vừa bằng thanh điều hướng (`3.75rem + safe-area`). Tổng quan trên `lg`: hàng trên là cung giờ cạnh sổ so sánh dạng bảng (hàng tiêu đề Doanh thu / Số cốc / Số đơn, số canh phải), hàng dưới là hai biểu đồ (tuần 2fr, tháng 3fr). Cài đặt trên `lg`: hai cột, cài đặt ngắn (Đơn giá chung, Giờ mở/đóng cửa, PIN quán) bên trái, Chỗ ngồi bên phải; điện thoại một cột, Chỗ ngồi cuối. Các mục dùng tiêu đề Anton + vệt sáng thay cho khung viền.
+**Trang chủ quán:** dưới `lg` (1024px) là dải trên (logo + Đăng xuất), nội dung, và thanh điều hướng 4 cột cố định ở đáy (nội dung chừa `49px + safe-area`). Từ `lg` là **sidebar cố định** bên trái, rộng 256px, nền `--surface`, mép phải là vệt sáng dọc 1px (ember 50%): logo lớn + "Trang chủ quán", điều hướng dọc có icon, "Màn hình order" tách riêng dưới một đường kẻ, Đăng xuất (nút viền + icon) ở đáy; chỉ phần nội dung bên phải cuộn. Đệm đáy trên điện thoại vừa bằng thanh điều hướng (`49px + safe-area`: 48px + viền 1px). Thông báo đơn mới nổi ở mép trên (điện thoại: cách lề 16px; `lg`: góc trên phải), nền `--raised`, viền `--edge`, bo 8px, hiện 5 giây, vào bằng `toast-in` 200ms. Tổng quan trên `lg`: hàng trên là cung giờ cạnh sổ so sánh dạng bảng (hàng tiêu đề Doanh thu / Số cốc / Số đơn, số canh phải), hàng dưới là hai biểu đồ (tuần 2fr, tháng 3fr). Cài đặt trên `lg`: hai cột, cài đặt ngắn (Đơn giá chung, Giờ mở/đóng cửa, PIN quán) bên trái, Chỗ ngồi bên phải; điện thoại một cột, Chỗ ngồi cuối. Các mục dùng tiêu đề Anton + vệt sáng thay cho khung viền.
 
 **Sổ đơn hàng:** dưới `sm` (640px) mỗi đơn là một dòng sổ hai tầng (giờ · chỗ ngồi + trạng thái; số cốc × đơn giá ↔ thành tiền). Từ `sm` là bảng 6 cột. Dòng tổng dính đáy, nằm trên thanh điều hướng.
 
-**Nhịp khoảng cách:** 6px giữa các ghế, 8px giữa các phím và giữa các nhóm hẹp, 12px giữa các nhóm, 16px lề và đệm khung, 24px giữa các mục lớn. Vùng chạm tối thiểu 48px; phím cộng 56px; nút hành động chính 64px; mục điều hướng 56px.
+**Nhịp khoảng cách:** 6px giữa các ghế, 8px giữa các phím và giữa các nhóm hẹp, 12px giữa các nhóm, 16px lề và đệm khung, 24px giữa các mục lớn. Vùng chạm tối thiểu 48px; phím cộng 56px; nút hành động chính 64px; mục điều hướng 48px.
 
 ### Named Rules
 **The One Frame Rule.** Mọi thứ cần để tạo một đơn (số cốc, chỗ ngồi, phím, Xác nhận đơn) nằm trọn trong khung đầu ở 360×640 mà không cuộn.
@@ -304,10 +306,10 @@ Sau khi tạo đơn, nút Xác nhận nhường chỗ cho thanh `--raised` bo 16
 - **Error:** dòng chữ danger ngay dưới ô, `role="alert"`.
 
 ### Navigation
-Bốn mục: Tổng quan, Lịch sử đơn hàng, Cài đặt, Màn hình order. Mỗi mục có icon lucide 20px. Chữ label sage 500; mục hiện tại chữ kem, icon ember. Điện thoại: thanh 4 cột cố định ở đáy, icon trên nhãn ngắn (12px; "Lịch sử" cho Lịch sử đơn hàng), nền `--bg`, viền trên `--line`, mỗi mục cao 56px. Máy tính (`lg`): danh sách dọc trong sidebar, chữ 1rem, mục hiện tại có nền `--raised` và chữ 600.
+Bốn mục: Tổng quan, Lịch sử đơn hàng, Cài đặt, Màn hình order. Mỗi mục có icon lucide 20px. Chữ label sage 500; mục hiện tại chữ kem, icon ember. Điện thoại: thanh 4 cột cố định ở đáy, chỉ icon (tên đầy đủ trong `aria-label`), nền `--bg`, viền trên `--line`, mỗi mục cao 48px. Máy tính (`lg`): danh sách dọc trong sidebar, chữ 1rem, mục hiện tại có nền `--raised` và chữ 600.
 
 ### Business Day Arc (Đồng hồ ca)
-Khoảng giờ mở cửa → giờ đóng cửa (mặc định 20:00–02:00) trải trên 300°, chỉ vẽ phần đã trôi qua; ngoài giờ mở cửa cung đầy và ghi "Đã đóng cửa". Nét cung 1.6 đơn vị gradient kem 35% → kem → ember, trên một quầng ember mờ; đầu cung là đốm than ember có quầng, như đầu điếu thuốc. Giờ mở cửa ghi nhỏ ở chân cung. Doanh thu của ngày kinh doanh (Display Revenue), số cốc · số đơn (Title) và "Bây giờ HH:MM" nằm trong tâm. Không vẽ số liệu lên cung.
+Khoảng giờ mở cửa → giờ đóng cửa (mặc định 20:00–02:00) trải trên 300°; cả vòng là một vệt mờ 1 đơn vị màu `--line` (giờ chưa tới), phần đã trôi qua vẽ sáng đè lên; ngoài giờ mở cửa cung đầy và ghi "Đã đóng cửa". Nét cung 1.6 đơn vị gradient kem 35% → kem → ember, trên một quầng ember mờ; đầu cung là đốm than ember có quầng, như đầu điếu thuốc. Giờ mở cửa ghi nhỏ ở chân cung. Doanh thu của ngày kinh doanh (Display Revenue), số cốc · số đơn (Title) và "Bây giờ HH:MM" nằm trong tâm. Không vẽ số liệu lên cung.
 
 ### Brand Marks
 - **Chữ chính vẽ tay** (`/brand/nuoc-noi-wordmark.png`, 1096×1016, nền trong suốt): góc trên trái màn hình order (cao 36px → 50px), dải trên/cột trái trang chủ quán (40px → 80px), trang đăng nhập; luôn có halo. Icon ứng dụng đặt chữ chính ở 60% khung trên nền `#1A1E15`.

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 // Đồng hồ giờ mở cửa (SRS FR-06, docs/design/owner-brief.md §3): khoảng giờ mở cửa → giờ đóng cửa trải trên 300°,
-// chỉ vẽ phần đã trôi qua; không vẽ số liệu lên cung.
+// cả vòng là một vệt mờ (giờ chưa tới), phần đã trôi qua vẽ sáng đè lên; không vẽ số liệu lên cung.
 // Cung là một vệt sáng phơi sáng: quầng mờ phía sau, nét sáng kem → than hồng, đầu cung là đốm than như đầu điếu thuốc.
 const R = 88;
 const SPAN = 300;
@@ -58,6 +58,14 @@ export function BusinessDayArc({
             <feGaussianBlur stdDeviation="3.5" />
           </filter>
         </defs>
+        {/* Vệt mờ cả vòng: phần giờ chưa tới */}
+        <path
+          d={`M ${a.x} ${a.y} A ${R} ${R} 0 1 1 ${z.x} ${z.y}`}
+          fill="none"
+          stroke="var(--line)"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
         {/* Vạch mảnh đánh dấu giờ đóng cửa */}
         <line
           x1={z.x}

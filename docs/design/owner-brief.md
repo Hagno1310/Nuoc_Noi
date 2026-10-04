@@ -21,7 +21,7 @@
 
 - **Thế giới:** giữ nguyên Phơi sáng dài: nền ô liu đậm có lớp nhiễu hạt tĩnh, chữ kem đã giảm độ sáng, **một màu nhấn than hồng** cho hành động chính và trạng thái đang chọn. Cùng token với màn hình order; không tạo bảng màu sáng riêng.
 - **Bố cục: Đồng hồ ca.** Trang Tổng quan lấy **ngày kinh doanh** làm đồng hồ:
-  - Một cung mảnh biểu diễn ngày kinh doanh hiện tại (24 giờ, bắt đầu từ **giờ mở cửa** trong Cài đặt). **Chỉ vẽ phần đã trôi qua** (từ giờ mở cửa đến bây giờ), đầu cung là vạch "bây giờ"; phần còn lại của 24 giờ để trống.
+  - Một cung mảnh biểu diễn ngày kinh doanh hiện tại (24 giờ, bắt đầu từ **giờ mở cửa** trong Cài đặt). **Chỉ vẽ phần đã trôi qua** (từ giờ mở cửa đến bây giờ), đầu cung là vạch "bây giờ"; phần giờ chưa tới là một vệt mờ (SRS v2.3, R31).
   - Doanh thu đêm nay là con số lớn nhất, nằm trong lòng cung; số cốc ngay dưới.
   - Doanh thu tháng này nhỏ hơn, phía dưới cung.
   - Ban ngày (ngày kinh doanh đã qua phần lớn) cung gần đầy; con số vẫn là của ngày kinh doanh hiện tại. Chữ trên giao diện dùng "ngày kinh doanh", không dùng "ca" (GLOSSARY).
@@ -65,4 +65,4 @@
 - Font và token **dùng chung với màn hình order**. Hiện `globals.css` và `layout.tsx` vẫn là bản mặc định (Geist, nền trắng) và màn hình order còn dùng class tạm: phải dựng token Phơi sáng dài trước, rồi cả hai nhóm màn hình dùng chung.
 - Logo: `public/brand/nuoc-noi-wordmark-small.png`. Không vẽ lại bằng CSS hay font.
 - Vùng chạm ≥ 48px trên điện thoại; trên máy tính hàng bảng có thể thấp hơn nhưng nút vẫn ≥ 44px.
-- **Đã chốt (2026-10-04):** cung chỉ vẽ phần đã trôi qua của ngày kinh doanh.
+- **Đã chốt (2026-10-04):** cung chỉ vẽ phần đã trôi qua của ngày kinh doanh. **Đổi (SRS v2.3):** thêm vệt mờ cả vòng cho phần giờ chưa tới.
