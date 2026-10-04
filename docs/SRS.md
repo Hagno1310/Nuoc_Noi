@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 3.0 |
+| **Phiên bản** | 3.1 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.1** | Gửi lại một đơn đã bị hủy thì báo và giữ giỏ đơn; lịch sử đổi giá có trạng thái trống và câu lỗi riêng; nút chính trên trang chủ quán cao ít nhất 48px (R37). |
 | **Thay đổi ở v3.0** | Bỏ đồng giá: **thực đơn** nhiều món do chủ quán quản lý ở trang Thực đơn, đơn hàng gồm các **dòng đơn**, **giảm giá** theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi; thống kê theo **số món**; lịch sử mở xem dòng đơn; CSV 8 cột. Xóa dữ liệu thử một lần trước khi dùng thật (R32–R36). Thiết kế: `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md`. |
 | **Thay đổi ở v2.3** | Trang chủ quán hiện thông báo đơn mới ngay khi nhân viên tạo đơn và cập nhật số liệu, qua Realtime (R30). Đồng hồ giờ mở cửa có vệt mờ cho phần giờ chưa tới. Trên điện thoại, thanh điều hướng chỉ hiện icon và cỡ chữ gốc nhỏ hơn (R31). |
 | **Thay đổi ở v2.2** | Gửi link app vào ứng dụng chat thì hiện ảnh xem trước theo thương hiệu (R29). |
@@ -151,6 +152,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
   - Client gửi lên `id` (UUID do client sinh), chỗ ngồi hoặc mang về, phần trăm giảm giá, và các dòng đơn (món, số lượng, giá đang hiển thị).
   - Server dùng **giá hiện hành của từng món** và tính tạm tính, số tiền giảm, thành tiền. Nếu có dòng lệch giá hoặc món đã bị ẩn, server **từ chối cả đơn** và trả về thực đơn hiện hành; giỏ đơn cập nhật theo FR-01 và màn hình hiện "Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.".
 - Gửi lại cùng một `id` thì **không tạo đơn thứ hai**. Trường hợp này xảy ra khi mạng chập chờn và nhân viên bấm gửi lại.
+- Nếu đơn có `id` đó **đã bị hủy** (đơn đã ghi nhưng mất phản hồi, rồi bị hủy trước lần gửi lại), màn hình hiện "Đơn này đã bị hủy – bấm Xác nhận đơn để tạo đơn mới." ở ô thông báo, giữ nguyên giỏ đơn, giảm giá và chỗ ngồi; lần bấm sau dùng `id` mới.
 - **Gửi thành công:**
   - Điện thoại rung ngắn (trên trình duyệt có hỗ trợ, ví dụ Chrome Android).
   - Giao diện reset (giỏ đơn trống, bỏ giảm giá, bỏ chọn chỗ ngồi).
@@ -190,6 +192,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 **FR-05a: Lịch sử đổi giá**
 - Trên trang Thực đơn, hiển thị 20 lần đổi giá gần nhất của mọi món, gồm tên món, mức giá, thời điểm và người đổi.
+- Chưa có lần đổi giá nào thì hiện "Chưa có lần đổi giá nào.". Không tải được lịch sử thì danh sách món vẫn hiện, riêng mục lịch sử báo "Không tải được lịch sử đổi giá. Kiểm tra mạng rồi tải lại trang.".
 - Quán có **một** tài khoản chủ quán. Người đổi hiện bằng email của chủ quán đang đăng nhập; lần đổi của tài khoản chủ quán khác (nếu có) hiện "Chủ quán khác"; giá lúc thêm món của thực đơn khởi tạo hiện "Khởi tạo".
 
 **FR-05b: Giờ mở cửa và giờ đóng cửa**
@@ -288,7 +291,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | Mã | Yêu cầu |
 |---|---|
 | NFR-01 | Mỗi lần bấm nút trên `/order` có phản hồi trên giao diện dưới 200ms. Trong lúc gửi đơn, nút hiện trạng thái "Đang gửi…". |
-| NFR-02 | Mobile-first. Nút chính cao ít nhất 56px. Thành tiền hiển thị cỡ lớn. |
+| NFR-02 | Mobile-first. Nút chính trên màn order cao ít nhất 56px; trên trang chủ quán ít nhất 48px. Mọi vùng chạm ít nhất 48px. Thành tiền hiển thị cỡ lớn. |
 | NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. |
 | NFR-05 | Tiền là số nguyên. Server tính đơn giá, tạm tính, số tiền giảm và thành tiền. Không bao giờ xóa cứng đơn hàng, chỗ ngồi hoặc món. Ngoại lệ duy nhất: migration v3.0 xóa dữ liệu thử một lần trước khi dùng thật (R36). |
 | NFR-06 | Giao diện tiếng Việt, tiền định dạng `25.000đ`, giờ Việt Nam. |
@@ -360,3 +363,4 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | R34 (v3.0) | Giảm giá | Phần trăm nguyên 0–100 cho cả đơn, nhân viên tự nhập, không cần lý do; số tiền giảm làm tròn xuống tới 1.000đ; doanh thu tính sau giảm. |
 | R35 (v3.0) | Báo cáo | Số cốc đổi thành số món. Lịch sử mở xem dòng đơn, `?order=` mở sẵn đơn. CSV 8 cột, mỗi dòng đơn một hàng, thêm hàng "Giảm giá" mang số âm. Chưa có thống kê theo món. |
 | R36 (v3.0) | Dữ liệu thử | App chưa dùng thật: migration v3.0 xóa toàn bộ đơn hàng và lịch sử đổi giá một lần (local và prod), sau khi chủ quán xác nhận số đơn trên prod. Sau đó NFR-05 áp dụng lại. |
+| R37 (v3.1) | Đơn đã hủy, lịch sử giá, nút chính | Gửi lại đơn đã bị hủy: báo "Đơn này đã bị hủy…" và giữ giỏ đơn, lần sau dùng id mới. Lịch sử đổi giá có trạng thái trống và câu lỗi riêng, không làm mất danh sách món. Nút chính trang chủ quán ≥ 48px (dùng trên máy tính/tablet, không trong cảnh một tay giữa giờ đông); màn order giữ ≥ 56px. |

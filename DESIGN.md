@@ -275,7 +275,7 @@ Viền điều khiển 1px `--edge`; viền trang trí 1px `--line`.
 ### Buttons
 Dấu in: viền mảnh khi nghỉ, khối đặc khi nhấn.
 - **Xác nhận đơn:** khối ember rộng hết khung, cao 64px, bo 16px, nhãn Anton 1.5rem. Nhấn: thu `scale(.98)` trong 150ms. Vô hiệu: nền `--raised`, chữ sage. Đang gửi: "Đang gửi…".
-- **Primary trên trang chủ quán** (Lưu thay đổi, Lọc, Đăng nhập): khối ember, cao 48–56px, bo 8px, Be Vietnam Pro đậm; vô hiệu giảm opacity .5.
+- **Primary trên trang chủ quán** (Lưu thay đổi, Lọc, Đăng nhập, Thêm món): khối ember, cao 48px (ngoại lệ có chủ ý so với 56px của màn order, SRS NFR-02/R37: trang chủ quán dùng trên máy tính/tablet, không trong cảnh một tay giữa giờ đông), bo 8px, Be Vietnam Pro đậm; vô hiệu giảm opacity .5.
 - **Nút viền** (Hoàn tác, Xuất CSV, nút lưu phụ): viền `--edge`, chữ kem, bo 8–12px; nhấn chuyển thành khối kem chữ nền.
 - **Nút phá hủy** (Hủy): viền danger 70%, chữ danger. Hai bước: bấm lần đầu thành khối danger "Chắc chắn hủy?"; đang chạy "Đang hủy…". Luôn đặt xa nút hành động chính.
 - **Focus:** viền ember 2px, offset 2px, trên mọi điều khiển.
