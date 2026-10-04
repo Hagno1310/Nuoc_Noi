@@ -1,7 +1,7 @@
 "use client";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { ownerErrorText } from "@/lib/admin/errors";
 import { menuNameError, nextSortOrder, normalizeMenuName } from "@/lib/admin/menu";
 import { useTwoStep } from "@/lib/admin/useTwoStep";
@@ -28,12 +28,17 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   const [newPrice, setNewPrice] = useState("");
   const [editing, setEditing] = useState<Editing>(null);
   const [error, setError] = useState<string | null>(null);
+  // Lỗi khi đang sửa hiện ngay dưới ô sửa (DESIGN.md Inputs), không ở cuối trang
+  const [editError, setEditError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Khóa nút tới khi dữ liệu mới về, để không tính thứ tự trên danh sách cũ
+  const [refreshing, startTransition] = useTransition();
+  const locked = busy || refreshing;
   const hide = useTwoStep<string>();
   const active = items.filter((i) => !i.is_archived);
   const archived = items.filter((i) => i.is_archived);
 
-  async function run(...ops: (() => Result)[]) {
+  async function run(ops: (() => Result)[], show: (text: string | null) => void = setError) {
     setBusy(true);
     let failure: string | null = null;
     for (const op of ops) {
@@ -44,9 +49,19 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
       }
     }
     setBusy(false);
-    setError(failure);
-    router.refresh();
+    show(failure);
+    startTransition(() => router.refresh());
     return failure === null;
+  }
+
+  function openEdit(next: NonNullable<Editing>) {
+    setEditError(null);
+    setEditing(next);
+  }
+
+  function closeEdit() {
+    setEditError(null);
+    setEditing(null);
   }
 
   async function add() {
@@ -56,9 +71,9 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
     if (price === null) return setError(PRICE_RANGE_TEXT);
     const name = normalizeMenuName(newName);
     if (
-      await run(() =>
-        supabase.from("menu_items").insert({ name, price, sort_order: nextSortOrder(items) }),
-      )
+      await run([
+        () => supabase.from("menu_items").insert({ name, price, sort_order: nextSortOrder(items) }),
+      ])
     ) {
       setNewName("");
       setNewPrice("");
@@ -68,49 +83,67 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   async function saveEdit() {
     if (!editing) return;
     const item = items.find((i) => i.id === editing.id);
-    if (!item) return setEditing(null);
+    if (!item) return closeEdit();
     if (editing.field === "name") {
       const name = normalizeMenuName(editing.value);
-      if (name === item.name) return setEditing(null);
+      if (name === item.name) return closeEdit();
       const nameError = menuNameError(name, items, item.id);
-      if (nameError) return setError(nameError);
-      if (await run(() => supabase.from("menu_items").update({ name }).eq("id", item.id)))
-        setEditing(null);
+      if (nameError) return setEditError(nameError);
+      if (await run([() => supabase.from("menu_items").update({ name }).eq("id", item.id)], setEditError))
+        closeEdit();
       return;
     }
     const price = parsePriceInput(editing.value);
-    if (price === null) return setError(PRICE_RANGE_TEXT);
-    if (price === item.price) return setEditing(null);
-    if (await run(() => supabase.from("menu_items").update({ price }).eq("id", item.id)))
-      setEditing(null);
+    if (price === null) return setEditError(PRICE_RANGE_TEXT);
+    if (price === item.price) return closeEdit();
+    if (await run([() => supabase.from("menu_items").update({ price }).eq("id", item.id)], setEditError))
+      closeEdit();
   }
 
-  // Hai lệnh update riêng, mỗi lệnh khóa một dòng: không tạo vòng chờ với khóa FOR SHARE của create_order.
-  // ponytail: hai lệnh không nằm trong một transaction; lỗi giữa chừng chỉ làm lệch thứ tự, bấm lại là sửa được
+  // Mỗi lệnh update khóa đúng một dòng: không tạo vòng chờ với khóa FOR SHARE của create_order.
+  // ponytail: các lệnh không nằm trong một transaction; lỗi giữa chừng có thể để hai món trùng thứ tự,
+  // lần bấm sau sẽ đánh số lại toàn bộ
   function move(index: number, delta: -1 | 1) {
     const a = active[index];
     const b = active[index + delta];
     if (!a || !b) return;
+    if (a.sort_order !== b.sort_order) {
+      void run([
+        () => supabase.from("menu_items").update({ sort_order: b.sort_order }).eq("id", a.id),
+        () => supabase.from("menu_items").update({ sort_order: a.sort_order }).eq("id", b.id),
+      ]);
+      return;
+    }
+    // Trùng thứ tự: đổi chỗ hai giá trị bằng nhau không làm gì, nên đánh số lại theo thứ tự đang hiện
+    const order = [...active];
+    order[index] = b;
+    order[index + delta] = a;
     void run(
-      () => supabase.from("menu_items").update({ sort_order: b.sort_order }).eq("id", a.id),
-      () => supabase.from("menu_items").update({ sort_order: a.sort_order }).eq("id", b.id),
+      [...order, ...archived].flatMap((item, i) =>
+        item.sort_order === i + 1
+          ? []
+          : [() => supabase.from("menu_items").update({ sort_order: i + 1 }).eq("id", item.id)],
+      ),
     );
   }
 
   function archive(item: OwnerMenuItem) {
     if (hide.armed !== item.id) return hide.arm(item.id);
     hide.reset();
-    void run(() => supabase.from("menu_items").update({ is_archived: true }).eq("id", item.id));
+    void run([() => supabase.from("menu_items").update({ is_archived: true }).eq("id", item.id)]);
   }
 
   function restore(item: OwnerMenuItem) {
-    const nameError = menuNameError(item.name, items, item.id);
-    if (nameError) return setError(nameError);
-    void run(() => supabase.from("menu_items").update({ is_archived: false }).eq("id", item.id));
+    // Món đã ẩn không có nút Đổi tên, nên câu lỗi chỉ cách sửa làm được (ui-craft.md)
+    if (menuNameError(item.name, items, item.id))
+      return setError("Đã có món đang bán tên này. Đổi tên hoặc ẩn món đang bán đó rồi hiện lại.");
+    void run([() => supabase.from("menu_items").update({ is_archived: false }).eq("id", item.id)]);
   }
 
-  const small =
-    "flex min-h-12 min-w-12 items-center justify-center rounded-md border border-edge px-3 text-sm disabled:opacity-40";
+  // Màu viền tách riêng: nút phá hủy phải có viền danger, không bị border-edge đè (Tailwind xếp tiện ích theo tên)
+  const button =
+    "flex min-h-12 min-w-12 items-center justify-center rounded-md border px-3 text-sm disabled:opacity-40";
+  const small = `${button} border-edge`;
   const field = "min-h-12 rounded-lg border border-edge bg-transparent p-2";
   return (
     <div className="space-y-6">
@@ -136,15 +169,22 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                     inputMode={editing.field === "price" ? "numeric" : undefined}
                     value={editing.value}
                     onChange={(e) => setEditing({ ...editing, value: e.target.value })}
-                    onKeyDown={(e) => e.key === "Escape" && setEditing(null)}
+                    onKeyDown={(e) => e.key === "Escape" && closeEdit()}
+                    aria-invalid={editError !== null}
+                    aria-describedby={editError ? `edit-error-${item.id}` : undefined}
                     className={`${field} min-w-40 flex-1 tabular-nums`}
                   />
-                  <button type="submit" disabled={busy} className={small}>
+                  <button type="submit" disabled={locked} className={small}>
                     Lưu
                   </button>
-                  <button type="button" className={small} onClick={() => setEditing(null)}>
+                  <button type="button" className={small} onClick={closeEdit}>
                     Bỏ qua
                   </button>
+                  {editError && (
+                    <p id={`edit-error-${item.id}`} role="alert" className="w-full text-sm text-danger">
+                      {editError}
+                    </p>
+                  )}
                 </form>
               ) : (
                 <div className="flex items-baseline justify-between gap-3">
@@ -159,7 +199,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                   type="button"
                   className={small}
                   aria-label={`Đưa ${item.name} lên`}
-                  disabled={busy || i === 0}
+                  disabled={locked || i === 0}
                   onClick={() => move(i, -1)}
                 >
                   <ChevronUp aria-hidden="true" size={18} />
@@ -168,7 +208,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                   type="button"
                   className={small}
                   aria-label={`Đưa ${item.name} xuống`}
-                  disabled={busy || i === active.length - 1}
+                  disabled={locked || i === active.length - 1}
                   onClick={() => move(i, 1)}
                 >
                   <ChevronDown aria-hidden="true" size={18} />
@@ -177,7 +217,8 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                   type="button"
                   className={small}
                   aria-label={`Đổi tên ${item.name}`}
-                  onClick={() => setEditing({ id: item.id, field: "name", value: item.name })}
+                  disabled={locked}
+                  onClick={() => openEdit({ id: item.id, field: "name", value: item.name })}
                 >
                   Đổi tên
                 </button>
@@ -185,15 +226,16 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                   type="button"
                   className={small}
                   aria-label={`Đổi giá ${item.name}`}
-                  onClick={() => setEditing({ id: item.id, field: "price", value: String(item.price) })}
+                  disabled={locked}
+                  onClick={() => openEdit({ id: item.id, field: "price", value: String(item.price) })}
                 >
                   Đổi giá
                 </button>
                 <button
                   type="button"
-                  className={`${small} ml-auto ${hide.armed === item.id ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+                  className={`${button} ml-auto ${hide.armed === item.id ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
                   aria-label={hide.armed === item.id ? `Chắc chắn ẩn ${item.name}?` : `Ẩn ${item.name}`}
-                  disabled={busy}
+                  disabled={locked}
                   onClick={() => archive(item)}
                 >
                   {hide.armed === item.id ? "Chắc chắn ẩn?" : "Ẩn"}
@@ -228,7 +270,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
         />
         <button
           type="submit"
-          disabled={busy}
+          disabled={locked}
           className="min-h-12 rounded-lg bg-ember px-5 font-bold text-ember-ink disabled:opacity-50"
         >
           Thêm món
@@ -249,7 +291,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                   type="button"
                   className={small}
                   aria-label={`Hiện lại ${item.name}`}
-                  disabled={busy}
+                  disabled={locked}
                   onClick={() => restore(item)}
                 >
                   Hiện lại

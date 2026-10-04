@@ -1,23 +1,13 @@
 import { MenuManager, type OwnerMenuItem } from "@/components/admin/MenuManager";
-import { changerLabel } from "@/lib/admin/menu";
-import { formatVnd } from "@/lib/money";
+import { PriceHistory, type PriceRow } from "@/components/admin/PriceHistory";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { formatVnDateTime } from "@/lib/time";
-
-type PriceRow = {
-  id: number;
-  price: number;
-  effective_from: string;
-  changed_by: string | null;
-  menu_items: { name: string } | { name: string }[] | null;
-};
 
 // SRS FR-05, FR-05a: thực đơn và 20 lần đổi giá gần nhất
 export default async function MenuPage() {
   const supabase = await createServerSupabase();
   const [
     { data: items, error },
-    { data: history },
+    { data: history, error: historyError },
     {
       data: { user },
     },
@@ -53,21 +43,11 @@ export default async function MenuPage() {
         </section>
         <section className="space-y-4">
           <SectionTitle>Lịch sử đổi giá</SectionTitle>
-          <ul className="divide-y divide-line text-sm tabular-nums">
-            {((history ?? []) as PriceRow[]).map((h) => {
-              const item = Array.isArray(h.menu_items) ? h.menu_items[0] : h.menu_items;
-              return (
-                <li key={h.id} className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5 py-2">
-                  <span className="font-medium">{item?.name ?? "—"}</span>
-                  <span className="font-semibold">{formatVnd(h.price)}</span>
-                  <span className="text-ink-muted">{formatVnDateTime(h.effective_from)}</span>
-                  <span className="truncate text-right text-ink-muted">
-                    {changerLabel(h.changed_by, user ? { id: user.id, email: user.email } : null)}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+          <PriceHistory
+            rows={(history ?? []) as PriceRow[]}
+            failed={historyError !== null}
+            user={user ? { id: user.id, email: user.email } : null}
+          />
         </section>
       </div>
     </div>
