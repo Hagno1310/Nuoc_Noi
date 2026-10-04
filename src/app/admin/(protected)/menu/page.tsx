@@ -39,7 +39,6 @@ export default async function MenuPage() {
       {/* Laptop: danh sách món bên trái, lịch sử đổi giá bên phải. Điện thoại: lịch sử xuống cuối */}
       <div className="grid gap-12 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-start lg:gap-16">
         <section className="space-y-4">
-          <SectionTitle>Món đang bán</SectionTitle>
           <MenuManager items={items as OwnerMenuItem[]} />
         </section>
         <section className="space-y-4">

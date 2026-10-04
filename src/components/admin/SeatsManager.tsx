@@ -1,5 +1,6 @@
 "use client";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { SectionTitle } from "@/components/admin/SectionTitle";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ownerErrorText } from "@/lib/admin/errors";
@@ -125,22 +126,26 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
     "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink placeholder:text-ink-muted";
   return (
     <div className="space-y-4">
-      {active.length > 1 && (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            className={small}
-            aria-pressed={sorting}
-            onClick={() => {
-              setEditing(null);
-              setOpen(null);
-              setSorting(!sorting);
-            }}
-          >
-            {sorting ? "Xong" : "Sắp xếp"}
-          </button>
-        </div>
-      )}
+      <SectionTitle
+        action={
+          active.length > 1 && (
+            <button
+              type="button"
+              className={small}
+              aria-pressed={sorting}
+              onClick={() => {
+                setEditing(null);
+                setOpen(null);
+                setSorting(!sorting);
+              }}
+            >
+              {sorting ? "Xong" : "Sắp xếp"}
+            </button>
+          )
+        }
+      >
+        Chỗ ngồi
+      </SectionTitle>
       {KINDS.map((kind) => {
         const list = active.filter((s) => s.kind === kind);
         return (
@@ -215,9 +220,14 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
                         type="button"
                         aria-expanded={open === s.id}
                         onClick={() => setOpen(open === s.id ? null : s.id)}
-                        className="flex min-h-12 w-full items-center py-1 text-left font-medium"
+                        className="flex min-h-12 w-full items-center justify-between py-1 text-left font-medium"
                       >
                         {s.name}
+                        <ChevronDown
+                          aria-hidden="true"
+                          size={18}
+                          className={`text-ink-muted transition-transform duration-150 ${open === s.id ? "rotate-180" : ""}`}
+                        />
                       </button>
                       {open === s.id && (
                         <div className="flex gap-2 pb-3">
@@ -289,8 +299,10 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
           <ul>
             {archived.map((s) => (
               <li key={s.id} className="flex items-center gap-2 py-1">
-                <span className="flex-1 text-ink-muted">
-                  {s.name} · {KIND_LABEL[s.kind]}
+                <span className="flex flex-1 items-center gap-2 text-ink-muted">
+                  {s.name}
+                  <span className="text-sm">{KIND_LABEL[s.kind]}</span>
+                  <span className="rounded-sm border border-line px-1 text-xs font-semibold">ẨN</span>
                 </span>
                 <button
                   type="button"

@@ -1,5 +1,6 @@
 "use client";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { SectionTitle } from "@/components/admin/SectionTitle";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { ownerErrorText } from "@/lib/admin/errors";
@@ -152,25 +153,29 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   const field = "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink placeholder:text-ink-muted";
   return (
     <div className="space-y-6">
-      {active.length > 1 && (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            className={small}
-            aria-pressed={sorting}
-            onClick={() => {
-              closeEdit();
-              setSorting(!sorting);
-            }}
-          >
-            {sorting ? "Xong" : "Sắp xếp"}
-          </button>
-        </div>
-      )}
+      <SectionTitle
+        action={
+          active.length > 1 && (
+            <button
+              type="button"
+              className={small}
+              aria-pressed={sorting}
+              onClick={() => {
+                closeEdit();
+                setSorting(!sorting);
+              }}
+            >
+              {sorting ? "Xong" : "Sắp xếp"}
+            </button>
+          )
+        }
+      >
+        Món đang bán
+      </SectionTitle>
       {active.length === 0 ? (
         <p className="text-sm text-ink-muted">Chưa có món nào đang bán. Thêm món ở ô bên dưới.</p>
       ) : (
-        <ul className="divide-y divide-line border-y border-line">
+        <ul className="divide-y divide-line border-b border-line">
           {active.map((item, i) => (
             <li key={item.id}>
               {editing?.id === item.id ? (
@@ -237,7 +242,14 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                     className="flex min-h-12 w-full items-baseline justify-between gap-3 py-2 text-left"
                   >
                     <span className="min-w-0 break-words font-display text-xl">{item.name}</span>
-                    <span className="shrink-0 font-semibold tabular-nums">{formatVnd(item.price)}</span>
+                    <span className="flex shrink-0 items-center gap-2 font-semibold tabular-nums">
+                      {formatVnd(item.price)}
+                      <ChevronDown
+                        aria-hidden="true"
+                        size={18}
+                        className={`text-ink-muted transition-transform duration-150 ${open === item.id ? "rotate-180" : ""}`}
+                      />
+                    </span>
                   </button>
                   {open === item.id && (
                     <div className="flex gap-2 pb-3">
@@ -316,7 +328,10 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
           <ul>
             {archived.map((item) => (
               <li key={item.id} className="flex items-center gap-3 py-1">
-                <span className="flex-1 text-ink-muted">{item.name}</span>
+                <span className="flex flex-1 items-center gap-2 text-ink-muted">
+                  {item.name}
+                  <span className="rounded-sm border border-line px-1 text-xs font-semibold">ẨN</span>
+                </span>
                 <span className="text-sm tabular-nums text-ink-muted">{formatVnd(item.price)}</span>
                 <button
                   type="button"

@@ -7,7 +7,7 @@ const browser = await chromium.launch();
 const shot = async (ctx, path, file) => {
   const p = await ctx.newPage();
   await p.goto(base + path, { waitUntil: "networkidle" });
-  await p.waitForTimeout(800);
+  await p.waitForTimeout(2000); // chờ biểu đồ đo bề rộng (ResizeObserver) rồi mới chụp
   await p.screenshot({ path: `${out}/${file}`, fullPage: true });
   if (path.includes("dashboard")) console.log("fontStretch", await p.evaluate(() => getComputedStyle(document.querySelector(".font-display")).fontStretch));
   await p.close();
@@ -29,6 +29,15 @@ for (const [w, h, prefix] of [[390, 844, "mobile"], [1440, 900, "desktop"]]) {
   await shot(ctx, "/admin/dashboard", `${prefix}.png`);
   await shot(ctx, "/admin/menu", `${prefix}-menu.png`);
   await shot(ctx, "/admin/settings", `${prefix}-settings.png`);
+  // Hàng đang mở: nút của hàng (Đổi tên, Đổi giá, Ẩn)
+  for (const [path, row, file] of [["/admin/menu", /^BeSpoke/, "menu-open"], ["/admin/settings", /^Quầy 1$/, "settings-open"]]) {
+    const p = await ctx.newPage();
+    await p.goto(base + path, { waitUntil: "networkidle" });
+    await p.getByRole("button", { name: row }).first().click();
+    await p.waitForTimeout(300);
+    await p.screenshot({ path: `${out}/${prefix}-${file}.png` });
+    await p.close();
+  }
   await ctx.close();
 }
 await browser.close();

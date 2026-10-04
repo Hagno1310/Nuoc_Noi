@@ -7,8 +7,8 @@ describe("SectionTitle", () => {
     const { container } = render(<SectionTitle>Chỗ ngồi</SectionTitle>);
     const h2 = screen.getByRole("heading", { level: 2, name: "Chỗ ngồi" });
     expect(h2.className).toContain("font-display");
-    expect(h2.className).toContain("border-b");
-    expect(h2.className).toContain("border-line");
+    expect(h2.parentElement?.className).toContain("border-b");
+    expect(h2.parentElement?.className).toContain("border-line");
     expect(h2.className).toContain("text-xl");
     expect(container.querySelector(".streak")).toBeNull();
   });

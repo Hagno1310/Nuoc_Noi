@@ -58,7 +58,6 @@ export default async function SettingsPage() {
         </div>
 
         <section className="space-y-4">
-          <SectionTitle>Chỗ ngồi</SectionTitle>
           <SeatsManager seats={(seats ?? []) as OwnerSeat[]} />
         </section>
       </div>

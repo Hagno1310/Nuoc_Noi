@@ -60,9 +60,16 @@ export function PeriodComparison({ periods }: { periods: Period[] }) {
                 <Change current={p.current.order_count} previous={p.previous.order_count} />
               </p>
             </div>
-            <p className="mt-1 text-xs text-ink-muted tabular-nums lg:col-span-4 lg:mt-1 lg:text-right">
+            <p className="mt-1 text-xs text-ink-muted tabular-nums lg:hidden">
               {`Kỳ trước ${formatVnd(p.previous.revenue)} · ${p.previous.item_count} món · ${p.previous.order_count} đơn`}
             </p>
+            {/* Màn rộng: mỗi số kỳ trước nằm dưới đúng cột nó so sánh */}
+            <div className="hidden text-xs text-ink-muted tabular-nums lg:contents">
+              <span>Kỳ trước</span>
+              <span className="text-right">{formatVnd(p.previous.revenue)}</span>
+              <span className="text-right">{p.previous.item_count}</span>
+              <span className="text-right">{p.previous.order_count}</span>
+            </div>
           </section>
         ))}
       </div>

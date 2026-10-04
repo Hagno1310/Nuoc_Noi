@@ -21,8 +21,8 @@ describe("PeriodComparison", () => {
     expect(screen.queryByText(/cốc/)).toBeNull();
     // Doanh thu và số món đều tăng 50%
     expect(screen.getAllByText("+50%")).toHaveLength(2);
-    // Một dòng kỳ trước cho cả kỳ, không lặp "Kỳ trước" theo từng số
-    expect(screen.getAllByText(/Kỳ trước/)).toHaveLength(1);
+    // Một dòng kỳ trước cho cả kỳ (điện thoại) và một nhãn cho hàng (màn rộng), không lặp theo từng số
+    expect(screen.getAllByText(/Kỳ trước/)).toHaveLength(2);
     expect(screen.getByText("Kỳ trước 380.000đ · 2 món · 1 đơn")).toBeInTheDocument();
   });
 
