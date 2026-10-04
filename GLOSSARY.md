@@ -110,3 +110,7 @@ _Avoid_: Cùng kỳ năm trước
 Danh sách mọi đơn hàng trong một khoảng ngày, gồm cả đơn đã hủy.
 _Avoid_: Lịch sử giao dịch, log
 
+
+**Thông báo đơn mới** (New order notice):
+Thông báo hiện vài giây trên trang chủ quán khi nhân viên vừa tạo đơn, ghi chỗ ngồi, số cốc và thành tiền.
+_Avoid_: Popup đơn, push

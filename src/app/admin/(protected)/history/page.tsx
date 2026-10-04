@@ -199,7 +199,7 @@ export default async function HistoryPage({
       )}
 
       {t && (
-        <p className="sticky bottom-16 border-t border-line bg-bg py-3 font-medium tabular-nums lg:bottom-0">
+        <p className="sticky bottom-[calc(49px+env(safe-area-inset-bottom))] border-t border-line bg-bg py-3 font-medium tabular-nums lg:bottom-0">
           {t.order_count} đơn · {t.cups} cốc · Doanh thu{" "}
           <strong>{formatVnd(t.revenue)}</strong>{" "}
           <span className="text-sm text-ink-muted">

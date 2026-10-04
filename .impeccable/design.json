@@ -317,7 +317,7 @@
       "refersTo": "nav-item",
       "description": "Thanh 4 cột ở đáy trên điện thoại; mục hiện tại gạch chân ember.",
       "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">Tổng quan</a><a href=\"#\">Lịch sử đơn hàng</a><a href=\"#\">Cài đặt</a><a href=\"#\">Màn hình order</a></nav>",
-      "css": ".ds-nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line,#4a5238);background:var(--bg,#1a1e15);font-family:\"Be Vietnam Pro\",sans-serif}.ds-nav a{display:flex;min-height:56px;align-items:center;justify-content:center;padding:0 8px;text-align:center;font-size:.875rem;font-weight:500;color:var(--ink-muted,#a9b08f);text-decoration:none}.ds-nav a:hover{color:var(--ink,#e6d8b4)}.ds-nav a[aria-current=page]{color:var(--ink,#e6d8b4);font-weight:600;text-decoration:underline 2px var(--ember,#e68a3c);text-underline-offset:.2em}.ds-nav a:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}"
+      "css": ".ds-nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line,#4a5238);background:var(--bg,#1a1e15);font-family:\"Be Vietnam Pro\",sans-serif}.ds-nav a{display:flex;min-height:48px;align-items:center;justify-content:center;padding:0 8px;text-align:center;font-size:.875rem;font-weight:500;color:var(--ink-muted,#a9b08f);text-decoration:none}.ds-nav a:hover{color:var(--ink,#e6d8b4)}.ds-nav a[aria-current=page]{color:var(--ink,#e6d8b4);font-weight:600;text-decoration:underline 2px var(--ember,#e68a3c);text-underline-offset:.2em}.ds-nav a:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}"
     },
     {
       "name": "Khung cài đặt",

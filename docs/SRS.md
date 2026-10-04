@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 2.2 |
+| **Phiên bản** | 2.3 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v2.3** | Trang chủ quán hiện thông báo đơn mới ngay khi nhân viên tạo đơn và cập nhật số liệu, qua Realtime (R30). Đồng hồ giờ mở cửa có vệt mờ cho phần giờ chưa tới. Trên điện thoại, thanh điều hướng chỉ hiện icon và cỡ chữ gốc nhỏ hơn (R31). |
 | **Thay đổi ở v2.2** | Gửi link app vào ứng dụng chat thì hiện ảnh xem trước theo thương hiệu (R29). |
 | **Thay đổi ở v2.1** | Chủ quán mở màn hình order thì có liên kết quay lại trang chủ quán (R28). |
 | **Thay đổi ở v2.0** | Thêm giờ đóng cửa (R26). Tổng quan theo dõi ngày kinh doanh, tuần và tháng, so với cùng đoạn kỳ trước, có hai biểu đồ doanh thu; đưa biểu đồ trở lại phạm vi (R27). |
@@ -42,6 +43,7 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước b
 - Cấu hình đơn giá chung (kèm lịch sử đổi giá), danh sách chỗ ngồi, giờ mở cửa, giờ đóng cửa và PIN quán.
 - Thống kê doanh thu, số cốc và số đơn theo ngày kinh doanh, tuần và tháng, so với kỳ trước, kèm biểu đồ doanh thu theo ngày.
 - Lịch sử đơn hàng và xuất CSV.
+- Thông báo đơn mới trên trang chủ quán.
 
 **Ngoài phạm vi:**
 - Chế độ offline. Khi mất mạng thì không tạo được đơn.
@@ -192,7 +194,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 
 **FR-06: Tổng quan, `/admin/dashboard`**
-- **Đồng hồ giờ mở cửa:** vẽ khoảng từ giờ mở cửa đến giờ đóng cửa (ví dụ 20:00–02:00, 6 tiếng), đánh dấu giờ hiện tại. Sau giờ đóng cửa và trước giờ mở cửa kế tiếp, đồng hồ đầy và ghi "Đã đóng cửa".
+- **Đồng hồ giờ mở cửa:** vẽ khoảng từ giờ mở cửa đến giờ đóng cửa (ví dụ 20:00–02:00, 6 tiếng), đánh dấu giờ hiện tại. Cả khoảng là một vệt mờ; phần đã trôi qua vẽ sáng đè lên, phần giờ chưa tới giữ vệt mờ. Sau giờ đóng cửa và trước giờ mở cửa kế tiếp, đồng hồ đầy và ghi "Đã đóng cửa".
 - **Ba kỳ:** ngày kinh doanh hiện tại, tuần này (thứ Hai đến Chủ nhật, theo ngày kinh doanh, tính đến hôm nay), tháng này (các ngày kinh doanh thuộc tháng dương lịch hiện tại, tính đến hôm nay).
 - **Mỗi kỳ có:** doanh thu, số cốc, số đơn (chỉ tính đơn đã thanh toán).
 - **So với kỳ trước, cùng đoạn:**
@@ -207,6 +209,12 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
   - Ở cả hai biểu đồ, ngày chưa tới thì để trống cột kỳ này.
 - Tự tải lại mỗi 60 giây.
 - Không tải được số liệu thì báo "Không tải được số liệu. Kiểm tra mạng; trang sẽ tự thử lại sau 60 giây." và vẫn tự thử lại.
+
+**FR-06a: Thông báo đơn mới**
+- Khi nhân viên tạo đơn thành công, mọi trang chủ quán đang mở hiện thông báo "Đơn mới: <tên chỗ ngồi, Mang về, hoặc — nếu đơn không ghi chỗ ngồi> · N cốc · 25.000đ" trong 5 giây (`role="status"`), không che thanh điều hướng.
+- Cùng lúc, số liệu trên trang (Tổng quan, Lịch sử đơn hàng) được tải lại, không cần đợi chu kỳ 60 giây.
+- Dùng Supabase Realtime trên bảng đơn hàng; RLS vẫn áp dụng, chỉ chủ quán nhận được sự kiện. Thành tiền lấy từ dòng đơn trên server (đọc lại theo mã đơn), không tính ở trình duyệt.
+- Mất kết nối Realtime thì không có thông báo; Tổng quan vẫn tự tải lại mỗi 60 giây.
 
 **FR-07: Lịch sử đơn hàng, `/admin/history`**
 - **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số cốc, Đơn giá, Thành tiền, Trạng thái.
@@ -320,3 +328,5 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R27 (v2.0) | Thống kê | Ngày kinh doanh, tuần (T2–CN), tháng; doanh thu, số cốc, số đơn; so với cùng đoạn kỳ trước; biểu đồ doanh thu theo ngày trong tháng và trong tuần. Cả ba chỉ số của ba kỳ đều so sánh; phần trăm làm tròn số nguyên; ngày chưa tới để trống. Biểu đồ trở lại phạm vi. |
 | R28 (v2.1) | Điều hướng | Chủ quán vào /order có liên kết "Trang chủ quán" quay lại /admin/dashboard; nhân viên không thấy. |
 | R29 (v2.2) | Ảnh xem trước | Gửi link app vào ứng dụng chat thì hiện ảnh 1200×630: logo trên nền thương hiệu và câu mô tả app. Một ảnh tĩnh chung cho mọi trang, không chứa số liệu của quán. |
+| R30 (v2.3) | Thông báo đơn mới | Trang chủ quán nghe Realtime trên bảng đơn hàng; đơn mới hiện thông báo 5 giây và tải lại số liệu. Không âm thanh, không rung. |
+| R31 (v2.3) | Giao diện điện thoại | Đồng hồ giờ mở cửa có vệt mờ cho giờ chưa tới. Thanh điều hướng dưới chỉ icon (tên trong aria-label), cao 48px. Cỡ chữ gốc 15px dưới `lg`; khoảng cách và vùng chạm tính bằng px nên vẫn ≥ 48px (NFR-02). Ô nhập giữ chữ ≥ 16px để iOS không tự phóng to. |

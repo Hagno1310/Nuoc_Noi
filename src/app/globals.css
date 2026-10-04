@@ -39,10 +39,13 @@
   --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
   --font-display: var(--font-anton), var(--font-be-vietnam), sans-serif;
   --ease-exposure: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Khoảng cách và vùng chạm tính bằng px, để thu nhỏ chữ trên điện thoại không làm vùng chạm dưới 48px (NFR-02) */
+  --spacing: 4px;
 }
 
 html {
   background-color: var(--bg);
+  font-size: 93.75%; /* điện thoại: chữ 15px, từ lg trở lên 16px */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -199,13 +202,40 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   animation: row-in 240ms var(--ease-exposure) both;
 }
 
+@media (min-width: 64rem) {
+  html {
+    font-size: 100%;
+  }
+}
+
+/* iOS Safari phóng to trang khi chạm ô nhập có chữ dưới 16px. Nằm trong base để class text-* (ô số cốc) vẫn thắng */
+@layer base {
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Thông báo đơn mới trên trang chủ quán */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.toast-in {
+  animation: toast-in 200ms var(--ease-exposure) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .exposure-streak {
     display: none;
   }
   /* Bỏ di chuyển, giữ thay đổi độ mờ để trạng thái vẫn đọc được */
   .develop,
-  .row-in {
+  .row-in,
+  .toast-in {
     animation: fade-in 200ms ease-out both;
   }
   .arc-draw,
