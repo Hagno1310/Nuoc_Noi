@@ -12,15 +12,16 @@ insert into auth.sessions (id, user_id) values
   ('00000000-0000-0000-0000-0000000000b5', '00000000-0000-0000-0000-0000000000b1');
 
 -- 2026-10-14 là thứ Tư; tuần này bắt đầu 2026-10-12 (thứ Hai)
-insert into public.orders (id, item_count, subtotal_amount, total_amount, is_takeaway, status, created_by, business_date) values
-  (gen_random_uuid(), 2, 50000, 50000, true, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
-  (gen_random_uuid(), 9, 225000, 225000, true, 'cancelled', '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
-  (gen_random_uuid(), 4, 100000, 100000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-10-13'),
-  (gen_random_uuid(), 1, 25000, 25000, true, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-12'),
-  (gen_random_uuid(), 3, 60000, 60000, true, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-07'), -- thứ Tư tuần trước
-  (gen_random_uuid(), 5, 100000, 100000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-10-08'), -- thứ Năm tuần trước: ngoài cùng đoạn
-  (gen_random_uuid(), 6, 120000, 120000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-09-10'), -- trong ngày 1–14 tháng trước
-  (gen_random_uuid(), 7, 140000, 140000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-09-20'); -- ngoài cùng đoạn tháng trước
+insert into public.seats (id, name, kind) values ('00000000-0000-0000-0000-0000000000c1', 'Bàn 1', 'table');
+insert into public.orders (id, item_count, subtotal_amount, total_amount, seat_id, status, created_by, business_date) values
+  (gen_random_uuid(), 2, 50000, 50000, '00000000-0000-0000-0000-0000000000c1', 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
+  (gen_random_uuid(), 9, 225000, 225000, '00000000-0000-0000-0000-0000000000c1', 'cancelled', '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
+  (gen_random_uuid(), 4, 100000, 100000, '00000000-0000-0000-0000-0000000000c1', 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-10-13'),
+  (gen_random_uuid(), 1, 25000, 25000, '00000000-0000-0000-0000-0000000000c1', 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-12'),
+  (gen_random_uuid(), 3, 60000, 60000, '00000000-0000-0000-0000-0000000000c1', 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-07'), -- thứ Tư tuần trước
+  (gen_random_uuid(), 5, 100000, 100000, '00000000-0000-0000-0000-0000000000c1', 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-10-08'), -- thứ Năm tuần trước: ngoài cùng đoạn
+  (gen_random_uuid(), 6, 120000, 120000, '00000000-0000-0000-0000-0000000000c1', 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-09-10'), -- trong ngày 1–14 tháng trước
+  (gen_random_uuid(), 7, 140000, 140000, '00000000-0000-0000-0000-0000000000c1', 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-09-20'); -- ngoài cùng đoạn tháng trước
 
 -- Nhân viên không gọi được
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated","session_id":"00000000-0000-0000-0000-0000000000b5"}', true);
@@ -54,8 +55,8 @@ select is((select jsonb_array_length(r -> 'week_days') from st), 7, 'chuỗi tu�
 select is((select r -> 'week_days' -> 2 from st), '{"weekday": 3, "revenue": 50000, "previous_revenue": 60000}'::jsonb, 'thứ Tư so với thứ Tư tuần trước');
 
 -- Tháng trước ngắn hơn: 31/3 so với 1–28/2 (2027 không nhuận)
-insert into public.orders (id, item_count, subtotal_amount, total_amount, is_takeaway, status, created_by, business_date) values
-  (gen_random_uuid(), 1, 10000, 10000, true, 'paid', '00000000-0000-0000-0000-0000000000b1', '2027-02-28');
+insert into public.orders (id, item_count, subtotal_amount, total_amount, seat_id, status, created_by, business_date) values
+  (gen_random_uuid(), 1, 10000, 10000, '00000000-0000-0000-0000-0000000000c1', 'paid', '00000000-0000-0000-0000-0000000000b1', '2027-02-28');
 select is((select public.owner_stats('2027-03-31') -> 'month' -> 'previous' ->> 'revenue'), '10000', 'tháng trước ngắn hơn thì tính đến hết tháng trước');
 
 select * from finish();

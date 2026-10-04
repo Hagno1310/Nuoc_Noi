@@ -12,12 +12,13 @@ insert into auth.sessions (id, user_id) values
   ('00000000-0000-0000-0000-0000000000b5', '00000000-0000-0000-0000-0000000000b1');
 
 -- Đơn thứ hai giảm 10%: 75.000đ → giảm 7.000đ (7.500đ làm tròn xuống) → 68.000đ
-insert into public.orders (id, item_count, subtotal_amount, discount_percent, discount_amount, total_amount, is_takeaway, status, created_by, business_date) values
-  (gen_random_uuid(), 2, 50000, 0, 0, 50000, true, 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-10-15'),
-  (gen_random_uuid(), 3, 75000, 10, 7000, 68000, true, 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-10-15'),
-  (gen_random_uuid(), 10, 250000, 0, 0, 250000, true, 'cancelled', '00000000-0000-0000-0000-0000000000b1', '2026-10-15'),
-  (gen_random_uuid(), 1, 20000, 0, 0, 20000, true, 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-10-01'),
-  (gen_random_uuid(), 4, 80000, 0, 0, 80000, true, 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-09-30');
+insert into public.seats (id, name, kind) values ('00000000-0000-0000-0000-0000000000c1', 'Bàn 1', 'table');
+insert into public.orders (id, item_count, subtotal_amount, discount_percent, discount_amount, total_amount, seat_id, status, created_by, business_date) values
+  (gen_random_uuid(), 2, 50000, 0, 0, 50000, '00000000-0000-0000-0000-0000000000c1', 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-10-15'),
+  (gen_random_uuid(), 3, 75000, 10, 7000, 68000, '00000000-0000-0000-0000-0000000000c1', 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-10-15'),
+  (gen_random_uuid(), 10, 250000, 0, 0, 250000, '00000000-0000-0000-0000-0000000000c1', 'cancelled', '00000000-0000-0000-0000-0000000000b1', '2026-10-15'),
+  (gen_random_uuid(), 1, 20000, 0, 0, 20000, '00000000-0000-0000-0000-0000000000c1', 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-10-01'),
+  (gen_random_uuid(), 4, 80000, 0, 0, 80000, '00000000-0000-0000-0000-0000000000c1', 'paid', '00000000-0000-0000-0000-0000000000b1', '2026-09-30');
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated","session_id":"00000000-0000-0000-0000-0000000000b5"}', true);
 select throws_ok($$select public.history_totals('2026-09-30', '2026-10-15')$$, 'P0001', 'FORBIDDEN', 'nhân viên không xem được dòng tổng');

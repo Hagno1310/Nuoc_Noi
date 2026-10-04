@@ -12,11 +12,12 @@ insert into auth.sessions (id, user_id) values
   ('00000000-0000-0000-0000-0000000000b5', '00000000-0000-0000-0000-0000000000b1');
 
 insert into public.menu_items (id, name, price) values ('00000000-0000-0000-0000-0000000000e1', 'Thử A', 25000);
-insert into public.orders (id, item_count, subtotal_amount, total_amount, is_takeaway, created_by, created_at, business_date) values
-  ('00000000-0000-0000-0000-0000000000d1', 1, 25000, 25000, true, '00000000-0000-0000-0000-0000000000b1', now() - interval '2 minutes', public.current_business_date()),
-  ('00000000-0000-0000-0000-0000000000d2', 2, 50000, 50000, true, '00000000-0000-0000-0000-0000000000b1', now() - interval '6 minutes', public.current_business_date()),
-  ('00000000-0000-0000-0000-0000000000d3', 3, 75000, 75000, true, '00000000-0000-0000-0000-0000000000a1', now() - interval '1 minute', public.current_business_date()),
-  ('00000000-0000-0000-0000-0000000000d4', 4, 100000, 100000, true, '00000000-0000-0000-0000-0000000000b1', now() - interval '1 day', public.current_business_date() - 1);
+insert into public.seats (id, name, kind) values ('00000000-0000-0000-0000-0000000000c1', 'Bàn 1', 'table');
+insert into public.orders (id, item_count, subtotal_amount, total_amount, seat_id, created_by, created_at, business_date) values
+  ('00000000-0000-0000-0000-0000000000d1', 1, 25000, 25000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000b1', now() - interval '2 minutes', public.current_business_date()),
+  ('00000000-0000-0000-0000-0000000000d2', 2, 50000, 50000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000b1', now() - interval '6 minutes', public.current_business_date()),
+  ('00000000-0000-0000-0000-0000000000d3', 3, 75000, 75000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a1', now() - interval '1 minute', public.current_business_date()),
+  ('00000000-0000-0000-0000-0000000000d4', 4, 100000, 100000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000b1', now() - interval '1 day', public.current_business_date() - 1);
 insert into public.order_lines (order_id, menu_item_id, item_name, unit_price, quantity, sort_order) values
   ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000e1', 'Thử A', 25000, 1, 1);
 

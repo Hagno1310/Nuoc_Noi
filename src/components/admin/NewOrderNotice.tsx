@@ -6,10 +6,9 @@ import { formatVnd } from "@/lib/money";
 
 type NewOrder = {
   id: string;
-  quantity: number;
+  item_count: number;
   total_amount: number;
-  seat_name: string | null;
-  is_takeaway: boolean;
+  seat_name: string;
 };
 
 // SRS FR-06a: nhân viên tạo đơn thì trang chủ quán hiện thông báo vài giây và cập nhật số liệu ngay
@@ -29,7 +28,7 @@ export function NewOrderNotice() {
           // Cột generated (total_amount) có thể không có trong payload Realtime: đọc lại dòng đơn
           const { data } = await client
             .from("orders")
-            .select("id, quantity, total_amount, seat_name, is_takeaway")
+            .select("id, item_count, total_amount, seat_name")
             .eq("id", (payload.new as { id: string }).id)
             .single();
           if (data) setOrder(data);
@@ -57,8 +56,7 @@ export function NewOrderNotice() {
           key={order.id}
           className="toast-in rounded-lg border border-edge bg-raised px-4 py-3 font-medium tabular-nums"
         >
-          Đơn mới: {order.is_takeaway ? "Mang về" : (order.seat_name ?? "—")} ·{" "}
-          {order.quantity} cốc · {formatVnd(order.total_amount)}
+          Đơn mới: {order.seat_name} · {order.item_count} món · {formatVnd(order.total_amount)}
         </p>
       )}
     </div>
