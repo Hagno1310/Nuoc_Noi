@@ -42,13 +42,13 @@ export default async function SettingsPage() {
                 label="Giờ mở cửa"
                 rpc="update_business_day_start_hour"
                 currentHour={settings.business_day_start_hour}
-                note="Chỉ áp dụng cho đơn mới. Nên đổi khi quán đã đóng cửa."
+                note="Nên đổi khi quán đã đóng cửa."
               />
               <BusinessHourForm
                 label="Giờ đóng cửa"
                 rpc="update_business_day_end_hour"
                 currentHour={settings.business_day_end_hour}
-                note="Chỉ dùng để vẽ đồng hồ giờ mở cửa ở Tổng quan; không đổi ngày kinh doanh của đơn."
+                note="Chỉ dùng cho đồng hồ ở Tổng quan."
               />
             </div>
           </section>

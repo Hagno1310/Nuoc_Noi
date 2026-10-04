@@ -5,7 +5,6 @@ import { percentChange, type PeriodTotals } from "@/lib/admin/stats";
 
 export type Period = {
   title: string;
-  compareLabel: string; // "so với kỳ trước (tuần trước)"…
   current: PeriodTotals;
   previous: PeriodTotals;
 };
@@ -53,7 +52,6 @@ export function PeriodComparison({ periods }: { periods: Period[] }) {
           >
             <h2 className="col-span-2 text-sm font-medium text-ink-muted lg:col-span-1 lg:pt-1">
               {p.title}
-              <span className="block text-xs font-normal max-lg:hidden">{p.compareLabel}</span>
             </h2>
             <div className="col-span-2 space-y-1 lg:col-span-1 lg:text-right">
               <p className="font-display text-3xl tabular-nums">

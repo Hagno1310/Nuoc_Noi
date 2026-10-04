@@ -74,7 +74,6 @@ export default async function DashboardPage() {
             endLabel={hh(end)}
             nowLabel={formatVnTime(now.toISOString())}
           >
-            <p className="text-sm text-ink-muted">Ngày kinh doanh {day}</p>
             {/* Tấm in đảo màu duy nhất của màn (surface brief): doanh thu ngày kinh doanh */}
             <p className="rounded-md bg-ember px-3 py-1 font-display text-[clamp(2rem,12cqw,4.5rem)] leading-none text-ember-ink tabular-nums">
               <AnimatedNumber value={s.day.current.revenue} kind="vnd" />
@@ -89,17 +88,14 @@ export default async function DashboardPage() {
           periods={[
             {
               title: `Ngày kinh doanh ${day}`,
-              compareLabel: "so với ngày kinh doanh trước",
               ...s.day,
             },
             {
-              title: "Tuần này (thứ Hai đến nay)",
-              compareLabel: "so với kỳ trước (tuần trước)",
+              title: "Tuần này",
               ...s.week,
             },
             {
               title: `Tháng ${monthLabel}`,
-              compareLabel: "so với kỳ trước (tháng trước)",
               ...s.month,
             },
           ]}
@@ -107,7 +103,7 @@ export default async function DashboardPage() {
       </div>
       <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12">
         <RevenueBars
-          title="Doanh thu từng ngày kinh doanh trong tuần"
+          title="Doanh thu tuần"
           currentLabel="Tuần này"
           previousLabel="Tuần trước"
           points={s.week_days.map((d) => ({
@@ -118,7 +114,7 @@ export default async function DashboardPage() {
           ticks={[0, 1, 2, 3, 4, 5, 6]}
         />
         <RevenueBars
-          title={`Doanh thu từng ngày kinh doanh, tháng ${monthLabel}`}
+          title={`Doanh thu tháng ${monthLabel}`}
           currentLabel="Tháng này"
           previousLabel="Tháng trước"
           points={s.month_days.map((d) => ({
