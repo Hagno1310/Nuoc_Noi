@@ -12,15 +12,15 @@ insert into auth.sessions (id, user_id) values
   ('00000000-0000-0000-0000-0000000000b5', '00000000-0000-0000-0000-0000000000b1');
 
 -- 2026-10-14 là thứ Tư; tuần này bắt đầu 2026-10-12 (thứ Hai)
-insert into public.orders (id, quantity, unit_price, status, created_by, business_date) values
-  (gen_random_uuid(), 2, 25000, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
-  (gen_random_uuid(), 9, 25000, 'cancelled', '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
-  (gen_random_uuid(), 4, 25000, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-13'),
-  (gen_random_uuid(), 1, 25000, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-12'),
-  (gen_random_uuid(), 3, 20000, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-07'), -- thứ Tư tuần trước
-  (gen_random_uuid(), 5, 20000, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-08'), -- thứ Năm tuần trước: ngoài cùng đoạn
-  (gen_random_uuid(), 6, 20000, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-09-10'), -- trong ngày 1–14 tháng trước
-  (gen_random_uuid(), 7, 20000, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-09-20'); -- ngoài cùng đoạn tháng trước
+insert into public.orders (id, item_count, subtotal_amount, total_amount, is_takeaway, status, created_by, business_date) values
+  (gen_random_uuid(), 2, 50000, 50000, true, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
+  (gen_random_uuid(), 9, 225000, 225000, true, 'cancelled', '00000000-0000-0000-0000-0000000000b1', '2026-10-14'),
+  (gen_random_uuid(), 4, 100000, 100000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-10-13'),
+  (gen_random_uuid(), 1, 25000, 25000, true, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-12'),
+  (gen_random_uuid(), 3, 60000, 60000, true, 'paid',      '00000000-0000-0000-0000-0000000000b1', '2026-10-07'), -- thứ Tư tuần trước
+  (gen_random_uuid(), 5, 100000, 100000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-10-08'), -- thứ Năm tuần trước: ngoài cùng đoạn
+  (gen_random_uuid(), 6, 120000, 120000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-09-10'), -- trong ngày 1–14 tháng trước
+  (gen_random_uuid(), 7, 140000, 140000, true, 'paid',    '00000000-0000-0000-0000-0000000000b1', '2026-09-20'); -- ngoài cùng đoạn tháng trước
 
 -- Nhân viên không gọi được
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated","session_id":"00000000-0000-0000-0000-0000000000b5"}', true);
@@ -39,12 +39,12 @@ select throws_ok($$select public.update_business_day_start_hour(3)$$, 'P0001', '
 
 create temp table st as select public.owner_stats('2026-10-14') as r;
 
-select is((select r -> 'day' -> 'current' from st), '{"revenue": 50000, "cups": 2, "order_count": 1}'::jsonb, 'ngày kinh doanh hiện tại không tính đơn hủy');
-select is((select r -> 'day' -> 'previous' from st), '{"revenue": 100000, "cups": 4, "order_count": 1}'::jsonb, 'ngày kinh doanh hôm trước');
-select is((select r -> 'week' -> 'current' from st), '{"revenue": 175000, "cups": 7, "order_count": 3}'::jsonb, 'tuần này từ thứ Hai đến hôm nay');
-select is((select r -> 'week' -> 'previous' from st), '{"revenue": 60000, "cups": 3, "order_count": 1}'::jsonb, 'tuần trước chỉ tính cùng đoạn thứ Hai đến thứ Tư');
-select is((select r -> 'month' -> 'current' from st), '{"revenue": 335000, "cups": 15, "order_count": 5}'::jsonb, 'tháng này từ ngày 1 đến hôm nay');
-select is((select r -> 'month' -> 'previous' from st), '{"revenue": 120000, "cups": 6, "order_count": 1}'::jsonb, 'tháng trước chỉ tính ngày 1 đến ngày 14');
+select is((select r -> 'day' -> 'current' from st), '{"revenue": 50000, "item_count": 2, "order_count": 1, "discount_total": 0}'::jsonb, 'ngày kinh doanh hiện tại không tính đơn hủy');
+select is((select r -> 'day' -> 'previous' from st), '{"revenue": 100000, "item_count": 4, "order_count": 1, "discount_total": 0}'::jsonb, 'ngày kinh doanh hôm trước');
+select is((select r -> 'week' -> 'current' from st), '{"revenue": 175000, "item_count": 7, "order_count": 3, "discount_total": 0}'::jsonb, 'tuần này từ thứ Hai đến hôm nay');
+select is((select r -> 'week' -> 'previous' from st), '{"revenue": 60000, "item_count": 3, "order_count": 1, "discount_total": 0}'::jsonb, 'tuần trước chỉ tính cùng đoạn thứ Hai đến thứ Tư');
+select is((select r -> 'month' -> 'current' from st), '{"revenue": 335000, "item_count": 15, "order_count": 5, "discount_total": 0}'::jsonb, 'tháng này từ ngày 1 đến hôm nay');
+select is((select r -> 'month' -> 'previous' from st), '{"revenue": 120000, "item_count": 6, "order_count": 1, "discount_total": 0}'::jsonb, 'tháng trước chỉ tính ngày 1 đến ngày 14');
 
 select is((select jsonb_array_length(r -> 'month_days') from st), 31, 'chuỗi tháng có đủ 31 ngày của tháng 10');
 select is((select r -> 'month_days' -> 13 from st), '{"day": 14, "revenue": 50000, "previous_revenue": 0}'::jsonb, 'ngày 14: doanh thu hiện tại và cùng ngày tháng trước');
@@ -54,8 +54,8 @@ select is((select jsonb_array_length(r -> 'week_days') from st), 7, 'chuỗi tu�
 select is((select r -> 'week_days' -> 2 from st), '{"weekday": 3, "revenue": 50000, "previous_revenue": 60000}'::jsonb, 'thứ Tư so với thứ Tư tuần trước');
 
 -- Tháng trước ngắn hơn: 31/3 so với 1–28/2 (2027 không nhuận)
-insert into public.orders (id, quantity, unit_price, status, created_by, business_date) values
-  (gen_random_uuid(), 1, 10000, 'paid', '00000000-0000-0000-0000-0000000000b1', '2027-02-28');
+insert into public.orders (id, item_count, subtotal_amount, total_amount, is_takeaway, status, created_by, business_date) values
+  (gen_random_uuid(), 1, 10000, 10000, true, 'paid', '00000000-0000-0000-0000-0000000000b1', '2027-02-28');
 select is((select public.owner_stats('2027-03-31') -> 'month' -> 'previous' ->> 'revenue'), '10000', 'tháng trước ngắn hơn thì tính đến hết tháng trước');
 
 select * from finish();

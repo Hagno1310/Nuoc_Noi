@@ -19,8 +19,8 @@ select is(public.is_owner(), false, 'nhân viên không có quyền owner');
 select throws_ok($$select public.set_shop_pin('654321')$$, 'P0001', 'FORBIDDEN', 'nhân viên không đổi được PIN');
 
 insert into public.seats (id, name, kind) values ('00000000-0000-0000-0000-0000000000c1', 'Bàn 1', 'table');
-insert into public.orders (id, quantity, unit_price, seat_id, created_by, business_date)
-  values ('00000000-0000-0000-0000-0000000000d1', 1, 25000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000b1', current_date);
+insert into public.orders (id, item_count, subtotal_amount, total_amount, seat_id, created_by, business_date)
+  values ('00000000-0000-0000-0000-0000000000d1', 1, 25000, 25000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000b1', current_date);
 set local role authenticated;
 select is((select count(*)::int from public.orders), 0, 'RLS: nhân viên không đọc được orders');
 select throws_ok($$insert into public.seats (name, kind) values ('X', 'table')$$, '42501', null, 'RLS: nhân viên không thêm được seats');
