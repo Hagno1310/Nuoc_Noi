@@ -1,13 +1,14 @@
 # Software Requirements Specification (SRS)
 
-## Hệ thống Quản lý Quán Nước Đồng Giá
+## Hệ thống Quản lý Quán Nước Nôi
 
 | | |
 |---|---|
-| **Phiên bản** | 2.3 |
+| **Phiên bản** | 3.0 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-04 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.0** | Bỏ đồng giá: **thực đơn** nhiều món do chủ quán quản lý ở trang Thực đơn, đơn hàng gồm các **dòng đơn**, **giảm giá** theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi; thống kê theo **số món**; lịch sử mở xem dòng đơn; CSV 8 cột. Xóa dữ liệu thử một lần trước khi dùng thật (R32–R36). Thiết kế: `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md`. |
 | **Thay đổi ở v2.3** | Trang chủ quán hiện thông báo đơn mới ngay khi nhân viên tạo đơn và cập nhật số liệu, qua Realtime (R30). Đồng hồ giờ mở cửa có vệt mờ cho phần giờ chưa tới. Trên điện thoại, thanh điều hướng chỉ hiện icon và cỡ chữ gốc nhỏ hơn (R31). |
 | **Thay đổi ở v2.2** | Gửi link app vào ứng dụng chat thì hiện ảnh xem trước theo thương hiệu (R29). |
 | **Thay đổi ở v2.1** | Chủ quán mở màn hình order thì có liên kết quay lại trang chủ quán (R28). |
@@ -27,21 +28,21 @@
 
 ### 1.1. Mục đích
 
-Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước bán **đồng giá**: mọi **cốc** có cùng một **đơn giá chung**. Hệ thống được thiết kế tối giản, để **nhân viên** tạo **đơn hàng** nhanh và **chủ quán** theo dõi **doanh thu**.
+Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước Nước Nôi. Quán bán theo **thực đơn**: mỗi **món** có giá riêng. Hệ thống được thiết kế tối giản, để **nhân viên** tạo **đơn hàng** nhanh và **chủ quán** theo dõi **doanh thu**.
 
 ### 1.2. Người dùng
 
 | Vai trò | Thiết bị | Mục đích |
 |---|---|---|
 | **Nhân viên** | Điện thoại | Tạo đơn hàng; hủy đơn bấm nhầm trong cửa sổ hủy |
-| **Chủ quán** | Máy tính / tablet / điện thoại | Đặt giá, chỗ ngồi, giờ mở cửa, PIN quán; xem báo cáo; hủy đơn; cũng tạo được đơn hàng |
+| **Chủ quán** | Máy tính / tablet / điện thoại | Quản lý thực đơn, chỗ ngồi, giờ mở cửa, PIN quán; xem báo cáo; hủy đơn; cũng tạo được đơn hàng |
 
 ### 1.3. Phạm vi
 
 **Trong phạm vi:**
-- Tạo đơn hàng và hủy đơn.
-- Cấu hình đơn giá chung (kèm lịch sử đổi giá), danh sách chỗ ngồi, giờ mở cửa, giờ đóng cửa và PIN quán.
-- Thống kê doanh thu, số cốc và số đơn theo ngày kinh doanh, tuần và tháng, so với kỳ trước, kèm biểu đồ doanh thu theo ngày.
+- Tạo đơn hàng gồm nhiều món, giảm giá theo phần trăm cho cả đơn, và hủy đơn.
+- Quản lý thực đơn (kèm lịch sử đổi giá theo món), danh sách chỗ ngồi, giờ mở cửa, giờ đóng cửa và PIN quán.
+- Thống kê doanh thu, số món và số đơn theo ngày kinh doanh, tuần và tháng, so với kỳ trước, kèm biểu đồ doanh thu theo ngày.
 - Lịch sử đơn hàng và xuất CSV.
 - Thông báo đơn mới trên trang chủ quán.
 
@@ -52,7 +53,9 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước b
 - Nhiều chi nhánh.
 - Tài khoản riêng cho từng nhân viên.
 - Danh sách thiết bị và thu hồi từng thiết bị.
-- Thực đơn nhiều món, quản lý kho, in hóa đơn.
+- Món con bên trong một món (ví dụ chọn tên ly cụ thể), tùy chọn thêm (topping, size), quản lý kho, in hóa đơn.
+- Giảm giá cho từng dòng đơn; lý do giảm giá.
+- Thống kê theo từng món.
 - Đa ngôn ngữ (giao diện chỉ có tiếng Việt).
 
 ---
@@ -110,47 +113,59 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 - Khi tài khoản đang dùng là chủ quán, màn hình order có liên kết "Trang chủ quán" để quay lại `/admin/dashboard`. Điện thoại của nhân viên không thấy liên kết này.
 
-**FR-01: Nhập số lượng**
-- Các nút **+1, +2, +5, +10** cộng dồn vào số lượng.
-- Nút **−1** (không cho xuống dưới 0) và nút **Xóa** (đưa về 0).
-- Có ô nhập số lượng trực tiếp bằng bàn phím số.
-- Số lượng hợp lệ là số nguyên từ 1 đến 500.
+**FR-01: Chọn món**
+- Hiển thị các **món** chưa bị ẩn theo `sort_order`, mỗi món là một nút ghi tên và giá.
+- Chạm một lần vào món thì thêm 1 vào **giỏ đơn**. Món đã có trong giỏ hiện số lượng ngay trên nút.
+- Thực đơn được cập nhật realtime:
+  - Món trong giỏ đổi giá thì dòng đơn cập nhật giá mới và được làm nổi bật khoảng 3 giây.
+  - Món trong giỏ bị ẩn thì dòng đơn bị gạch, kèm "Món đã ngừng bán – bỏ khỏi đơn rồi gửi lại", và nút Xác nhận đơn bị khóa.
+- Bố cục (theo `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md` §5):
+  - Điện thoại: lưới món, thanh giỏ đơn dính đáy ("N món · X đ" + "Xem đơn"), bấm vào mở tấm giỏ đơn.
+  - Màn rộng từ 768px: lưới món bên trái, phiếu đơn luôn hiện bên phải.
 
-**FR-02: Hiển thị đơn giá chung**
-- Luôn hiển thị dòng "Đơn giá: 25.000đ/cốc".
-- Đơn giá được cập nhật realtime. Khi đơn giá đổi, ô đơn giá được làm nổi bật khoảng 3 giây và thành tiền được tính lại ngay.
+**FR-02: Giỏ đơn**
+- Mỗi **dòng đơn** gồm tên món, đơn giá, nút **−**, ô số lượng nhập tay, nút **+**, và thành tiền dòng.
+- Số lượng mỗi dòng là số nguyên từ 1 đến 99. Bấm − khi số lượng là 1 thì xóa dòng. Ô số để trống hoặc nhập 0 thì khi rời ô trả về số cũ; nhập quá 99 thì về 99.
+- Nút "Xóa hết" dùng xác nhận hai bước: bấm lần đầu đổi thành "Chắc chắn xóa hết?" trong vài giây.
+- Tối đa 30 dòng đơn mỗi đơn.
 
-**FR-03: Thành tiền**
-- Thành tiền = số lượng × đơn giá chung. Số tiền này hiển thị cỡ lớn ngay dưới số cốc, ở phần trên màn hình order (theo `docs/design/order-brief.md`).
+**FR-03: Giảm giá và thành tiền**
+- **Giảm giá** áp lên cả đơn, theo phần trăm nguyên từ 0 đến 100. Có nút 5%, 10%, 15%, 20% và ô nhập tay. Bấm lại nút đang chọn thì bỏ giảm giá. Nhân viên tự nhập, không cần lý do.
+- **Tạm tính** = tổng thành tiền các dòng đơn.
+- **Số tiền giảm** = tạm tính × phần trăm ÷ 100, **làm tròn xuống** tới bội số 1.000đ.
+- **Thành tiền** = tạm tính − số tiền giảm. Giỏ đơn hiện "Tạm tính", "Giảm N% −X đ" (khi có giảm giá) và "Thành tiền" cỡ lớn.
+- Số trên giỏ đơn chỉ để hiển thị; số được lưu là số server tính (FR-04).
 
 **FR-03b: Chọn chỗ ngồi**
 - Hiển thị các **chỗ ngồi** chưa bị ẩn, chia thành hai nhóm: **Ghế quầy** và **Bàn**. Có thêm nút cố định **"Mang về"**.
 - Mỗi nhóm được sắp theo `sort_order`. Ghế quầy được xếp sao cho giống thứ tự ghế ngoài quầy thật.
 - Trong nhóm Ghế quầy, nút bỏ tiền tố "Quầy " của tên ("Quầy 7" hiện "7"); tên khác hiện nguyên. Đơn hàng vẫn lưu tên đầy đủ, và trình đọc màn hình đọc tên đầy đủ.
-- Không bắt buộc chọn. Bấm lại vào lựa chọn đang chọn thì bỏ chọn.
+- **Bắt buộc chọn** một chỗ ngồi hoặc Mang về trước khi gửi. Bấm lại vào lựa chọn đang chọn thì bỏ chọn.
+- Nút Ghế quầy và Bàn cao ít nhất 56px, số dùng font hiển thị cỡ lớn; nút đang chọn có nền màu nhấn. Ngay trên nút Xác nhận đơn có dải "Đang chọn: <tên chỗ ngồi>" hoặc "Chưa chọn chỗ ngồi".
 
 **FR-04: Gửi đơn hàng**
-- Nút "Xác nhận đơn" bị khóa khi số lượng bằng 0, khi chưa tải được giá, hoặc khi mất mạng.
+- Nút "Xác nhận đơn" bị khóa khi giỏ đơn trống, khi chưa chọn chỗ ngồi, khi chưa tải được thực đơn, khi giỏ có món đã ngừng bán, hoặc khi mất mạng. Lý do khóa hiện ngay trên nút.
 - Khi mất mạng, màn hình hiện thông báo "Mất mạng – chưa gửi được đơn".
 - Có mạng trở lại thì màn hình tải lại danh sách chỗ ngồi và đơn vừa tạo.
-- **Server quyết định đơn giá của đơn**:
-  - Client gửi lên `id` (UUID do client sinh), số lượng, chỗ ngồi hoặc mang về, và giá đang hiển thị.
-  - Server dùng **đơn giá chung hiện hành**. Nếu giá này khác giá client gửi, server báo lại để màn hình hiện "Giá đã đổi: đơn được tính X đ/cốc, thành tiền Y đ.".
+- **Server quyết định mọi số tiền của đơn**:
+  - Client gửi lên `id` (UUID do client sinh), chỗ ngồi hoặc mang về, phần trăm giảm giá, và các dòng đơn (món, số lượng, giá đang hiển thị).
+  - Server dùng **giá hiện hành của từng món** và tính tạm tính, số tiền giảm, thành tiền. Nếu có dòng lệch giá hoặc món đã bị ẩn, server **từ chối cả đơn** và trả về thực đơn hiện hành; giỏ đơn cập nhật theo FR-01 và màn hình hiện "Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.".
 - Gửi lại cùng một `id` thì **không tạo đơn thứ hai**. Trường hợp này xảy ra khi mạng chập chờn và nhân viên bấm gửi lại.
 - **Gửi thành công:**
   - Điện thoại rung ngắn (trên trình duyệt có hỗ trợ, ví dụ Chrome Android).
-  - Giao diện reset (số lượng về 0, bỏ chọn chỗ ngồi).
-  - Hiện thông báo "Đã tạo đơn N cốc – X đ" kèm nút **"Hoàn tác"** trong 5 giây.
+  - Giao diện reset (giỏ đơn trống, bỏ giảm giá, bỏ chọn chỗ ngồi).
+  - Hiện thông báo "Đã tạo đơn N món – X đ" kèm nút **"Hoàn tác"** trong 5 giây.
 - **Gửi thất bại vì lỗi mạng:**
-  - Giữ nguyên số lượng và chỗ ngồi đã chọn, rồi báo lỗi.
+  - Giữ nguyên giỏ đơn, giảm giá và chỗ ngồi đã chọn, rồi báo lỗi.
   - Lần bấm lại dùng **cùng `id`** đơn.
 - **Thông báo trên màn hình order:** thông báo lỗi và thông báo thông tin hiện ở hai ô riêng.
-  - Thông báo lỗi ẩn khi nhân viên bắt đầu đơn mới (đổi số lượng hoặc chỗ ngồi).
-  - Thông báo "Giá đã đổi" và thông báo đơn đã được ghi từ lần gửi trước giữ nguyên đến lần gửi đơn thành công tiếp theo hoặc lần hủy đơn thành công tiếp theo. Gửi hoặc hủy thất bại không làm mất chúng.
+  - Thông báo lỗi ẩn khi nhân viên đổi giỏ đơn, giảm giá hoặc chỗ ngồi.
+  - Thông báo "Thực đơn vừa đổi" và thông báo đơn đã được ghi từ lần gửi trước giữ nguyên đến lần gửi đơn thành công tiếp theo hoặc lần hủy đơn thành công tiếp theo. Gửi hoặc hủy thất bại không làm mất chúng.
 
 **FR-04b: Đơn vừa tạo và hủy đơn**
 - Màn hình order liệt kê các đơn hàng **do chính điện thoại này tạo** trong ngày kinh doanh hiện tại. Mỗi điện thoại tự nhớ danh sách đơn của mình.
 - Khi chưa có đơn nào, mục "Đơn vừa tạo" vẫn hiện, kèm câu "Chưa có đơn nào.".
+- Mỗi đơn ghi giờ · chỗ ngồi · tóm tắt món (ví dụ "2 Classic, 1 Neat") · thành tiền, thêm "−N%" nếu có giảm giá.
 - Đơn còn trong **cửa sổ hủy** (5 phút kể từ lúc tạo) thì có nút "Hủy". Nút "Hoàn tác" cũng dùng chính chức năng hủy này.
 - **Quy tắc hủy (server kiểm tra):**
   - Nhân viên được hủy **bất kỳ đơn nào** còn trong cửa sổ hủy.
@@ -164,13 +179,18 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 - Không tải được cài đặt thì báo "Không tải được cài đặt. Kiểm tra mạng rồi tải lại trang.".
 
-**FR-05: Đơn giá chung**
-- Có ô nhập số tiền (số nguyên VND, từ 1đ đến 500.000đ) và nút "Lưu thay đổi". Server từ chối giá ngoài khoảng này.
-- Giá mới áp dụng cho các đơn tạo sau thời điểm lưu. Đơn cũ giữ nguyên đơn giá của đơn.
+**FR-05: Thực đơn, `/admin/menu`**
+- Trang riêng trên thanh điều hướng của chủ quán.
+- Chủ quán **thêm món** (tên + giá), **đổi tên** ngay tại chỗ, **đổi giá**, **sắp xếp** thứ tự, **ẩn** món và **hiện lại** món đã ẩn.
+- Giá là số nguyên VND từ 1.000đ đến 5.000.000đ; server từ chối giá ngoài khoảng này. Tên không được rỗng và không trùng tên món đang bán khác.
+- Ẩn món cần xác nhận hai bước: bấm "Ẩn" thì nút đổi thành "Chắc chắn ẩn?" trong vài giây. Món không bao giờ bị xóa hẳn.
+- Giá mới áp dụng cho các đơn tạo sau thời điểm lưu. Mỗi dòng đơn lưu **tên món và đơn giá tại thời điểm bán**, nên đổi tên hoặc giá không làm thay đổi đơn cũ.
+- Thực đơn khởi tạo: BeSpoke 190.000đ, Classic 190.000đ, Signature 250.000đ, Bình Zax 800.000đ, MixDrink 150.000đ, Neat 100.000đ, Absinthe 150.000đ, Mocktail 100.000đ.
+- Không tải được thực đơn thì báo "Không tải được thực đơn. Kiểm tra mạng rồi tải lại trang.".
 
 **FR-05a: Lịch sử đổi giá**
-- Hiển thị 20 lần đổi giá gần nhất, gồm mức giá, thời điểm và người đổi.
-- Quán có **một** tài khoản chủ quán. Người đổi hiện bằng email của chủ quán đang đăng nhập; lần đổi của tài khoản chủ quán khác (nếu có) hiện "Chủ quán khác"; giá ban đầu lúc khởi tạo hệ thống hiện "Khởi tạo".
+- Trên trang Thực đơn, hiển thị 20 lần đổi giá gần nhất của mọi món, gồm tên món, mức giá, thời điểm và người đổi.
+- Quán có **một** tài khoản chủ quán. Người đổi hiện bằng email của chủ quán đang đăng nhập; lần đổi của tài khoản chủ quán khác (nếu có) hiện "Chủ quán khác"; giá lúc thêm món của thực đơn khởi tạo hiện "Khởi tạo".
 
 **FR-05b: Giờ mở cửa và giờ đóng cửa**
 - **Giờ mở cửa:** chọn từ 0 đến 23 giờ, mặc định 20:00 (quán mở từ 20:00 đến 02:00 sáng hôm sau).
@@ -191,17 +211,17 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 ### 3.4. Báo cáo (chủ quán)
 
-Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
+Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** là tổng thành tiền, tức **sau giảm giá**. **Số món** là tổng số lượng các dòng đơn.
 
 **FR-06: Tổng quan, `/admin/dashboard`**
 - **Đồng hồ giờ mở cửa:** vẽ khoảng từ giờ mở cửa đến giờ đóng cửa (ví dụ 20:00–02:00, 6 tiếng), đánh dấu giờ hiện tại. Cả khoảng là một vệt mờ; phần đã trôi qua vẽ sáng đè lên, phần giờ chưa tới giữ vệt mờ. Sau giờ đóng cửa và trước giờ mở cửa kế tiếp, đồng hồ đầy và ghi "Đã đóng cửa".
 - **Ba kỳ:** ngày kinh doanh hiện tại, tuần này (thứ Hai đến Chủ nhật, theo ngày kinh doanh, tính đến hôm nay), tháng này (các ngày kinh doanh thuộc tháng dương lịch hiện tại, tính đến hôm nay).
-- **Mỗi kỳ có:** doanh thu, số cốc, số đơn (chỉ tính đơn đã thanh toán).
+- **Mỗi kỳ có:** doanh thu, số món, số đơn (chỉ tính đơn đã thanh toán).
 - **So với kỳ trước, cùng đoạn:**
   - Ngày kinh doanh hiện tại so với cả ngày kinh doanh hôm trước.
   - Tuần này (thứ Hai đến hôm nay) so với cùng các ngày đó của tuần trước.
   - Tháng này (ngày 1 đến hôm nay) so với ngày 1 đến cùng ngày của tháng trước (nếu tháng trước ngắn hơn thì tính đến hết tháng trước).
-  - Cả ba chỉ số (doanh thu, số cốc, số đơn) của cả ba kỳ đều có so sánh.
+  - Cả ba chỉ số (doanh thu, số món, số đơn) của cả ba kỳ đều có so sánh.
   - Hiển thị phần trăm tăng hoặc giảm, làm tròn đến số nguyên. Kỳ trước bằng 0 thì không tính phần trăm, chỉ hiện số của kỳ trước.
 - **Biểu đồ:**
   - Doanh thu từng ngày kinh doanh trong tháng này, đặt cạnh doanh thu cùng ngày của tháng trước.
@@ -211,20 +231,22 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 - Không tải được số liệu thì báo "Không tải được số liệu. Kiểm tra mạng; trang sẽ tự thử lại sau 60 giây." và vẫn tự thử lại.
 
 **FR-06a: Thông báo đơn mới**
-- Khi nhân viên tạo đơn thành công, mọi trang chủ quán đang mở hiện thông báo "Đơn mới: <tên chỗ ngồi, Mang về, hoặc — nếu đơn không ghi chỗ ngồi> · N cốc · 25.000đ" trong 5 giây (`role="status"`), không che thanh điều hướng.
+- Khi nhân viên tạo đơn thành công, mọi trang chủ quán đang mở hiện thông báo "Đơn mới: <tên chỗ ngồi hoặc Mang về> · N món · 25.000đ" trong 5 giây (`role="status"`), không che thanh điều hướng. Bấm vào thông báo thì mở Lịch sử đơn hàng với đơn đó mở sẵn.
 - Cùng lúc, số liệu trên trang (Tổng quan, Lịch sử đơn hàng) được tải lại, không cần đợi chu kỳ 60 giây.
-- Dùng Supabase Realtime trên bảng đơn hàng; RLS vẫn áp dụng, chỉ chủ quán nhận được sự kiện. Thành tiền lấy từ dòng đơn trên server (đọc lại theo mã đơn), không tính ở trình duyệt.
+- Dùng Supabase Realtime trên bảng đơn hàng; RLS vẫn áp dụng, chỉ chủ quán nhận được sự kiện. Số món và thành tiền lấy từ đơn trên server (đọc lại theo mã đơn), không tính ở trình duyệt.
 - Mất kết nối Realtime thì không có thông báo; Tổng quan vẫn tự tải lại mỗi 60 giây.
 
 **FR-07: Lịch sử đơn hàng, `/admin/history`**
-- **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số cốc, Đơn giá, Thành tiền, Trạng thái.
-  - Trên điện thoại, mỗi đơn hiện thành một dòng hai tầng (thời gian · chỗ ngồi và trạng thái; "N cốc × đơn giá" và thành tiền), đủ 6 trường trên. Từ tablet trở lên là bảng 6 cột.
+- **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số món, Giảm giá, Thành tiền, Trạng thái.
+  - Trên điện thoại, mỗi đơn hiện thành một dòng hai tầng (thời gian · chỗ ngồi và trạng thái; "N món" kèm "−N%" nếu có giảm giá, và thành tiền), đủ 6 trường trên. Từ tablet trở lên là bảng 6 cột.
+  - Bấm vào một đơn thì mở xuống các dòng đơn ("2 × Classic · 190.000đ · 380.000đ"), rồi Tạm tính, Giảm giá, Thành tiền. Bấm lần nữa thì đóng. Bấm nút Hủy không mở đơn.
+  - Địa chỉ `?order=<mã đơn>` mở sẵn và cuộn tới đơn đó.
 - **Lọc:** theo khoảng **Từ ngày – Đến ngày**, tính theo ngày kinh doanh.
   - Mặc định là hôm nay.
   - Ngày không hợp lệ thì thay bằng hôm nay.
   - "Từ ngày" lớn hơn "Đến ngày" thì tự đảo lại.
 - **Đơn đã hủy:** vẫn hiện, có gạch ngang, nhưng không tính vào dòng tổng.
-- **Dòng tổng** của khoảng đang lọc: số đơn, số cốc, doanh thu.
+- **Dòng tổng** của khoảng đang lọc: số đơn, số món, doanh thu, và tổng số tiền đã giảm ("Đã giảm X đ").
 - **Phân trang:** 50 đơn mỗi trang.
 - **Lỗi khi tải** (đều kèm "Kiểm tra mạng rồi tải lại trang."):
   - Không xác định được ngày kinh doanh hiện tại: "Không tải được lịch sử đơn hàng.", không hiện bảng.
@@ -234,7 +256,8 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 
 **FR-07a: Xuất CSV**
 - Xuất toàn bộ đơn trong khoảng đang lọc, mã hóa UTF-8 có BOM, xuống dòng bằng CRLF.
-- 7 cột: `Thời gian, Ngày kinh doanh, Chỗ ngồi, Số cốc, Đơn giá, Thành tiền, Trạng thái`.
+- 8 cột: `Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Số lượng, Đơn giá, Thành tiền, Trạng thái`.
+- Mỗi dòng đơn là một hàng. Đơn có giảm giá có thêm một hàng: Món là `Giảm giá N%`, Số lượng và Đơn giá để trống, Thành tiền là số tiền giảm mang dấu âm. Cộng cột Thành tiền của các đơn đã thanh toán ra đúng doanh thu.
 - Ô văn bản bắt đầu bằng `= + - @` được thêm dấu `'` ở đầu, để Excel không hiểu nhầm là công thức.
 - Tên file: `don-hang_<từ>_<đến>.csv`.
 
@@ -248,11 +271,13 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 
 | Bảng | Nội dung chính |
 |---|---|
-| `settings` | Một dòng duy nhất: `current_price`, `business_day_start_hour`, `business_day_end_hour` (mặc định 2, khác giờ mở cửa), `updated_at` |
-| `price_history` | `price`, `effective_from`, `changed_by` |
+| `settings` | Một dòng duy nhất: `business_day_start_hour`, `business_day_end_hour` (mặc định 2, khác giờ mở cửa), `updated_at` |
+| `menu_items` | `name`, `price` (1.000–5.000.000), `sort_order`, `is_archived` |
+| `menu_price_history` | `menu_item_id`, `price`, `effective_from`, `changed_by` (ghi bằng trigger khi thêm món hoặc đổi giá) |
 | `seats` | `name`, `kind` (`table` = Bàn, `counter` = Ghế quầy), `sort_order`, `is_archived` |
 | `app_roles` | `user_id`, `role` (`owner` hoặc `staff`). Chỉ có **một** tài khoản `staff`. |
-| `orders` | `id` (do client sinh), `quantity` (1–500), `unit_price`, `total_amount` (cột tự tính = `quantity × unit_price`), `seat_id`, `seat_name`, `is_takeaway`, `status` (`paid`/`cancelled`), `created_by`, `created_at`, `business_date`, `cancelled_at`, `cancelled_by` |
+| `orders` | `id` (do client sinh), `item_count`, `subtotal_amount`, `discount_percent` (0–100), `discount_amount`, `total_amount`, `seat_id`, `seat_name`, `is_takeaway` (bắt buộc có `seat_id` hoặc `is_takeaway`), `status` (`paid`/`cancelled`), `created_by`, `created_at`, `business_date`, `cancelled_at`, `cancelled_by` |
+| `order_lines` | `order_id`, `menu_item_id`, `item_name`, `unit_price`, `quantity` (1–99), `line_amount` (cột tự tính = `quantity × unit_price`), `sort_order` |
 
 **Quy tắc tính `business_date`:** lấy giờ Việt Nam của thời điểm tạo đơn, lùi lại `business_day_start_hour` giờ, rồi lấy phần ngày. Giá trị này được tính một lần lúc tạo đơn và lưu vào đơn.
 
@@ -263,9 +288,9 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | Mã | Yêu cầu |
 |---|---|
 | NFR-01 | Mỗi lần bấm nút trên `/order` có phản hồi trên giao diện dưới 200ms. Trong lúc gửi đơn, nút hiện trạng thái "Đang gửi…". |
-| NFR-02 | Mobile-first. Nút chính cao ít nhất 56px. Số lượng và thành tiền hiển thị cỡ lớn. |
+| NFR-02 | Mobile-first. Nút chính cao ít nhất 56px. Thành tiền hiển thị cỡ lớn. |
 | NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. |
-| NFR-05 | Tiền là số nguyên. Server tính đơn giá và thành tiền. Không bao giờ xóa cứng đơn hàng hoặc chỗ ngồi. |
+| NFR-05 | Tiền là số nguyên. Server tính đơn giá, tạm tính, số tiền giảm và thành tiền. Không bao giờ xóa cứng đơn hàng, chỗ ngồi hoặc món. Ngoại lệ duy nhất: migration v3.0 xóa dữ liệu thử một lần trước khi dùng thật (R36). |
 | NFR-06 | Giao diện tiếng Việt, tiền định dạng `25.000đ`, giờ Việt Nam. |
 | NFR-07 | Chạy trên Chrome Android và Safari iOS bản mới nhất. Cài được ra màn hình chính. |
 
@@ -276,7 +301,7 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 - **Cài đặt ban đầu:**
   - Tạo project Supabase và chạy migration.
   - Tạo tài khoản chủ quán và tài khoản nhân viên bằng script.
-  - Đặt giá, giờ mở cửa và chỗ ngồi.
+  - Kiểm tra thực đơn, đặt giờ mở cửa và chỗ ngồi.
   - Deploy lên Vercel.
 - **Nghỉ hơn 7 ngày:** Supabase gói miễn phí tạm dừng database. Vào trang Supabase bấm **Restore** để chạy lại.
 - **Sao lưu:** xuất CSV hằng tháng.
@@ -330,3 +355,8 @@ Doanh thu và số cốc **chỉ tính đơn đã thanh toán**.
 | R29 (v2.2) | Ảnh xem trước | Gửi link app vào ứng dụng chat thì hiện ảnh 1200×630: logo trên nền thương hiệu và câu mô tả app. Một ảnh tĩnh chung cho mọi trang, không chứa số liệu của quán. |
 | R30 (v2.3) | Thông báo đơn mới | Trang chủ quán nghe Realtime trên bảng đơn hàng; đơn mới hiện thông báo 5 giây và tải lại số liệu. Không âm thanh, không rung. |
 | R31 (v2.3) | Giao diện điện thoại | Đồng hồ giờ mở cửa có vệt mờ cho giờ chưa tới. Thanh điều hướng dưới chỉ icon (tên trong aria-label), cao 48px. Cỡ chữ gốc 15px dưới `lg`; khoảng cách và vùng chạm tính bằng px nên vẫn ≥ 48px (NFR-02). Ô nhập giữ chữ ≥ 16px để iOS không tự phóng to. |
+| R32 (v3.0) | Thực đơn | Bỏ đồng giá. Mỗi loại đồ uống là một món, một giá (1.000–5.000.000đ). Trang Thực đơn riêng; lịch sử đổi giá theo món; món ẩn thay vì xóa. |
+| R33 (v3.0) | Màn order | Chạm món là +1 vào giỏ đơn; dòng đơn có − / ô số / + (1–99); điện thoại dùng thanh giỏ đơn mở thành tấm, màn rộng có phiếu đơn bên phải. Bắt buộc chọn chỗ ngồi; nút chỗ ngồi to và nổi bật, có dải "Đang chọn". Lệch giá hoặc món đã ẩn thì server từ chối cả đơn. |
+| R34 (v3.0) | Giảm giá | Phần trăm nguyên 0–100 cho cả đơn, nhân viên tự nhập, không cần lý do; số tiền giảm làm tròn xuống tới 1.000đ; doanh thu tính sau giảm. |
+| R35 (v3.0) | Báo cáo | Số cốc đổi thành số món. Lịch sử mở xem dòng đơn, `?order=` mở sẵn đơn. CSV 8 cột, mỗi dòng đơn một hàng, thêm hàng "Giảm giá" mang số âm. Chưa có thống kê theo món. |
+| R36 (v3.0) | Dữ liệu thử | App chưa dùng thật: migration v3.0 xóa toàn bộ đơn hàng và lịch sử đổi giá một lần (local và prod), sau khi chủ quán xác nhận số đơn trên prod. Sau đó NFR-05 áp dụng lại. |

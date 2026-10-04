@@ -1,20 +1,40 @@
 # Nước Nôi
 
-Bảng thuật ngữ chung cho chủ quán, nhân viên và code. **Nước Nôi** là quán nước bán **đồng giá**: mọi cốc có cùng một mức giá. Phần mềm chỉ ghi nhận số cốc bán ra và doanh thu.
+Bảng thuật ngữ chung cho chủ quán, nhân viên và code. **Nước Nôi** là quán nước bán theo **thực đơn**: mỗi món có giá riêng. Phần mềm ghi nhận đơn hàng, các món bán ra và doanh thu.
 
 ## Bán hàng
 
-**Cốc**:
-Đơn vị bán duy nhất của quán. Mọi cốc có giá như nhau, không phân biệt món.
-_Avoid_: Ly, món, sản phẩm, đồ uống
+**Thực đơn** (Menu):
+Danh sách các món quán đang bán. Chủ quán quản lý ở trang Thực đơn.
+_Avoid_: Menu, bảng giá
+
+**Món** (Menu item):
+Một loại đồ uống trên thực đơn, có tên và giá riêng (ví dụ Classic, Bình Zax). Món bị ẩn thay vì xóa.
+_Avoid_: Sản phẩm, đồ uống, cốc, ly
+
+**Món đã ẩn** (Archived menu item):
+Món không còn được chọn khi tạo đơn mới, nhưng vẫn hiện tên trên các đơn cũ.
+_Avoid_: Món đã xóa
 
 **Đơn hàng** (Order):
-Một lần ghi nhận khách mua một số cốc, có số tiền đã chốt tại thời điểm tạo.
+Một lần ghi nhận khách mua một hoặc nhiều món, gồm các dòng đơn, có số tiền đã chốt tại thời điểm tạo.
 _Avoid_: Hóa đơn, giao dịch, order
 
+**Dòng đơn** (Order line):
+Một món cùng số lượng của nó trong một đơn hàng. Lưu tên món và đơn giá tại thời điểm bán.
+_Avoid_: Item, mục, chi tiết đơn
+
+**Giỏ đơn** (Cart):
+Các dòng đơn nhân viên đã chọn nhưng chưa gửi. Mất khi tải lại trang.
+_Avoid_: Giỏ hàng, cart
+
 **Số lượng** (Quantity):
-Số cốc trong một đơn hàng, là số nguyên dương.
+Số món của một dòng đơn, là số nguyên từ 1 đến 99.
 _Avoid_: Số ly, SL
+
+**Số món** (Item count):
+Tổng số lượng các dòng đơn của một đơn, hoặc của nhiều đơn trong báo cáo.
+_Avoid_: Số cốc, số ly
 
 **Chỗ ngồi** (Seat):
 Một vị trí cố định trong quán nơi khách ngồi, do chủ quán đặt tên. Chỗ ngồi có hai loại: bàn và ghế quầy. Mỗi đơn hàng gắn với tối đa một chỗ ngồi, hoặc là mang về, hoặc không ghi gì.
@@ -38,16 +58,24 @@ _Avoid_: Take away, đem về, mua mang đi
 
 ## Giá và tiền
 
-**Đơn giá chung** (Current price):
-Mức giá hiện hành áp dụng cho mọi cốc của các đơn hàng **tạo từ bây giờ**.
-_Avoid_: Giá bán, giá món, giá hiện tại
+**Giá món** (Menu item price):
+Giá hiện hành của một món, áp dụng cho các đơn hàng **tạo từ bây giờ**. Từ 1.000đ đến 5.000.000đ.
+_Avoid_: Đơn giá chung, giá bán
 
 **Đơn giá của đơn** (Unit price):
-Đơn giá chung tại thời điểm đơn hàng được tạo. Giá này không bao giờ thay đổi về sau, kể cả khi đơn giá chung đổi.
+Giá món tại thời điểm đơn hàng được tạo, lưu trong dòng đơn. Giá này không bao giờ thay đổi về sau, kể cả khi giá món đổi.
 _Avoid_: Giá lịch sử, giá cũ
 
+**Tạm tính** (Subtotal):
+Tổng thành tiền các dòng đơn của một đơn hàng, trước giảm giá.
+_Avoid_: Tổng phụ, tiền hàng
+
+**Giảm giá** (Discount):
+Phần trăm nguyên (0–100) giảm trên tạm tính của cả đơn. Số tiền giảm làm tròn xuống tới bội số 1.000đ.
+_Avoid_: Chiết khấu, khuyến mãi, voucher
+
 **Thành tiền** (Total amount):
-Số lượng nhân với đơn giá của đơn, là số tiền của **một** đơn hàng.
+Số tiền khách phải trả cho **một** đơn hàng: tạm tính trừ số tiền giảm. Với một dòng đơn, "thành tiền dòng" là số lượng nhân đơn giá.
 _Avoid_: Tổng tiền, tiền đơn
 
 **Doanh thu** (Revenue):
@@ -112,5 +140,5 @@ _Avoid_: Lịch sử giao dịch, log
 
 
 **Thông báo đơn mới** (New order notice):
-Thông báo hiện vài giây trên trang chủ quán khi nhân viên vừa tạo đơn, ghi chỗ ngồi, số cốc và thành tiền.
+Thông báo hiện vài giây trên trang chủ quán khi nhân viên vừa tạo đơn, ghi chỗ ngồi, số món và thành tiền.
 _Avoid_: Popup đơn, push
