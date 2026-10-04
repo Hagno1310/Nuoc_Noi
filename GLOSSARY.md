@@ -37,7 +37,7 @@ Tổng số lượng các dòng đơn của một đơn, hoặc của nhiều đ
 _Avoid_: Số cốc, số ly
 
 **Chỗ ngồi** (Seat):
-Một vị trí cố định trong quán nơi khách ngồi, do chủ quán đặt tên. Chỗ ngồi có hai loại: bàn và ghế quầy. Mỗi đơn hàng gắn với tối đa một chỗ ngồi, hoặc là mang về, hoặc không ghi gì.
+Một vị trí cố định trong quán nơi khách ngồi, do chủ quán đặt tên. Chỗ ngồi có hai loại: bàn và ghế quầy. Mỗi đơn hàng gắn với đúng một chỗ ngồi, hoặc là mang về.
 _Avoid_: Vị trí, tên khách, ghi chú, "bàn" (khi muốn nói chung cho cả bàn và ghế quầy)
 
 **Bàn** (Table):
