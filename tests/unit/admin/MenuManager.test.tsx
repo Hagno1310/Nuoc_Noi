@@ -25,8 +25,8 @@ describe("MenuManager", () => {
   it("thêm món hợp lệ, đứng cuối thực đơn", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
-    await user.type(screen.getByLabelText("Tên món mới"), "  Highball ");
-    await user.type(screen.getByLabelText("Giá món mới"), "120.000");
+    await user.type(screen.getByLabelText("Tên món"), "  Highball ");
+    await user.type(screen.getByLabelText("Giá"), "120.000");
     await user.click(screen.getByRole("button", { name: "Thêm món" }));
     expect(db.insert).toHaveBeenCalledWith({ name: "Highball", price: 120000, sort_order: 4 });
   });
@@ -34,8 +34,8 @@ describe("MenuManager", () => {
   it("không thêm món trùng tên món đang bán", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
-    await user.type(screen.getByLabelText("Tên món mới"), " classic ");
-    await user.type(screen.getByLabelText("Giá món mới"), "100000");
+    await user.type(screen.getByLabelText("Tên món"), " classic ");
+    await user.type(screen.getByLabelText("Giá"), "100000");
     await user.click(screen.getByRole("button", { name: "Thêm món" }));
     expect(db.insert).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent("Đã có món đang bán tên này. Đặt tên khác.");
@@ -44,8 +44,8 @@ describe("MenuManager", () => {
   it("không thêm món có giá ngoài khoảng", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
-    await user.type(screen.getByLabelText("Tên món mới"), "Shot");
-    await user.type(screen.getByLabelText("Giá món mới"), "999");
+    await user.type(screen.getByLabelText("Tên món"), "Shot");
+    await user.type(screen.getByLabelText("Giá"), "999");
     await user.click(screen.getByRole("button", { name: "Thêm món" }));
     expect(db.insert).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent("Giá phải là số nguyên từ 1.000đ đến 5.000.000đ.");
@@ -54,6 +54,7 @@ describe("MenuManager", () => {
   it("đổi giá một món", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
     await user.click(screen.getByRole("button", { name: "Đổi giá BeSpoke" }));
     const input = screen.getByLabelText("Giá mới cho BeSpoke");
     await user.clear(input);
@@ -66,6 +67,7 @@ describe("MenuManager", () => {
   it("ẩn món cần bấm hai lần", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
     await user.click(screen.getByRole("button", { name: "Ẩn BeSpoke" }));
     expect(db.update).not.toHaveBeenCalled();
     await user.click(screen.getByRole("button", { name: "Chắc chắn ẩn BeSpoke?" }));
@@ -87,6 +89,7 @@ describe("MenuManager", () => {
   it("đổi chỗ hai món bằng hai lệnh, mỗi lệnh một dòng", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: "Sắp xếp" }));
     await user.click(screen.getByRole("button", { name: "Đưa Classic lên" }));
     expect(db.update).toHaveBeenNthCalledWith(1, { sort_order: 1 });
     expect(db.eq).toHaveBeenNthCalledWith(1, "id", "b");
@@ -108,6 +111,7 @@ describe("MenuManager", () => {
       { id: "c", name: "Neat", price: 100000, sort_order: 3, is_archived: true },
     ];
     render(<MenuManager items={tied} />);
+    await user.click(screen.getByRole("button", { name: "Sắp xếp" }));
     await user.click(screen.getByRole("button", { name: "Đưa Classic lên" }));
     expect(db.update).toHaveBeenCalledTimes(1);
     expect(db.update).toHaveBeenCalledWith({ sort_order: 2 });
@@ -117,6 +121,7 @@ describe("MenuManager", () => {
   it("lỗi khi sửa giá hiện ngay dưới ô đang sửa; Bỏ qua thì xóa lỗi", async () => {
     const user = userEvent.setup();
     render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
     await user.click(screen.getByRole("button", { name: "Đổi giá BeSpoke" }));
     const input = screen.getByLabelText("Giá mới cho BeSpoke");
     await user.clear(input);
@@ -131,10 +136,25 @@ describe("MenuManager", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  it("nút Ẩn có viền màu nguy hiểm, khác hẳn nút thường", () => {
+  it("nút Ẩn có viền màu nguy hiểm, khác hẳn nút thường", async () => {
+    const user = userEvent.setup();
     render(<MenuManager items={items} />);
+    await user.click(screen.getByRole("button", { name: /^BeSpoke/ }));
     const hide = screen.getByRole("button", { name: "Ẩn BeSpoke" });
     expect(hide.className).toContain("border-danger");
     expect(hide.className).not.toContain("border-edge");
+  });
+
+  it("mỗi món là một dòng sổ: nút của hàng chỉ hiện khi chạm vào hàng đó", async () => {
+    const user = userEvent.setup();
+    render(<MenuManager items={items} />);
+    expect(screen.queryByRole("button", { name: "Đổi giá BeSpoke" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Đưa Classic lên" })).toBeNull();
+    const row = screen.getByRole("button", { name: /^BeSpoke/ });
+    expect(row).toHaveAttribute("aria-expanded", "false");
+    await user.click(row);
+    expect(row).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Đổi giá BeSpoke" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Đổi giá Classic" })).toBeNull();
   });
 });

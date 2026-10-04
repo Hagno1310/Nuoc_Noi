@@ -27,6 +27,9 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState("");
   const [editing, setEditing] = useState<Editing>(null);
+  // Mỗi món là một dòng sổ: chạm vào hàng mới hiện nút của hàng đó; nút lên/xuống nằm sau "Sắp xếp"
+  const [open, setOpen] = useState<string | null>(null);
+  const [sorting, setSorting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Lỗi khi đang sửa hiện ngay dưới ô sửa (DESIGN.md Inputs), không ở cuối trang
   const [editError, setEditError] = useState<string | null>(null);
@@ -62,6 +65,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   function closeEdit() {
     setEditError(null);
     setEditing(null);
+    setOpen(null);
   }
 
   async function add() {
@@ -130,6 +134,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   function archive(item: OwnerMenuItem) {
     if (hide.armed !== item.id) return hide.arm(item.id);
     hide.reset();
+    setOpen(null);
     void run([() => supabase.from("menu_items").update({ is_archived: true }).eq("id", item.id)]);
   }
 
@@ -144,18 +149,33 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   const button =
     "flex min-h-12 min-w-12 items-center justify-center rounded-md border px-3 text-sm disabled:opacity-40";
   const small = `${button} border-edge`;
-  const field = "min-h-12 rounded-lg border border-edge bg-transparent p-2";
+  const field = "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink placeholder:text-ink-muted";
   return (
     <div className="space-y-6">
+      {active.length > 1 && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className={small}
+            aria-pressed={sorting}
+            onClick={() => {
+              closeEdit();
+              setSorting(!sorting);
+            }}
+          >
+            {sorting ? "Xong" : "Sắp xếp"}
+          </button>
+        </div>
+      )}
       {active.length === 0 ? (
         <p className="text-sm text-ink-muted">Chưa có món nào đang bán. Thêm món ở ô bên dưới.</p>
       ) : (
-        <ul className="divide-y divide-line">
+        <ul className="divide-y divide-line border-y border-line">
           {active.map((item, i) => (
-            <li key={item.id} className="space-y-2 py-3">
+            <li key={item.id}>
               {editing?.id === item.id ? (
                 <form
-                  className="flex flex-wrap gap-2"
+                  className="flex flex-wrap gap-2 py-2"
                   onSubmit={(e) => {
                     e.preventDefault();
                     void saveEdit();
@@ -186,93 +206,104 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                     </p>
                   )}
                 </form>
-              ) : (
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="min-w-0 break-words font-display text-xl">
-                    {item.name}
-                  </span>
-                  <span className="shrink-0 font-semibold tabular-nums">{formatVnd(item.price)}</span>
+              ) : sorting ? (
+                <div className="flex min-h-12 items-center gap-2 py-1">
+                  <span className="min-w-0 flex-1 break-words font-display text-xl">{item.name}</span>
+                  <button
+                    type="button"
+                    className={small}
+                    aria-label={`Đưa ${item.name} lên`}
+                    disabled={locked || i === 0}
+                    onClick={() => move(i, -1)}
+                  >
+                    <ChevronUp aria-hidden="true" size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={small}
+                    aria-label={`Đưa ${item.name} xuống`}
+                    disabled={locked || i === active.length - 1}
+                    onClick={() => move(i, 1)}
+                  >
+                    <ChevronDown aria-hidden="true" size={18} />
+                  </button>
                 </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    aria-expanded={open === item.id}
+                    onClick={() => setOpen(open === item.id ? null : item.id)}
+                    className="flex min-h-12 w-full items-baseline justify-between gap-3 py-2 text-left"
+                  >
+                    <span className="min-w-0 break-words font-display text-xl">{item.name}</span>
+                    <span className="shrink-0 font-semibold tabular-nums">{formatVnd(item.price)}</span>
+                  </button>
+                  {open === item.id && (
+                    <div className="flex gap-2 pb-3">
+                      <button
+                        type="button"
+                        className={small}
+                        aria-label={`Đổi tên ${item.name}`}
+                        disabled={locked}
+                        onClick={() => openEdit({ id: item.id, field: "name", value: item.name })}
+                      >
+                        Đổi tên
+                      </button>
+                      <button
+                        type="button"
+                        className={small}
+                        aria-label={`Đổi giá ${item.name}`}
+                        disabled={locked}
+                        onClick={() => openEdit({ id: item.id, field: "price", value: String(item.price) })}
+                      >
+                        Đổi giá
+                      </button>
+                      <button
+                        type="button"
+                        className={`${button} ml-auto ${hide.armed === item.id ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+                        aria-label={hide.armed === item.id ? `Chắc chắn ẩn ${item.name}?` : `Ẩn ${item.name}`}
+                        disabled={locked}
+                        onClick={() => archive(item)}
+                      >
+                        {hide.armed === item.id ? "Chắc chắn ẩn?" : "Ẩn"}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className={small}
-                  aria-label={`Đưa ${item.name} lên`}
-                  disabled={locked || i === 0}
-                  onClick={() => move(i, -1)}
-                >
-                  <ChevronUp aria-hidden="true" size={18} />
-                </button>
-                <button
-                  type="button"
-                  className={small}
-                  aria-label={`Đưa ${item.name} xuống`}
-                  disabled={locked || i === active.length - 1}
-                  onClick={() => move(i, 1)}
-                >
-                  <ChevronDown aria-hidden="true" size={18} />
-                </button>
-                <button
-                  type="button"
-                  className={small}
-                  aria-label={`Đổi tên ${item.name}`}
-                  disabled={locked}
-                  onClick={() => openEdit({ id: item.id, field: "name", value: item.name })}
-                >
-                  Đổi tên
-                </button>
-                <button
-                  type="button"
-                  className={small}
-                  aria-label={`Đổi giá ${item.name}`}
-                  disabled={locked}
-                  onClick={() => openEdit({ id: item.id, field: "price", value: String(item.price) })}
-                >
-                  Đổi giá
-                </button>
-                <button
-                  type="button"
-                  className={`${button} ml-auto ${hide.armed === item.id ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
-                  aria-label={hide.armed === item.id ? `Chắc chắn ẩn ${item.name}?` : `Ẩn ${item.name}`}
-                  disabled={locked}
-                  onClick={() => archive(item)}
-                >
-                  {hide.armed === item.id ? "Chắc chắn ẩn?" : "Ẩn"}
-                </button>
-              </div>
             </li>
           ))}
         </ul>
       )}
 
       <form
-        className="flex flex-wrap gap-2"
+        className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           void add();
         }}
       >
-        <input
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          placeholder="VD: Highball"
-          aria-label="Tên món mới"
-          className={`${field} min-w-40 flex-1`}
-        />
-        <input
-          value={newPrice}
-          onChange={(e) => setNewPrice(e.target.value)}
-          placeholder="VD: 120.000"
-          inputMode="numeric"
-          aria-label="Giá món mới"
-          className={`${field} w-36 tabular-nums`}
-        />
-        <button
-          type="submit"
-          disabled={locked}
-          className="min-h-12 rounded-lg bg-ember px-5 font-bold text-ember-ink disabled:opacity-50"
-        >
+        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-ink-muted">
+          Tên món
+          <input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Highball"
+            className={field}
+          />
+        </label>
+        <label className="flex w-36 flex-col gap-1 text-sm text-ink-muted">
+          Giá
+          <input
+            value={newPrice}
+            onChange={(e) => setNewPrice(e.target.value)}
+            placeholder="120.000"
+            inputMode="numeric"
+            className={`${field} tabular-nums`}
+          />
+        </label>
+        <button type="submit" disabled={locked} className={`${small} px-5 font-semibold`}>
           Thêm món
         </button>
       </form>

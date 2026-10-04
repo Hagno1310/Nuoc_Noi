@@ -36,13 +36,13 @@ export default async function OwnerLayout({
             height={90}
             className="h-10 w-auto lg:h-20"
           />
-          <p className="hidden text-xs text-ink-muted lg:block">
-            Trang chủ quán
-          </p>
+          <span aria-hidden="true" className="striker mt-4 hidden lg:block" />
         </div>
         <OwnerNav />
         <LogoutButton />
       </aside>
+      {/* Dải quẹt diêm: đường chia duy nhất có chất liệu (surface brief) */}
+      <span aria-hidden="true" className="striker mx-4 mb-4 block lg:hidden" />
       <NewOrderNotice />
       <main className="px-4 pb-4 lg:ml-64 lg:px-10 lg:py-8">
         <div className="mx-auto max-w-6xl">{children}</div>

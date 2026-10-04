@@ -41,7 +41,7 @@ export function PinForm({
     "mt-1 min-h-12 w-40 rounded-lg border border-edge bg-transparent p-3 text-xlst";
   return (
     <form onSubmit={submit} className="space-y-2">
-      <p className="text-sm text-warn">
+      <p className="text-sm text-ink-muted">
         Đổi PIN quán sẽ đăng xuất ngay mọi điện thoại của nhân viên.
       </p>
       <div className="flex flex-wrap gap-4">

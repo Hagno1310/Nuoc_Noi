@@ -34,6 +34,9 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Mỗi chỗ ngồi là một dòng sổ: chạm vào hàng mới hiện nút của hàng đó; nút lên/xuống nằm sau "Sắp xếp"
+  const [open, setOpen] = useState<string | null>(null);
+  const [sorting, setSorting] = useState(false);
   const hide = useTwoStep<string>();
   const active = seats.filter((s) => !s.is_archived);
   const archived = seats.filter((s) => s.is_archived);
@@ -108,21 +111,41 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
   function setArchived(s: OwnerSeat, value: boolean) {
     if (value && hide.armed !== s.id) return hide.arm(s.id);
     hide.reset();
+    setOpen(null);
     void run(() =>
       supabase.from("seats").update({ is_archived: value }).eq("id", s.id),
     );
   }
 
-  const small =
-    "flex min-h-12 min-w-12 items-center justify-center rounded-md border border-edge px-3 text-sm disabled:opacity-40";
-  const field = "min-h-12 rounded-lg border border-edge bg-transparent p-2";
+  // Màu viền tách riêng để viền danger của nút Ẩn không bị border-edge đè
+  const button =
+    "flex min-h-12 min-w-12 items-center justify-center rounded-md border px-3 text-sm disabled:opacity-40";
+  const small = `${button} border-edge`;
+  const field =
+    "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink placeholder:text-ink-muted";
   return (
     <div className="space-y-4">
+      {active.length > 1 && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className={small}
+            aria-pressed={sorting}
+            onClick={() => {
+              setEditing(null);
+              setOpen(null);
+              setSorting(!sorting);
+            }}
+          >
+            {sorting ? "Xong" : "Sắp xếp"}
+          </button>
+        </div>
+      )}
       {KINDS.map((kind) => {
         const list = active.filter((s) => s.kind === kind);
         return (
           <div key={kind}>
-            <h3 className="font-semibold">
+            <h3 className="text-sm font-medium text-ink-muted">
               {KIND_LABEL[kind]} ({list.length})
             </h3>
             {list.length === 0 && (
@@ -132,13 +155,10 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
             )}
             <ul className="divide-y divide-line">
               {list.map((s, i) => (
-                <li
-                  key={s.id}
-                  className="flex flex-wrap items-center gap-2 py-2"
-                >
+                <li key={s.id}>
                   {editing?.id === s.id ? (
                     <form
-                      className="flex flex-1 gap-2"
+                      className="flex gap-2 py-2"
                       onSubmit={(e) => {
                         e.preventDefault();
                         void rename();
@@ -167,8 +187,8 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
                         Bỏ qua
                       </button>
                     </form>
-                  ) : (
-                    <>
+                  ) : sorting ? (
+                    <div className="flex min-h-12 items-center gap-2 py-1">
                       <span className="flex-1 font-medium">{s.name}</span>
                       <button
                         type="button"
@@ -188,21 +208,36 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
                       >
                         <ChevronDown aria-hidden="true" size={18} />
                       </button>
+                    </div>
+                  ) : (
+                    <>
                       <button
                         type="button"
-                        className={small}
-                        onClick={() => setEditing({ id: s.id, name: s.name })}
+                        aria-expanded={open === s.id}
+                        onClick={() => setOpen(open === s.id ? null : s.id)}
+                        className="flex min-h-12 w-full items-center py-1 text-left font-medium"
                       >
-                        Đổi tên
+                        {s.name}
                       </button>
-                      <button
-                        type="button"
-                        className={`${small} ${hide.armed === s.id ? "border-danger bg-danger text-ember-ink" : ""}`}
-                        disabled={busy}
-                        onClick={() => setArchived(s, true)}
-                      >
-                        {hide.armed === s.id ? "Chắc chắn ẩn?" : "Ẩn"}
-                      </button>
+                      {open === s.id && (
+                        <div className="flex gap-2 pb-3">
+                          <button
+                            type="button"
+                            className={small}
+                            onClick={() => setEditing({ id: s.id, name: s.name })}
+                          >
+                            Đổi tên
+                          </button>
+                          <button
+                            type="button"
+                            className={`${button} ml-auto ${hide.armed === s.id ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+                            disabled={busy}
+                            onClick={() => setArchived(s, true)}
+                          >
+                            {hide.armed === s.id ? "Chắc chắn ẩn?" : "Ẩn"}
+                          </button>
+                        </div>
+                      )}
                     </>
                   )}
                 </li>
@@ -212,32 +247,36 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
         );
       })}
       <form
-        className="flex flex-wrap gap-2"
+        className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           void add();
         }}
       >
-        <select
-          value={newKind}
-          onChange={(e) => setNewKind(e.target.value as SeatKind)}
-          aria-label="Loại chỗ ngồi"
-          className={field}
-        >
-          <option value="counter">Ghế quầy</option>
-          <option value="table">Bàn</option>
-        </select>
-        <input
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          placeholder="VD: Quầy 13"
-          aria-label="Tên chỗ ngồi mới"
-          className={`${field} min-w-40 flex-1`}
-        />
+        <label className="flex flex-col gap-1 text-sm text-ink-muted">
+          Loại
+          <select
+            value={newKind}
+            onChange={(e) => setNewKind(e.target.value as SeatKind)}
+            className={field}
+          >
+            <option value="counter">Ghế quầy</option>
+            <option value="table">Bàn</option>
+          </select>
+        </label>
+        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-ink-muted">
+          Tên chỗ ngồi
+          <input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Quầy 13"
+            className={field}
+          />
+        </label>
         <button
           type="submit"
           disabled={busy}
-          className="min-h-12 rounded-lg border border-edge px-4 font-bold disabled:opacity-50"
+          className={`${small} px-5 font-semibold`}
         >
           Thêm chỗ ngồi
         </button>

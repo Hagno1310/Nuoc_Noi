@@ -21,6 +21,9 @@ describe("PeriodComparison", () => {
     expect(screen.queryByText(/cốc/)).toBeNull();
     // Doanh thu và số món đều tăng 50%
     expect(screen.getAllByText("+50%")).toHaveLength(2);
+    // Một dòng kỳ trước cho cả kỳ, không lặp "Kỳ trước" theo từng số
+    expect(screen.getAllByText(/Kỳ trước/)).toHaveLength(1);
+    expect(screen.getByText("Kỳ trước 380.000đ · 2 món · 1 đơn")).toBeInTheDocument();
   });
 
   it("kỳ trước bằng 0 thì chỉ ghi số kỳ trước, không ra NaN", () => {
@@ -29,7 +32,8 @@ describe("PeriodComparison", () => {
         periods={[{ title: "Tuần này", current: { ...zero, item_count: 4 }, previous: zero }]}
       />,
     );
-    expect(screen.getAllByText("Kỳ trước: 0").length).toBeGreaterThan(0);
+    expect(screen.getByText("Kỳ trước 0đ · 0 món · 0 đơn")).toBeInTheDocument();
+    expect(screen.queryByText(/%/)).toBeNull();
     expect(screen.queryByText(/NaN/)).toBeNull();
   });
 

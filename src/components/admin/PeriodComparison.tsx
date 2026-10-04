@@ -9,31 +9,26 @@ export type Period = {
   previous: PeriodTotals;
 };
 
-// Thay đổi so với kỳ trước, cùng đoạn (SRS FR-06): mũi tên + phần trăm + số kỳ trước, không chỉ dựa vào màu
-function Delta({ current, previous, money }: { current: number; previous: number; money?: boolean }) {
+// Phần trăm so với kỳ trước, cùng đoạn (SRS FR-06): mũi tên + số, không chỉ dựa vào màu.
+// Kỳ trước bằng 0 thì không có phần trăm; số của kỳ trước nằm ở dòng "Kỳ trước" của kỳ đó.
+function Change({ current, previous }: { current: number; previous: number }) {
   const pct = percentChange(current, previous);
-  const prevText = money ? formatVnd(previous) : String(previous);
-  if (pct === null)
-    return <span className="block text-xs whitespace-nowrap text-ink-muted">Kỳ trước: {prevText}</span>;
+  if (pct === null) return null;
   const Icon = pct > 0 ? ArrowUpRight : pct < 0 ? ArrowDownRight : Minus;
   const tone = pct > 0 ? "text-ok" : pct < 0 ? "text-danger" : "text-ink-muted";
   return (
-    <span className="flex flex-wrap items-center gap-x-1.5 text-xs lg:justify-end">
-      <span className={`inline-flex items-center gap-0.5 ${tone}`}>
-        <Icon aria-hidden="true" size={14} />
-        <span className="tabular-nums">
-          {pct > 0 ? "+" : ""}
-          {pct}%
-        </span>
-      </span>
-      <span className="whitespace-nowrap text-ink-muted tabular-nums">kỳ trước {prevText}</span>
+    <span className={`inline-flex items-center gap-0.5 font-sans text-xs font-normal tabular-nums ${tone}`}>
+      <Icon aria-hidden="true" size={14} />
+      {pct > 0 ? "+" : ""}
+      {pct}%
     </span>
   );
 }
 
 const COLS = "lg:grid-cols-[minmax(11rem,1.5fr)_minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]";
 
-// Sổ ba kỳ in như sổ cái: đường kẻ 1px giữa các kỳ. Điện thoại: mỗi kỳ một khối. Laptop: bảng có hàng tiêu đề, số canh phải.
+// Sổ ba kỳ in như sổ cái, đường kẻ 1px giữa các kỳ; mỗi kỳ chỉ một dòng "Kỳ trước".
+// Điện thoại: tên kỳ và doanh thu một dòng, món và đơn dòng dưới. Laptop: bảng có hàng tiêu đề, số canh phải.
 export function PeriodComparison({ periods }: { periods: Period[] }) {
   return (
     <div>
@@ -45,34 +40,29 @@ export function PeriodComparison({ periods }: { periods: Period[] }) {
       </div>
       <div className="divide-y divide-line">
         {periods.map((p) => (
-          <section
-            key={p.title}
-            aria-label={p.title}
-            className={`grid grid-cols-2 gap-x-4 gap-y-2 py-4 lg:items-start lg:gap-x-6 lg:py-5 ${COLS}`}
-          >
-            <h2 className="col-span-2 text-sm font-medium text-ink-muted lg:col-span-1 lg:pt-1">
-              {p.title}
-            </h2>
-            <div className="col-span-2 space-y-1 lg:col-span-1 lg:text-right">
-              <p className="font-display text-3xl tabular-nums">
+          <section key={p.title} aria-label={p.title} className={`py-4 lg:grid lg:items-baseline lg:gap-x-6 lg:py-5 ${COLS}`}>
+            <div className="flex items-baseline justify-between gap-4 lg:contents">
+              <h2 className="text-sm font-medium text-ink-muted">{p.title}</h2>
+              <p className="flex items-baseline gap-2 font-display text-xl tabular-nums lg:justify-end lg:text-3xl">
                 <AnimatedNumber value={p.current.revenue} kind="vnd" />
+                <Change current={p.current.revenue} previous={p.previous.revenue} />
               </p>
-              <Delta current={p.current.revenue} previous={p.previous.revenue} money />
             </div>
-            <div className="space-y-1 lg:text-right">
-              <p className="font-display text-xl tabular-nums">
+            <div className="mt-1 flex gap-6 text-sm tabular-nums lg:contents">
+              <p className="flex items-baseline gap-1.5 lg:justify-end lg:font-display lg:text-xl">
                 <AnimatedNumber value={p.current.item_count} />
-                <span className="lg:hidden"> món</span>
+                <span className="lg:hidden">món</span>
+                <Change current={p.current.item_count} previous={p.previous.item_count} />
               </p>
-              <Delta current={p.current.item_count} previous={p.previous.item_count} />
-            </div>
-            <div className="space-y-1 lg:text-right">
-              <p className="font-display text-xl tabular-nums">
+              <p className="flex items-baseline gap-1.5 lg:justify-end lg:font-display lg:text-xl">
                 <AnimatedNumber value={p.current.order_count} />
-                <span className="lg:hidden"> đơn</span>
+                <span className="lg:hidden">đơn</span>
+                <Change current={p.current.order_count} previous={p.previous.order_count} />
               </p>
-              <Delta current={p.current.order_count} previous={p.previous.order_count} />
             </div>
+            <p className="mt-1 text-xs text-ink-muted tabular-nums lg:col-span-4 lg:mt-1 lg:text-right">
+              {`Kỳ trước ${formatVnd(p.previous.revenue)} · ${p.previous.item_count} món · ${p.previous.order_count} đơn`}
+            </p>
           </section>
         ))}
       </div>

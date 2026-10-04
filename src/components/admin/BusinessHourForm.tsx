@@ -17,7 +17,7 @@ export function BusinessHourForm({
   label: string;
   rpc: HourRpc;
   currentHour: number;
-  note: string;
+  note?: string;
 }) {
   const router = useRouter();
   const [hour, setHour] = useState(currentHour);
@@ -66,7 +66,7 @@ export function BusinessHourForm({
           {busy ? "Đang lưu…" : "Lưu"}
         </button>
       </div>
-      <p className="text-xs text-ink-muted">{note}</p>
+      {note && <p className="text-xs text-ink-muted">{note}</p>}
       {error && (
         <p role="alert" className="text-danger">
           {error}
