@@ -99,7 +99,7 @@ _Avoid_: Thời gian hoàn tác
 ## Con người
 
 **Chủ quán** (Owner):
-Người đặt đơn giá chung, xem doanh thu và có quyền cao nhất trong hệ thống.
+Người quản lý thực đơn, xem doanh thu và có quyền cao nhất trong hệ thống.
 _Avoid_: Admin, quản trị viên, quản lý
 
 **Nhân viên** (Staff):

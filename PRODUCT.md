@@ -9,24 +9,24 @@ web
 ## Users
 
 - **Nhân viên:** người trẻ, rành điện thoại. Họ tạo đơn hàng trên điện thoại của mình và **thường bấm bằng một tay**, vì tay kia đang cầm cốc, khay hoặc tiền thối. Lúc quán đông, họ cần ghi xong một đơn trong vài giây rồi quay lại phục vụ.
-- **Chủ quán:** đặt đơn giá chung, bàn, giờ mở cửa và PIN quán; xem doanh thu; hủy đơn sai. Dùng máy tính, tablet hoặc điện thoại. Chủ quán cũng có thể tạo đơn.
+- **Chủ quán:** quản lý thực đơn (món và giá), chỗ ngồi, giờ mở cửa và PIN quán; xem doanh thu; hủy đơn sai. Dùng máy tính, tablet hoặc điện thoại. Chủ quán cũng có thể tạo đơn.
 
 ## Product Purpose
 
-Ghi nhận nhanh số cốc bán ra và doanh thu của một quán nước **đồng giá**, nơi mọi cốc có cùng một giá. Thành công nghĩa là:
+Ghi nhận nhanh các món bán ra và doanh thu của một quán bar nhỏ bán theo **thực đơn ngắn** (khoảng 8 món, mỗi món một giá). Thành công nghĩa là:
 - Nhân viên ghi đơn mà gần như không phải nghĩ.
 - Không có đơn bị sai giá, ghi trùng hoặc mất.
 - Chủ quán biết chính xác doanh thu ngày và tháng.
 
 ## Positioning
 
-Vì mọi cốc cùng một giá, cả quy trình gọi món chỉ còn lại **số lượng cốc** và (không bắt buộc) **bàn**. Không có thực đơn, không có biến thể món. Ứng dụng tận dụng điều đó để ghi một đơn chỉ bằng vài lần chạm. Các app POS có thực đơn thì không làm gọn được như vậy.
+Thực đơn rất ngắn và mỗi món chỉ có một giá, không có biến thể, topping hay size. Cả quy trình gọi món chỉ còn: **chạm các món** (mỗi chạm +1), **chọn chỗ ngồi**, **xác nhận**. Ứng dụng tận dụng điều đó để 8 món nằm gọn trong một màn hình, không có danh mục hay tìm kiếm, và một đơn một món chỉ mất bốn chạm. Các app POS đa năng, với cây danh mục và hộp thoại tùy chọn, không làm gọn được như vậy.
 
 ## Operating Context
 
 - **Quán chỉ mở buổi tối, từ 20:00 đến 02:00 sáng hôm sau.** Mọi đơn hàng đều được tạo vào ban đêm.
 - **Quán là phòng tối, có quầy bar:** 12 ghế quầy và 3 bàn. Nhân viên **đứng sau quầy, cầm điện thoại bằng một tay**, vừa pha chế vừa tạo đơn hàng.
-- **Số cốc mỗi đơn rất đa dạng:** từ 1 cốc đến vài chục cốc.
+- **Mỗi đơn có từ một đến vài món**, mỗi món từ 1 đến vài chục ly; thường có giảm giá theo phần trăm cho khách quen. Giá món từ 100.000đ (Neat, Mocktail) đến 800.000đ (Bình Zax).
 - **Một quán, tối đa khoảng 5 điện thoại** dùng cùng lúc. Nhân viên dùng chung một tài khoản, đăng nhập bằng PIN quán 6 số.
 - **App cần mạng.** Khi mất mạng, nhân viên không tạo được đơn và màn hình báo rõ điều đó.
 - **App được cài ra màn hình chính** (web app có manifest) trên Chrome Android hoặc Safari iOS.
@@ -35,8 +35,8 @@ Vì mọi cốc cùng một giá, cả quy trình gọi món chỉ còn lại **
 
 Nguồn chuẩn là `docs/SRS.md`. Thuật ngữ nằm trong `GLOSSARY.md`.
 
-- **Nhân viên:** tạo đơn hàng bằng các nút cộng dồn số lượng; chọn bàn hoặc "Mang về"; hoàn tác hoặc hủy đơn trong 5 phút.
-- **Chủ quán:** đặt đơn giá chung (có lịch sử đổi giá), danh sách bàn, giờ mở cửa và PIN quán; xem doanh thu hôm nay và tháng này; xem lịch sử đơn hàng và xuất CSV.
+- **Nhân viên:** chạm món để thêm vào giỏ đơn, sửa số lượng, giảm giá theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi hoặc "Mang về"; hoàn tác hoặc hủy đơn trong 5 phút.
+- **Chủ quán:** quản lý thực đơn ở trang Thực đơn (có lịch sử đổi giá theo món), danh sách chỗ ngồi, giờ mở cửa và PIN quán; xem doanh thu, số món, số đơn theo ngày, tuần, tháng; xem lịch sử đơn hàng (mở xem từng dòng đơn) và xuất CSV.
 - **Giao diện chỉ dùng tiếng Việt.** Tiền hiển thị dạng `25.000đ`, giờ theo giờ Việt Nam.
 
 ## Brand Commitments
@@ -67,7 +67,7 @@ Nguồn chuẩn là `docs/SRS.md`. Thuật ngữ nằm trong `GLOSSARY.md`.
 
 1. **Một tay, vài giây.** Mọi thao tác thường gặp trên màn hình order đều làm được bằng ngón cái, trong vài lần chạm.
 2. **Không bấm nhầm.** Lúc quán đông, hành động phá hủy hoặc tốn tiền phải khó chạm trúng do vô tình, và luôn có đường lui.
-3. **Số tiền không bao giờ mơ hồ.** Đơn giá và thành tiền luôn hiển thị rõ. Khi giá thay đổi, người dùng phải thấy ngay.
+3. **Số tiền không bao giờ mơ hồ.** Thành tiền luôn là con số dễ đọc nhất trên màn order; giá từng món và số tiền giảm luôn thấy được. Khi giá món thay đổi, người dùng phải thấy ngay.
 4. **Hợp với phòng tối.** Màn hình không làm chói mắt người dùng hay làm phiền khách trong phòng tối.
 
 ## Accessibility & Inclusion

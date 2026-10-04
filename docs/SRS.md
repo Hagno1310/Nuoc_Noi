@@ -120,7 +120,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
   - Món trong giỏ đổi giá thì dòng đơn cập nhật giá mới và được làm nổi bật khoảng 3 giây.
   - Món trong giỏ bị ẩn thì dòng đơn bị gạch, kèm "Món đã ngừng bán – bỏ khỏi đơn rồi gửi lại", và nút Xác nhận đơn bị khóa.
 - Bố cục (theo `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md` §5):
-  - Điện thoại: lưới món, thanh giỏ đơn dính đáy ("N món · X đ" + "Xem đơn"), bấm vào mở tấm giỏ đơn.
+  - Điện thoại: lưới món, thanh giỏ đơn dính đáy (số món, Thành tiền và nút "Giỏ đơn"), bấm vào mở tấm giỏ đơn.
   - Màn rộng từ 768px: lưới món bên trái, phiếu đơn luôn hiện bên phải.
 
 **FR-02: Giỏ đơn**

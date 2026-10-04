@@ -106,7 +106,7 @@ Chỗ ngồi, giờ mở/đóng cửa, PIN quán và tài khoản giữ nguyên.
 
 ## 4. Server (RPC và quyền)
 
-**`create_order(p_id, p_seat_id, p_is_takeaway, p_lines jsonb, p_discount_percent)`**
+**`create_order(p_id, p_seat_id, p_is_takeaway, p_discount_percent, p_lines jsonb)`**
 - Kiểm tra `is_staff()`, giữ mã lỗi `FORBIDDEN`.
 - `p_lines` là mảng `[{menu_item_id, quantity, client_price}]`:
   - 1–30 dòng, không trùng `menu_item_id`, `quantity` 1–99.
@@ -119,7 +119,7 @@ Chỗ ngồi, giờ mở/đóng cửa, PIN quán và tài khoản giữ nguyên.
 
 **Quản lý thực đơn:** đi theo mẫu của `seats`:
 - RLS cho chủ quán đọc, thêm và sửa bảng `menu_items`, không có quyền xóa.
-- Nhân viên đọc được món chưa ẩn.
+- Nhân viên đọc được mọi món, kể cả món đã ẩn: Realtime chỉ gửi sự kiện cho người đọc được dòng, và giỏ đơn cần biết món vừa ngừng bán. Màn order tự lọc món đã ẩn khỏi lưới.
 - `menu_items` thêm vào publication `supabase_realtime`.
 
 **RPC báo cáo đổi:**
@@ -137,10 +137,10 @@ Thứ tự từ trên xuống:
 1. **Header:** logo, liên kết "Trang chủ quán" nếu là chủ quán.
 2. **Lưới món**, 2 cột:
    - Mỗi nút cao ít nhất 72px. Tên món dùng Title Anton, giá dùng Body bên dưới.
-   - Món đã có trong giỏ thì góc nút hiện huy hiệu số lượng màu ember.
+   - Món đã có trong giỏ thì viền chuyển sang kem và góc nút hiện số lượng chữ kem nhỏ (không dùng ember; xem `docs/design/order-brief.md`).
    - Chạm một lần là +1, có phản hồi dưới 200ms (NFR-01) kèm hiệu ứng nhấn 150ms.
 3. **Đơn vừa tạo** nằm dưới lưới, phải cuộn tới. Mỗi đơn ghi "21:05 · Bàn 3 · 2 Classic, 1 Neat · 570.000đ" (nếu có giảm giá thì thêm "−10%"), có nút Hủy trong cửa sổ hủy.
-4. **Thanh giỏ đơn** dính đáy, chỉ hiện khi giỏ có món: "3 món · 570.000đ" và nút **Xem đơn**, cao 64px.
+4. **Thanh giỏ đơn** dính đáy, cao 64px: "3 món" nhỏ ở trên, Thành tiền lớn ở dưới, nút ember **Giỏ đơn** bên phải. Giỏ trống thì thanh mờ, ghi "Chạm món để thêm". Bố cục chi tiết theo `docs/design/order-brief.md`.
 
 **Tấm giỏ đơn** trượt lên, chiếm khoảng 85% chiều cao, chuyển động 250ms. Kéo xuống hoặc bấm nền tối để đóng. Từ trên xuống:
 - Tiêu đề "Giỏ đơn" và nút "Xóa hết" (bấm lần đầu đổi thành "Chắc chắn xóa hết?").
