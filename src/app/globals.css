@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
-/* Phơi sáng dài (docs/design/order-brief.md): chỉ có nền tối, vì quán là phòng tối.
-   Màu theo vai trò; component chỉ dùng token, không dùng tên màu Tailwind. */
+/* Bao diêm quán bar (surface brief, seed 73f06246): bìa đen mờ phẳng, chữ kem, đúng một màu mực cam.
+   Chỉ có nền tối, vì quán là phòng tối (PRODUCT.md). Màu theo vai trò; component chỉ dùng token.
+   Trung tính khóa đúng 5 bậc: bg, raised/surface, line, edge/ink-muted, ink. */
 :root {
   color-scheme: dark;
-  --bg: #1a1e15;
-  --surface: #232819;
-  --raised: #2e3424;
-  --line: #4a5238; /* đường kẻ trang trí */
-  --edge: #78815e; /* viền điều khiển, ≥ 3:1 trên nền */
-  --ink: #e6d8b4; /* chữ kem đã giảm sáng, 12:1 */
-  --ink-muted: #a9b08f; /* chữ phụ, ≥ 5.6:1 */
-  --ember: #e68a3c; /* màu nhấn duy nhất */
-  --ember-ink: #1a1e15;
-  --ok: #a9c47e;
-  --warn: #e5bc5e;
-  --danger: #ee8a76;
-  /* Biểu đồ: kỳ này / kỳ trước. Đã chạy validate_palette (dataviz) trên nền #1A1E15: đạt cả 5 kiểm tra */
-  --chart-current: #d9772b;
-  --chart-previous: #2a98b4;
+  --bg: #141210; /* bìa đen mờ */
+  --surface: #221f1b; /* sidebar, dòng tổng: cùng bậc với raised */
+  --raised: #221f1b;
+  --line: #3a352e; /* đường kẻ 1px, hệ đường kẻ duy nhất */
+  --edge: #958d81; /* viền điều khiển, 5.7:1 trên nền */
+  --ink: #efe6d2; /* chữ kem, 15:1 */
+  --ink-muted: #958d81; /* chữ phụ, 5.7:1 trên nền, 5.0:1 trên raised */
+  --ember: #e8572c; /* mực in cam: hành động chính, lựa chọn đang có hiệu lực, focus, một tấm in đảo màu mỗi màn */
+  --ember-ink: #141210; /* chữ trên mực cam, 5.2:1 (chữ kem trên cam chỉ 2.9:1) */
+  --ok: #8fbf7a;
+  --warn: #e8b04a;
+  --danger: #ef6f7a;
+  /* Biểu đồ: kỳ này tô mực cam, kỳ trước chỉ viền xám. Cam và xám gần cùng độ sáng (1.01:1),
+     nên phân biệt bằng tô và viền, không chỉ bằng màu */
+  --chart-current: var(--ember);
+  --chart-previous: var(--edge);
 }
 
 @theme inline {
@@ -36,9 +38,9 @@
   --color-danger: var(--danger);
   --color-chart-current: var(--chart-current);
   --color-chart-previous: var(--chart-previous);
-  --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
-  --font-display: var(--font-anton), var(--font-be-vietnam), sans-serif;
-  --ease-exposure: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --ease-print: cubic-bezier(0.16, 1, 0.3, 1);
   /* Khoảng cách và vùng chạm tính bằng px, để thu nhỏ chữ trên điện thoại không làm vùng chạm dưới 48px (NFR-02) */
   --spacing: 4px;
 }
@@ -46,16 +48,22 @@
 html {
   background-color: var(--bg);
   font-size: 93.75%; /* điện thoại: chữ 15px, từ lg trở lên 16px */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Lớp nhiễu hạt tĩnh như phim chụp đêm; không chuyển động */
 body {
   min-height: 100dvh;
   color: var(--ink);
-  font-family: var(--font-be-vietnam), system-ui, sans-serif;
+  font-family: var(--font-archivo), system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Chữ biển trên bao diêm: cùng họ Archivo, hẹp và đậm. Một họ chữ, thứ bậc bằng độ rộng và độ đậm.
+   Không nằm trong layer, nên thắng tracking-wide còn sót từ thế giới cũ */
+.font-display {
+  font-stretch: 72%;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 
 ::selection {
@@ -87,108 +95,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.85) sepia(0.3);
 }
 
-/* Vết loang sáng quanh logo, như đèn bar chụp phơi sáng (chỉ cho ảnh logo, không cho chữ) */
-.halo {
-  filter: drop-shadow(0 0 1px rgb(230 216 180 / 0.5))
-    drop-shadow(0 0 14px rgb(230 138 60 / 0.35))
-    drop-shadow(0 0 40px rgb(230 138 60 / 0.18));
-}
-
-/* Vệt sáng phơi sáng: đường kẻ của thế giới này, thay cho viền mảnh thông thường */
-.streak {
-  position: relative;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--ember) 12%,
-    var(--ink) 55%,
-    rgb(230 216 180 / 0.25) 85%,
-    transparent
-  );
-}
-.streak::after {
-  content: "";
-  position: absolute;
-  inset: -3px 0;
-  border-radius: inherit;
-  background: inherit;
-  filter: blur(6px);
-  opacity: 0.55;
-}
-
-/* Chuyển động đặc trưng: số cốc và thành tiền kéo thành vệt sáng ngang rồi lướt xuống "Đơn vừa tạo" */
-@keyframes exposure-streak {
-  0% {
-    opacity: 0.9;
-    transform: translateY(0) scaleX(0.15);
-    filter: blur(2px);
-  }
-  55% {
-    opacity: 0.8;
-    transform: translateY(0) scaleX(1);
-    filter: blur(1px);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(48px) scaleX(1.1);
-    filter: blur(6px);
-  }
-}
-
-.exposure-streak {
-  animation: exposure-streak 250ms var(--ease-exposure) both;
-}
-
-/* Ảnh hiện dần: số liệu đi từ nhòe sang rõ như phim đang tráng (khoảnh khắc chính của Tổng quan) */
-@keyframes develop {
-  from {
-    opacity: 0.15;
-    filter: blur(8px);
-  }
-  to {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-.develop {
-  animation: develop 700ms var(--ease-exposure) both;
-}
-
-/* Cung đồng hồ tự vẽ từ giờ mở cửa tới bây giờ (path có pathLength="1") */
-@keyframes draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-.arc-draw {
-  stroke-dasharray: 1;
-  animation: draw 800ms var(--ease-exposure) both;
-}
 @keyframes fade-in {
   from {
     opacity: 0;
   }
-}
-.after-draw {
-  animation: fade-in 300ms ease-out 650ms both;
-}
-
-/* Cột biểu đồ mọc từ đáy, lần lượt (trễ tối đa ~300ms) */
-@keyframes rise {
-  from {
-    transform: scaleY(0);
-  }
-}
-.bar-rise {
-  transform-box: fill-box;
-  transform-origin: bottom;
-  animation: rise 450ms var(--ease-exposure) both;
-  animation-delay: calc(min(var(--i, 0), 16) * 18ms);
 }
 
 /* Đơn mới trượt vào Đơn vừa tạo */
@@ -199,7 +109,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 .row-in {
-  animation: row-in 240ms var(--ease-exposure) both;
+  animation: row-in 240ms var(--ease-print) both;
 }
 
 @media (min-width: 64rem) {
@@ -208,7 +118,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
-/* iOS Safari phóng to trang khi chạm ô nhập có chữ dưới 16px. Nằm trong base để class text-* (ô số cốc) vẫn thắng */
+/* iOS Safari phóng to trang khi chạm ô nhập có chữ dưới 16px. Nằm trong base để class text-* vẫn thắng */
 @layer base {
   input,
   select,
@@ -225,23 +135,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 .toast-in {
-  animation: toast-in 200ms var(--ease-exposure) both;
+  animation: toast-in 200ms var(--ease-print) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .exposure-streak {
-    display: none;
-  }
   /* Bỏ di chuyển, giữ thay đổi độ mờ để trạng thái vẫn đọc được */
-  .develop,
   .row-in,
   .toast-in {
     animation: fade-in 200ms ease-out both;
-  }
-  .arc-draw,
-  .bar-rise,
-  .after-draw {
-    animation: none;
   }
   *,
   *::before,

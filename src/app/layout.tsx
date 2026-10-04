@@ -1,28 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Anton, Be_Vietnam_Pro } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 
-// Một họ font sans có đủ dấu tiếng Việt (ui-craft.md)
-const beVietnam = Be_Vietnam_Pro({
-  variable: "--font-be-vietnam",
+// Một họ chữ duy nhất (surface brief): Archivo biến thiên, trục wdth cho chữ biển hẹp, đủ dấu tiếng Việt
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-// Font hiển thị kiểu poster retro, chỉ cho con số lớn và tiêu đề (gần nét dày của logo vẽ tay)
-const anton = Anton({
-  variable: "--font-anton",
-  subsets: ["latin", "vietnamese"],
-  weight: "400",
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
   title: "Nước Nôi",
-  description: "Tạo đơn hàng nhanh cho quán nước đồng giá",
+  description: "Ghi đơn nhanh cho quán Nước Nôi",
   // Ảnh xem trước khi gửi link (SRS R29): ảnh lấy từ src/app/opengraph-image.png
   openGraph: {
     title: "Nước Nôi",
-    description: "Tạo đơn hàng nhanh cho quán nước đồng giá",
+    description: "Ghi đơn nhanh cho quán Nước Nôi",
     siteName: "Nước Nôi",
     locale: "vi_VN",
     type: "website",
@@ -32,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1A1E15",
+  themeColor: "#141210",
   width: "device-width",
   initialScale: 1,
 };
@@ -44,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`${beVietnam.variable} ${anton.variable} antialiased`}>
+      <body className={`${archivo.variable} antialiased`}>
         {children}
       </body>
     </html>
