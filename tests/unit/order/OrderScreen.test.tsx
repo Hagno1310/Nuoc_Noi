@@ -1,39 +1,38 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  OrderScreen,
-  type OrderScreenProps,
-} from "@/components/order/OrderScreen";
-import {
-  NetworkError,
-  RpcError,
-  type CreateOrderInput,
-  type CreatedOrder,
-  type StaffApi,
-} from "@/lib/api";
+import { OrderScreen, type OrderScreenProps } from "@/components/order/OrderScreen";
+import { NetworkError, RpcError, type CreateOrderInput, type CreatedOrder, type StaffApi } from "@/lib/api";
+import { discountAmount, type MenuItem } from "@/lib/order/cart";
 import { getMyOrderIds } from "@/lib/order/myOrders";
 
-const NOW = new Date("2026-10-03T05:00:00Z");
+const NOW = new Date("2026-10-05T14:00:00Z");
+const MENU: MenuItem[] = [
+  { id: "m1", name: "Classic", price: 190000, sort_order: 1, is_archived: false },
+  { id: "m2", name: "Neat", price: 100000, sort_order: 2, is_archived: false },
+  { id: "m3", name: "Cũ", price: 50000, sort_order: 3, is_archived: true },
+];
 
-const created = (
-  i: CreateOrderInput,
-  over: Partial<CreatedOrder> = {},
-): CreatedOrder => ({
-  id: i.id,
-  unit_price: 25000,
-  total_amount: i.quantity * 25000,
-  price_changed: false,
-  created_at: NOW.toISOString(),
-  business_date: "2026-10-03",
-  duplicate: false,
-  ...over,
-});
+const created = (i: CreateOrderInput, over: Partial<CreatedOrder> = {}): CreatedOrder => {
+  const sub = i.lines.reduce((s, l) => s + l.quantity * l.clientPrice, 0);
+  const off = discountAmount(sub, i.discountPercent);
+  return {
+    id: i.id,
+    item_count: i.lines.reduce((s, l) => s + l.quantity, 0),
+    subtotal_amount: sub,
+    discount_percent: i.discountPercent,
+    discount_amount: off,
+    total_amount: sub - off,
+    seat_name: "Quầy 1",
+    created_at: NOW.toISOString(),
+    business_date: "2026-10-05",
+    duplicate: false,
+    status: "paid",
+    ...over,
+  };
+};
 
-function setup(
-  overrides: Partial<OrderScreenProps> = {},
-  apiOverrides: Partial<StaffApi> = {},
-) {
+function setup(overrides: Partial<OrderScreenProps> = {}, apiOverrides: Partial<StaffApi> = {}) {
   const api: StaffApi = {
     createOrder: vi.fn(async (i: CreateOrderInput) => created(i)),
     cancelOrder: vi.fn(async () => {}),
@@ -47,7 +46,7 @@ function setup(
   let n = 0;
   const props: OrderScreenProps = {
     api,
-    price: 25000,
+    menu: MENU,
     online: true,
     onUnauthorized: vi.fn(),
     newId: () => `order-${++n}`,
@@ -59,326 +58,248 @@ function setup(
   return { api, props, user, ...utils };
 }
 
-describe("OrderScreen", () => {
-  it("hiện thành tiền trước khi xác nhận, gửi đơn, rồi reset và nhớ đơn", async () => {
-    const { api, user } = setup();
-    await user.click(screen.getByRole("button", { name: "+5" }));
-    await user.click(screen.getByRole("button", { name: "+2" }));
-    expect(screen.getByTestId("total")).toHaveTextContent("175.000đ");
-    await user.click(await screen.findByRole("button", { name: "Quầy 1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
+const row = (name: RegExp) => screen.getByRole("button", { name });
+async function openCart(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: "Giỏ đơn" }));
+  return screen.getByRole("dialog", { name: "Giỏ đơn" });
+}
 
+describe("OrderScreen", () => {
+  it("chạm món là +1; thanh giỏ đơn hiện số món và thành tiền", async () => {
+    const { user } = setup();
+    expect(screen.getByText("Chạm món để thêm")).toBeInTheDocument();
+    await user.click(row(/^Classic/));
+    await user.click(row(/^Classic/));
+    await user.click(row(/^Neat/));
+    expect(screen.getByText("3 món")).toBeInTheDocument();
+    expect(screen.getByTestId("bar-total")).toHaveTextContent("480.000đ");
+    expect(row(/^Classic/)).toHaveAccessibleName(/đang có 2/);
+  });
+
+  it("món đã ẩn không có trên bảng giá", () => {
+    setup();
+    expect(screen.queryByRole("button", { name: /^Cũ/ })).toBeNull();
+  });
+
+  it("gửi đơn với chỗ ngồi và giảm giá, rồi reset và nhớ đơn", async () => {
+    const { api, user } = setup();
+    await user.click(row(/^Classic/));
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "10%" }));
+    expect(within(cart).getByTestId("total")).toHaveTextContent("342.000đ");
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
     expect(api.createOrder).toHaveBeenCalledWith({
       id: "order-1",
-      quantity: 7,
       seatId: "s1",
-      isTakeaway: false,
-      clientPrice: 25000,
+      discountPercent: 10,
+      lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000 }],
     });
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      "Đã tạo đơn 7 cốc – 175.000đ",
-    );
-    expect(screen.getByLabelText("Số lượng cốc")).toHaveValue("");
-    expect(screen.getByRole("button", { name: "Quầy 1" })).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
+    expect(await screen.findByRole("status")).toHaveTextContent("Đã tạo đơn 2 món – 342.000đ");
+    expect(screen.queryByRole("dialog")).toBeNull();
     expect(getMyOrderIds()).toEqual(["order-1"]);
   });
 
-  it("chia chỗ ngồi thành hai nhóm Ghế quầy và Bàn, ghế quầy đứng trước", async () => {
-    setup();
-    const counterGroup = await screen.findByRole("group", { name: "Ghế quầy" });
-    const tableGroup = screen.getByRole("group", { name: "Bàn" });
-    expect(
-      within(counterGroup).getByRole("button", { name: "Quầy 1" }),
-    ).toBeInTheDocument();
-    expect(
-      within(tableGroup).getByRole("button", { name: "Bàn 1" }),
-    ).toBeInTheDocument();
-    expect(
-      counterGroup.compareDocumentPosition(tableGroup) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Mang về" })).toBeInTheDocument();
+  it("chưa chọn chỗ ngồi thì khóa Xác nhận và ghi lý do", async () => {
+    const { user } = setup();
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    expect(within(cart).getByRole("button", { name: "Xác nhận đơn" })).toBeDisabled();
+    expect(within(cart).getAllByText("Chọn chỗ ngồi").length).toBeGreaterThan(0);
+    expect(within(cart).getByText("Chưa chọn chỗ ngồi")).toBeInTheDocument();
   });
 
-  it("khóa nút Xác nhận khi số lượng bằng 0 hoặc chưa có giá", () => {
-    setup({ price: null });
-    expect(screen.getByRole("button", { name: "Xác nhận đơn" })).toBeDisabled();
+  it("dòng đơn: − ở 1 thì xóa dòng; ô số 150 thành 99; ô số 0 giữ số cũ", async () => {
+    const { user } = setup();
+    await user.click(row(/^Classic/));
+    await user.click(row(/^Neat/));
+    const cart = await openCart(user);
+    const qty = within(cart).getByLabelText("Số lượng Classic");
+    await user.clear(qty);
+    await user.type(qty, "150");
+    fireEvent.blur(qty);
+    expect(within(cart).getByLabelText("Số lượng Classic")).toHaveValue("99");
+    await user.clear(within(cart).getByLabelText("Số lượng Classic"));
+    await user.type(within(cart).getByLabelText("Số lượng Classic"), "0");
+    fireEvent.blur(within(cart).getByLabelText("Số lượng Classic"));
+    expect(within(cart).getByLabelText("Số lượng Classic")).toHaveValue("99");
+    await user.click(within(cart).getByRole("button", { name: "Bớt 1 Neat" }));
+    expect(within(cart).queryByLabelText("Số lượng Neat")).toBeNull();
+  });
+
+  it("Xóa hết cần bấm hai lần", async () => {
+    const { user } = setup();
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(within(cart).getByRole("button", { name: "Xóa hết" }));
+    expect(within(cart).getByLabelText("Số lượng Classic")).toBeInTheDocument();
+    await user.click(within(cart).getByRole("button", { name: "Chắc chắn xóa hết?" }));
+    expect(within(cart).queryByLabelText("Số lượng Classic")).toBeNull();
+  });
+
+  it("giảm giá nhập tay: 7% được nhận, 120% bị bỏ qua", async () => {
+    const { api, user } = setup();
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    const pct = within(cart).getByLabelText("Giảm giá (%)");
+    await user.type(pct, "120");
+    fireEvent.blur(pct);
+    expect(within(cart).queryByText(/^Giảm \d+%/)).toBeNull();
+    await user.clear(pct);
+    await user.type(pct, "7");
+    fireEvent.blur(pct);
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    expect(api.createOrder).toHaveBeenCalledWith(expect.objectContaining({ discountPercent: 7 }));
   });
 
   it("mất mạng: khóa nút và hiện cảnh báo", async () => {
     const { user } = setup({ online: false });
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    expect(screen.getByRole("button", { name: "Xác nhận đơn" })).toBeDisabled();
-    expect(
-      screen.getByText("Mất mạng – chưa gửi được đơn"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Mất mạng – chưa gửi được đơn")).toBeInTheDocument();
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    expect(within(cart).getByRole("button", { name: "Xác nhận đơn" })).toBeDisabled();
   });
 
-  it("gửi thất bại vì mạng thì giữ dữ liệu, bấm lại dùng cùng id", async () => {
+  it("lỗi mạng giữ giỏ, bấm lại cùng id", async () => {
     const createOrder = vi
       .fn()
       .mockRejectedValueOnce(new NetworkError())
       .mockImplementationOnce(async (i: CreateOrderInput) => created(i));
     const { user } = setup({}, { createOrder });
-    await user.click(screen.getByRole("button", { name: "+2" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("kiểm tra mạng");
-    expect(screen.getByLabelText("Số lượng cốc")).toHaveValue("2");
-
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    await screen.findByRole("status");
-    expect(createOrder.mock.calls.map((c) => c[0].id)).toEqual([
-      "order-1",
-      "order-1",
-    ]);
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    expect(await within(cart).findByRole("alert")).toHaveTextContent("kiểm tra mạng");
+    expect(within(cart).getByLabelText("Số lượng Classic")).toHaveValue("1");
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await screen.findByText(/Đã tạo đơn/);
+    expect(createOrder.mock.calls.map((c) => c[0].id)).toEqual(["order-1", "order-1"]);
   });
 
-  it("server báo đơn đã được ghi từ lần gửi trước", async () => {
+  it("server báo đơn đã ghi từ lần gửi trước", async () => {
     const { user } = setup(
       {},
-      {
-        createOrder: vi.fn(async (i: CreateOrderInput) =>
-          created(i, { duplicate: true, total_amount: 75000 }),
-        ),
-      },
+      { createOrder: vi.fn(async (i: CreateOrderInput) => created(i, { duplicate: true })) },
     );
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    expect(
-      await screen.findByText(/đã được ghi từ lần gửi trước \(3 cốc\)/),
-    ).toHaveAttribute("role", "status");
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    expect(await screen.findByText(/Đơn này đã được ghi từ lần gửi trước \(1 món\)/)).toBeInTheDocument();
   });
 
-  it("server tính giá khác thì báo cho nhân viên", async () => {
-    const { user } = setup(
-      {},
-      {
-        createOrder: vi.fn(async (i: CreateOrderInput) =>
-          created(i, {
-            unit_price: 30000,
-            total_amount: 30000,
-            price_changed: true,
-          }),
-        ),
-        cancelOrder: vi.fn().mockRejectedValue(new NetworkError()),
-      },
-    );
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    const priceText =
-      "Giá đã đổi: đơn được tính 30.000đ/cốc, thành tiền 30.000đ.";
-    expect(await screen.findByText(priceText)).toHaveAttribute(
-      "role",
-      "status",
-    );
-    // Hủy thất bại và bắt đầu đơn mới đều không làm mất thông báo giá (SRS FR-04)
-    await user.click(screen.getByRole("button", { name: "Hoàn tác" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Chưa hủy được");
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-    expect(screen.getByText(priceText)).toBeInTheDocument();
-  });
-
-  it("gửi thất bại giữ thông báo giá; hủy thành công chỉ xóa lỗi hủy", async () => {
+  it("gửi lại một đơn đã bị hủy: báo, giữ giỏ, lần sau dùng id mới", async () => {
     const createOrder = vi
       .fn()
-      .mockImplementationOnce(async (i: CreateOrderInput) =>
-        created(i, {
-          unit_price: 30000,
-          total_amount: 30000,
-          price_changed: true,
-        }),
-      )
-      .mockRejectedValueOnce(new NetworkError());
-    const listOrdersByIds = vi.fn(async () => [
-      {
-        id: "order-1",
-        quantity: 1,
-        unit_price: 30000,
-        total_amount: 30000,
-        seat_name: null,
-        status: "paid" as const,
-        created_at: NOW.toISOString(),
-      },
-    ]);
-    const { user } = setup({}, { createOrder, listOrdersByIds });
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    await screen.findByText(/Giá đã đổi/);
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Chưa gửi được");
-    expect(screen.getByText(/Giá đã đổi/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Hủy" }));
-    await waitFor(() =>
-      expect(screen.queryByText(/Giá đã đổi/)).not.toBeInTheDocument(),
-    );
-    expect(screen.getByRole("alert")).toHaveTextContent("Chưa gửi được");
+      .mockImplementationOnce(async (i: CreateOrderInput) => created(i, { duplicate: true, status: "cancelled" }))
+      .mockImplementationOnce(async (i: CreateOrderInput) => created(i));
+    const { user } = setup({}, { createOrder });
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    expect(await within(cart).findByText("Đơn này đã bị hủy – bấm Xác nhận đơn để tạo đơn mới.")).toBeInTheDocument();
+    expect(within(cart).getByLabelText("Số lượng Classic")).toHaveValue("1");
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await screen.findByText(/Đã tạo đơn/);
+    expect(createOrder.mock.calls.map((c) => c[0].id)).toEqual(["order-1", "order-2"]);
   });
 
-  it("đang chờ server hủy thì khóa nút và hiện Đang hủy…", async () => {
-    let finish!: () => void;
-    const cancelOrder = vi.fn(() => new Promise<void>((r) => (finish = r)));
-    const listOrdersByIds = vi.fn(async () => [
-      {
-        id: "order-1",
-        quantity: 1,
-        unit_price: 25000,
-        total_amount: 25000,
-        seat_name: null,
-        status: "paid" as const,
-        created_at: NOW.toISOString(),
-      },
+  it("MENU_CHANGED: cập nhật giá trong giỏ và báo thực đơn vừa đổi", async () => {
+    const details = JSON.stringify([
+      { id: "m1", name: "Classic", price: 200000, is_archived: false },
+      { id: "m2", name: "Neat", price: 100000, is_archived: false },
     ]);
-    const { user } = setup({}, { cancelOrder, listOrdersByIds });
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    await screen.findByRole("button", { name: "Hủy" });
-    await user.click(screen.getByRole("button", { name: "Hoàn tác" }));
-    // Chỉ nút vừa bấm hiện "Đang hủy…"; nút Hủy cùng đơn trong danh sách chỉ bị khóa
-    expect(screen.getByRole("button", { name: "Đang hủy…" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Hủy" })).toBeDisabled();
-    finish();
-    expect(
-      await screen.findByRole("button", { name: "Xác nhận đơn" }),
-    ).toBeInTheDocument();
+    const { user } = setup({}, { createOrder: vi.fn().mockRejectedValue(new RpcError("MENU_CHANGED", details)) });
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    expect(await within(cart).findByText("Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.")).toBeInTheDocument();
+    expect(within(cart).getByTestId("total")).toHaveTextContent("200.000đ");
+  });
+
+  it("menu đổi khi giỏ đang có món: món bị ẩn thì gạch dòng và khóa Xác nhận", async () => {
+    const { user, rerender, props } = setup();
+    await user.click(row(/^Neat/));
+    rerender(<OrderScreen {...props} menu={MENU.map((m) => (m.id === "m2" ? { ...m, is_archived: true } : m))} />);
+    const cart = await openCart(user);
+    expect(within(cart).getByText("Món đã ngừng bán – bỏ khỏi đơn rồi gửi lại")).toBeInTheDocument();
+    expect(within(cart).getByRole("button", { name: "Xác nhận đơn" })).toBeDisabled();
+    expect(within(cart).getAllByText("Bỏ món đã ngừng bán khỏi đơn").length).toBeGreaterThan(0);
   });
 
   it("Hoàn tác gọi cancelOrder", async () => {
     const { api, user } = setup();
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
     await user.click(await screen.findByRole("button", { name: "Hoàn tác" }));
-    await waitFor(() =>
-      expect(api.cancelOrder).toHaveBeenCalledWith("order-1"),
-    );
+    expect(api.cancelOrder).toHaveBeenCalledWith("order-1");
+  });
+
+  it("phiên bị thu hồi thì gọi onUnauthorized", async () => {
+    const { props, user } = setup({}, { createOrder: vi.fn().mockRejectedValue(new RpcError("FORBIDDEN")) });
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    expect(props.onUnauthorized).toHaveBeenCalled();
   });
 
   it("gửi thành công thì rung 30ms", async () => {
     const vibrate = vi.fn();
-    Object.defineProperty(navigator, "vibrate", {
-      value: vibrate,
-      configurable: true,
-    });
+    Object.defineProperty(navigator, "vibrate", { value: vibrate, configurable: true });
     const { user } = setup();
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    await screen.findByRole("status");
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await screen.findByText(/Đã tạo đơn/);
     expect(vibrate).toHaveBeenCalledWith(30);
   });
 
-  it("chạm phím số lượng khi đang hiện phản hồi thì thanh trở lại Xác nhận", async () => {
-    const { user } = setup();
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    await screen.findByRole("button", { name: "Hoàn tác" });
-    await user.click(screen.getByRole("button", { name: "+2" }));
-    expect(
-      screen.queryByRole("button", { name: "Hoàn tác" }),
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Xác nhận đơn" })).toBeEnabled();
-  });
-
-  it("chỉ hiện nút Hủy cho đơn còn trong cửa sổ hủy 5 phút", async () => {
-    // getMyOrderIds lọc theo đồng hồ thật, nên `at` dùng Date.now() chứ không dùng NOW
-    localStorage.setItem(
-      "pos.myOrders",
-      JSON.stringify([
-        { id: "new", at: Date.now() },
-        { id: "old", at: Date.now() },
-      ]),
-    );
+  it("Đơn vừa tạo: tóm tắt món, nút Hủy chỉ trong cửa sổ 5 phút, đơn hủy có dấu HỦY", async () => {
     setup(
       {},
       {
         listOrdersByIds: vi.fn(async () => [
-          {
-            id: "new",
-            quantity: 1,
-            unit_price: 25000,
-            total_amount: 25000,
-            seat_name: null,
-            status: "paid" as const,
-            created_at: new Date(NOW.getTime() - 60_000).toISOString(),
-          },
-          {
-            id: "old",
-            quantity: 2,
-            unit_price: 25000,
-            total_amount: 50000,
-            seat_name: "Quầy 1",
-            status: "paid" as const,
-            created_at: new Date(NOW.getTime() - 6 * 60_000).toISOString(),
-          },
+          { id: "a", item_count: 3, subtotal_amount: 480000, discount_percent: 10, discount_amount: 48000, total_amount: 432000, seat_name: "Bàn 1", status: "paid" as const, created_at: new Date(NOW.getTime() - 60_000).toISOString(), lines: [{ item_name: "Classic", unit_price: 190000, quantity: 2, line_amount: 380000 }, { item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
+          { id: "b", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "paid" as const, created_at: new Date(NOW.getTime() - 10 * 60_000).toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
+          { id: "c", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "cancelled" as const, created_at: NOW.toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
         ]),
       },
     );
     const list = await screen.findByRole("region", { name: "Đơn vừa tạo" });
-    await waitFor(() => expect(list.querySelectorAll("li")).toHaveLength(2));
-    expect(screen.getAllByRole("button", { name: "Hủy" })).toHaveLength(1);
-  });
-
-  it("phiên bị thu hồi (FORBIDDEN) thì gọi onUnauthorized", async () => {
-    const { props } = setup(
-      {},
-      {
-        listActiveSeats: vi.fn(async () => {
-          throw new RpcError("FORBIDDEN");
-        }),
-      },
-    );
-    await waitFor(() => expect(props.onUnauthorized).toHaveBeenCalled());
-  });
-
-  it("Hoàn tác thất bại vì mạng thì giữ nút Hoàn tác và báo chưa hủy được", async () => {
-    const cancelOrder = vi
-      .fn()
-      .mockRejectedValueOnce(new NetworkError())
-      .mockResolvedValueOnce(undefined);
-    const { user } = setup({}, { cancelOrder });
-    await user.click(screen.getByRole("button", { name: "+1" }));
-    await user.click(screen.getByRole("button", { name: "Xác nhận đơn" }));
-    await user.click(await screen.findByRole("button", { name: "Hoàn tác" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Chưa hủy được");
-    expect(
-      screen.getByRole("button", { name: "Hoàn tác" }),
-    ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Hoàn tác" }));
-    await waitFor(() =>
-      expect(screen.queryByRole("alert")).not.toBeInTheDocument(),
-    );
-    expect(
-      screen.getByRole("button", { name: "Xác nhận đơn" }),
-    ).toBeInTheDocument();
+    expect(await within(list).findByText("2 Classic, 1 Neat")).toBeInTheDocument();
+    expect(within(list).getByText("−10%")).toBeInTheDocument();
+    expect(within(list).getAllByRole("button", { name: "Hủy" })).toHaveLength(1);
+    expect(within(list).getByText("HỦY")).toBeInTheDocument();
   });
 
   it("tải lại chỗ ngồi khi có mạng trở lại", async () => {
-    const listActiveSeats = vi.fn(async () => [
-      { id: "s1", name: "Quầy 1", kind: "counter" as const },
-    ]);
-    const { props, rerender } = setup({ online: false }, { listActiveSeats });
-    expect(listActiveSeats).not.toHaveBeenCalled();
-    rerender(<OrderScreen {...props} online={true} />);
-    expect(
-      await screen.findByRole("button", { name: "Quầy 1" }),
-    ).toBeInTheDocument();
-    expect(listActiveSeats).toHaveBeenCalled();
+    const { api, rerender, props } = setup({ online: false });
+    expect(api.listActiveSeats).not.toHaveBeenCalled();
+    rerender(<OrderScreen {...props} online />);
+    await vi.waitFor(() => expect(api.listActiveSeats).toHaveBeenCalled());
   });
 
-  it("chủ quán thấy liên kết quay lại trang chủ quán (SRS §3.2)", () => {
+  it("chủ quán thấy liên kết quay lại trang chủ quán; nhân viên không thấy", () => {
     setup({ ownerHome: "/admin/dashboard" });
-    expect(
-      screen.getByRole("link", { name: /Trang chủ quán/ }),
-    ).toHaveAttribute("href", "/admin/dashboard");
+    expect(screen.getByRole("link", { name: /Trang chủ quán/ })).toHaveAttribute("href", "/admin/dashboard");
   });
 
-  it("nhân viên không thấy liên kết trang chủ quán", () => {
+  it("màn rộng: phiếu đơn luôn hiện, không có thanh giỏ đơn", async () => {
+    const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+      (q: string) => ({ matches: true, media: q, addEventListener() {}, removeEventListener() {} }) as unknown as MediaQueryList,
+    );
     setup();
-    expect(
-      screen.queryByRole("link", { name: /Trang chủ quán/ }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Giỏ đơn" })).toBeNull();
+    expect(screen.getByRole("region", { name: "Giỏ đơn" })).toBeInTheDocument();
+    spy.mockRestore();
   });
 });

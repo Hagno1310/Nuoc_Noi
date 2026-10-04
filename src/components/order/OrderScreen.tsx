@@ -1,80 +1,94 @@
 "use client";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import {
-  NetworkError,
-  RpcError,
-  type ActiveSeat,
-  type MyOrder,
-  type StaffApi,
-} from "@/lib/api";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { formatVnd } from "@/lib/money";
-import { getMyOrderIds, rememberOrder } from "@/lib/order/myOrders";
-import { quantityReducer, type QuantityAction } from "@/lib/order/quantity";
-import { PriceBanner } from "./PriceBanner";
-import { QuantityPad } from "./QuantityPad";
-import { RecentOrders } from "./RecentOrders";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useWide } from "@/hooks/useWide";
+import { menuFromError, NetworkError, RpcError, type ActiveSeat, type MyOrder, type StaffApi } from "@/lib/api";
 import { buzz } from "@/lib/haptics";
+import { formatVnd } from "@/lib/money";
+import {
+  addItem,
+  applyMenu,
+  clearPriceFlags,
+  decrement,
+  discountAmount,
+  itemCount,
+  removeLine,
+  setQuantity,
+  subtotal,
+  toPayload,
+  type CartLine,
+  type MenuItem,
+} from "@/lib/order/cart";
+import { getMyOrderIds, rememberOrder } from "@/lib/order/myOrders";
+import { CartBar } from "./CartBar";
+import { CartPanel } from "./CartPanel";
+import { CartSheet } from "./CartSheet";
 import { ConfirmBar, type Feedback } from "./ConfirmBar";
-import { SeatPicker, type SeatSelection } from "./SeatPicker";
+import { MenuBoard } from "./MenuBoard";
+import { RecentOrders } from "./RecentOrders";
+import type { SeatSelection } from "./SeatPicker";
 
 const ERROR_TEXT: Record<string, string> = {
-  INVALID_QUANTITY: "Số lượng không hợp lệ.",
-  INVALID_SEAT: "Chỗ ngồi không hợp lệ.",
+  INVALID_QUANTITY: "Số lượng mỗi món phải từ 1 đến 99.",
+  INVALID_LINES: "Giỏ đơn không hợp lệ. Xóa hết rồi chọn lại món.",
+  INVALID_DISCOUNT: "Giảm giá phải từ 0 đến 100%.",
+  SEAT_REQUIRED: "Chọn chỗ ngồi trước khi gửi.",
   SEAT_NOT_FOUND: "Chỗ ngồi không còn tồn tại. Tải lại trang.",
+  TOTAL_TOO_LARGE: "Đơn quá lớn (trên 1 tỷ đồng). Tách thành nhiều đơn.",
   ORDER_NOT_FOUND: "Không tìm thấy đơn.",
   CANCEL_WINDOW_EXPIRED: "Đã quá 5 phút, nhờ chủ quán hủy đơn.",
 };
-
 const CANCEL_NETWORK_ERROR = "Chưa hủy được – kiểm tra mạng rồi thử lại.";
+const MENU_CHANGED_TEXT = "Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.";
+const CANCELLED_TEXT = "Đơn này đã bị hủy – bấm Xác nhận đơn để tạo đơn mới.";
 
 export type OrderScreenProps = {
   api: StaffApi;
-  price: number | null;
+  menu: MenuItem[] | null;
+  menuFailed?: boolean;
   online: boolean;
   onUnauthorized: () => void;
   newId?: () => string;
   now?: () => Date;
-  // Có khi tài khoản là chủ quán: hiện liên kết quay lại trang chủ quán (SRS §3.2)
+  // Có khi tài khoản là chủ quán: liên kết quay lại trang chủ quán (SRS §3.2)
   ownerHome?: string;
 };
 
 export function OrderScreen({
   api,
-  price,
+  menu,
+  menuFailed = false,
   online,
   onUnauthorized,
   newId = () => crypto.randomUUID(),
   now = () => new Date(),
   ownerHome,
 }: OrderScreenProps) {
-  const [quantity, dispatch] = useReducer(quantityReducer, 0);
+  const wide = useWide();
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [discount, setDiscount] = useState(0);
   const [selection, setSelection] = useState<SeatSelection>({ kind: "none" });
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [seats, setSeats] = useState<ActiveSeat[]>([]);
   const [recent, setRecent] = useState<MyOrder[]>([]);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  // Lỗi ẩn khi bắt đầu đơn mới; info ("Giá đã đổi", đơn trùng) giữ tới lần gửi/hủy thành công (SRS FR-04)
+  const [flare, setFlare] = useState(0);
+  // Lỗi ẩn khi đổi giỏ/giảm giá/chỗ ngồi; info giữ tới lần gửi/hủy thành công (SRS FR-04)
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   // Nhớ cả nút đã bấm: chỉ nút đó hiện "Đang hủy…", mọi nút hủy khác bị khóa (SRS FR-04b)
-  const [cancelling, setCancelling] = useState<{
-    id: string;
-    from: "undo" | "list";
-  } | null>(null);
-  // Giữ nguyên id cho tới khi gửi thành công, để bấm lại sau lỗi mạng không tạo đơn thứ hai
+  const [cancelling, setCancelling] = useState<{ id: string; from: "undo" | "list" } | null>(null);
+  // Giữ id tới khi gửi thành công, để bấm lại sau lỗi mạng không tạo đơn thứ hai (FR-04)
   const pendingId = useRef<string | null>(null);
 
   const handleError = useCallback(
     (e: unknown) => {
-      if (e instanceof RpcError && e.code === "FORBIDDEN")
-        return onUnauthorized();
-      if (e instanceof RpcError)
-        return setError(ERROR_TEXT[e.code] ?? `Lỗi: ${e.code}`);
-      if (e instanceof NetworkError)
-        return setError("Chưa gửi được – kiểm tra mạng rồi bấm lại.");
+      if (e instanceof RpcError && e.code === "FORBIDDEN") return onUnauthorized();
+      if (e instanceof RpcError) return setError(ERROR_TEXT[e.code] ?? `Lỗi: ${e.code}`);
+      if (e instanceof NetworkError) return setError("Chưa gửi được – kiểm tra mạng rồi bấm lại.");
       setError("Có lỗi xảy ra.");
     },
     [onUnauthorized],
@@ -99,56 +113,88 @@ export function OrderScreen({
     void refreshRecent();
   }, [api, online, handleError, refreshRecent]);
 
-  const endFeedback = useCallback(() => setFeedback(null), []);
+  // Thực đơn đổi (realtime): cập nhật giá, gạch món ngừng bán (FR-01)
+  useEffect(() => {
+    if (!menu) return;
+    setCart((c) => applyMenu(c, menu));
+  }, [menu]);
+  // Dòng vừa đổi giá nổi bật khoảng 3 giây
+  useEffect(() => {
+    if (!cart.some((l) => l.priceChanged)) return;
+    const timer = setTimeout(() => setCart(clearPriceFlags), 3000);
+    return () => clearTimeout(timer);
+  }, [cart]);
 
-  // Chạm vào số lượng hay chỗ ngồi nghĩa là bắt đầu đơn mới: thanh trở lại thành Xác nhận
-  const changeQuantity = (a: QuantityAction) => {
+  const endFeedback = useCallback(() => setFeedback(null), []);
+  // Mọi thao tác trên giỏ là bắt đầu đơn mới: ẩn lỗi và thanh phản hồi
+  const edit = <T,>(apply: (v: T) => void) => (v: T) => {
     setFeedback(null);
     setError(null);
-    dispatch(a);
+    apply(v);
   };
-  const changeSeat = (s: SeatSelection) => {
-    setFeedback(null);
-    setError(null);
-    setSelection(s);
-  };
+  const add = edit((item: MenuItem) => setCart((c) => addItem(c, item)));
+  const inc = edit((id: string) => setCart((c) => {
+    const l = c.find((x) => x.menuItemId === id);
+    return l ? setQuantity(c, id, l.quantity + 1) : c;
+  }));
+  const dec = edit((id: string) => setCart((c) => decrement(c, id)));
+  const setQty = (id: string, q: number) => edit<void>(() => setCart((c) => setQuantity(c, id, q)))();
+  const remove = edit((id: string) => setCart((c) => removeLine(c, id)));
+  const clear = edit<void>(() => setCart([]));
+  const changeDiscount = edit(setDiscount);
+  const changeSeat = edit(setSelection);
+
+  const count = itemCount(cart);
+  const sub = subtotal(cart);
+  const total = sub - discountAmount(sub, discount);
+  const hasArchived = cart.some((l) => l.archived);
+  const blockReason =
+    menu === null
+      ? "Đang tải thực đơn…"
+      : cart.length === 0
+        ? "Chạm món để thêm"
+        : hasArchived
+          ? "Bỏ món đã ngừng bán khỏi đơn"
+          : selection.kind === "none"
+            ? "Chọn chỗ ngồi"
+            : !online
+              ? "Mất mạng – chưa gửi được đơn"
+              : null;
 
   async function handleSubmit() {
-    if (quantity === 0 || price === null || !online || sending) return;
+    if (blockReason || sending || selection.kind !== "seat") return;
     const id = (pendingId.current ??= newId());
     setSending(true);
     setError(null);
     try {
-      const res = await api.createOrder({
-        id,
-        quantity,
-        seatId: selection.kind === "seat" ? selection.id : null,
-        isTakeaway: selection.kind === "takeaway",
-        clientPrice: price,
-      });
-      pendingId.current = null;
-      setInfo(null);
-      rememberOrder(res.id);
-      dispatch({ type: "clear" });
-      setSelection({ kind: "none" });
-      const cups = Math.round(res.total_amount / res.unit_price);
-      setFeedback({
-        orderId: res.id,
-        text: `Đã tạo đơn ${cups} cốc – ${formatVnd(res.total_amount)}`,
-      });
-      buzz();
-      if (res.duplicate) {
-        setInfo(
-          `Đơn này đã được ghi từ lần gửi trước (${cups} cốc). Kiểm tra lại trước khi tạo đơn mới.`,
-        );
-      } else if (res.price_changed) {
-        setInfo(
-          `Giá đã đổi: đơn được tính ${formatVnd(res.unit_price)}/cốc, thành tiền ${formatVnd(res.total_amount)}.`,
-        );
+      const res = await api.createOrder({ id, seatId: selection.id, discountPercent: discount, lines: toPayload(cart) });
+      if (res.duplicate && res.status === "cancelled") {
+        // Đơn đã ghi rồi bị hủy trước lần gửi lại: giữ giỏ, lần sau dùng id mới (SRS v3.1)
+        pendingId.current = null;
+        setInfo(CANCELLED_TEXT);
+        return;
       }
+      pendingId.current = null;
+      setInfo(
+        res.duplicate
+          ? `Đơn này đã được ghi từ lần gửi trước (${res.item_count} món). Kiểm tra lại trước khi tạo đơn mới.`
+          : null,
+      );
+      rememberOrder(res.id);
+      setCart([]);
+      setDiscount(0);
+      setSelection({ kind: "none" });
+      setSheetOpen(false);
+      setFeedback({ orderId: res.id, text: `Đã tạo đơn ${res.item_count} món – ${formatVnd(res.total_amount)}` });
+      setFlare((n) => n + 1);
+      buzz();
       await refreshRecent();
     } catch (e) {
-      handleError(e);
+      const fresh = menuFromError(e);
+      if (fresh) {
+        setCart((c) => applyMenu(c, fresh));
+        setInfo(MENU_CHANGED_TEXT);
+      } else handleError(e);
     } finally {
       setSending(false);
     }
@@ -171,99 +217,98 @@ export function OrderScreen({
     }
   }
 
+  const notices = (
+    <>
+      {info && (
+        <p role="status" className="rounded-lg border border-warn/50 px-3 py-2 text-warn">
+          {info}
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="rounded-lg border border-danger/60 px-3 py-2 text-danger">
+          {error}
+        </p>
+      )}
+    </>
+  );
+  const confirm = (fb: Feedback | null) => (
+    <ConfirmBar
+      canSubmit={blockReason === null}
+      blockReason={blockReason}
+      sending={sending}
+      feedback={fb}
+      cancelBusy={cancelling !== null}
+      undoing={cancelling?.from === "undo" && cancelling.id === fb?.orderId}
+      onSubmit={() => void handleSubmit()}
+      onUndo={(id) => void handleCancel(id, "undo")}
+      onFeedbackEnd={endFeedback}
+    />
+  );
+  // Dải quẹt diêm: bùng sáng một lần khi gửi thành công (key đổi để chạy lại hiệu ứng)
+  const striker = <span key={flare} aria-hidden="true" className={`striker block ${flare ? "striker-flare" : ""}`} />;
+  const panel = (onClose?: () => void, fb: Feedback | null = null) => (
+    <CartPanel
+      cart={cart}
+      discount={discount}
+      seats={seats}
+      selection={selection}
+      onIncrement={inc}
+      onDecrement={dec}
+      onSetQuantity={setQty}
+      onRemove={remove}
+      onClear={clear}
+      onDiscount={changeDiscount}
+      onSeat={changeSeat}
+      onClose={onClose}
+      notices={notices}
+      footer={
+        <div className="space-y-2">
+          {wide && striker}
+          {confirm(fb)}
+        </div>
+      }
+    />
+  );
+
   return (
-    <main className="mx-auto max-w-md px-4 pt-3">
-      {/* Màn hình đầu: mọi thứ tới nút Xác nhận vừa một khung, phím rơi vào vùng ngón cái (order-brief §6) */}
-      <div className="flex min-h-[calc(100dvh-96px)] flex-col gap-2 pb-1 [@media(min-height:740px)]:gap-3 [@media(min-height:740px)]:pb-3">
-        <header className="flex items-center justify-between gap-3">
-          <Image
-            src="/brand/nuoc-noi-wordmark.png"
-            alt="Nước Nôi"
-            width={54}
-            height={50}
-            priority
-            className="halo h-9 w-auto [@media(min-height:740px)]:h-[50px]"
+    <main className="mx-auto max-w-md px-4 pt-3 md:max-w-5xl">
+      <header className="flex items-center justify-between gap-3 pb-3">
+        <Image src="/brand/nuoc-noi-wordmark.png" alt="Nước Nôi" width={54} height={50} priority className="h-10 w-auto" />
+        {ownerHome && (
+          <Link href={ownerHome} className="inline-flex min-h-12 items-center gap-1 text-sm text-ink-muted transition-colors duration-150 hover:text-ink">
+            <ChevronLeft aria-hidden="true" size={16} />
+            Trang chủ quán
+          </Link>
+        )}
+      </header>
+      {!online && (
+        <p className="mb-3 rounded-lg border border-danger/60 px-3 py-2 font-semibold text-danger">Mất mạng – chưa gửi được đơn</p>
+      )}
+      <div className="md:grid md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:items-start md:gap-8">
+        <div>
+          <MenuBoard menu={menu} failed={menuFailed} cart={cart} onAdd={add} />
+          <RecentOrders
+            orders={recent}
+            now={now}
+            cancelBusy={cancelling !== null}
+            cancellingId={cancelling?.from === "list" ? cancelling.id : null}
+            onCancel={(id) => void handleCancel(id, "list")}
           />
-          <div className="flex flex-col items-end gap-1">
-            {ownerHome && (
-              <Link
-                href={ownerHome}
-                className="inline-flex min-h-12 items-center gap-1 text-sm text-ink-muted hover:text-ink"
-              >
-                <ChevronLeft aria-hidden="true" size={16} />
-                Trang chủ quán
-              </Link>
-            )}
-            <PriceBanner price={price} offline={!online} />
-          </div>
-        </header>
-        {!online && (
-          <p className="rounded-lg border border-danger/60 px-3 py-2 font-semibold text-danger">
-            Mất mạng – chưa gửi được đơn
-          </p>
-        )}
-        <QuantityPad quantity={quantity} dispatch={changeQuantity}>
-          <div className="relative -mt-1 space-y-1.5 text-center">
-            <p
-              data-testid="total"
-              className="font-display text-4xl tracking-wide tabular-nums [@media(min-height:740px)]:text-6xl"
-            >
-              {price === null ? "—" : formatVnd(quantity * price)}
-            </p>
-            {/* Vệt sáng tĩnh dưới con số: đường kẻ của thế giới Phơi sáng dài */}
-            <span aria-hidden="true" className="streak mx-auto block w-4/5" />
-            {feedback && (
-              <span
-                key={feedback.orderId}
-                aria-hidden="true"
-                className="exposure-streak pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-1.5 rounded-full bg-gradient-to-r from-transparent via-ember to-transparent"
-              />
-            )}
-          </div>
-          <SeatPicker
-            seats={seats}
-            selection={selection}
-            onChange={changeSeat}
-          />
-        </QuantityPad>
-        {info && (
-          <p
-            role="status"
-            className="rounded-lg border border-warn/50 px-3 py-2 text-warn"
-          >
-            {info}
-          </p>
-        )}
-        {error && (
-          <p
-            role="alert"
-            className="rounded-lg border border-danger/60 px-3 py-2 text-danger"
-          >
-            {error}
-          </p>
-        )}
+        </div>
+        {wide && <aside className="sticky top-4">{panel(undefined, feedback)}</aside>}
       </div>
-      <div className="sticky bottom-0 z-10 -mx-4 bg-bg/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        <ConfirmBar
-          canSubmit={quantity > 0 && price !== null && online}
-          sending={sending}
-          feedback={feedback}
-          cancelBusy={cancelling !== null}
-          undoing={
-            cancelling?.from === "undo" && cancelling.id === feedback?.orderId
-          }
-          onSubmit={() => void handleSubmit()}
-          onUndo={(id) => void handleCancel(id, "undo")}
-          onFeedbackEnd={endFeedback}
-        />
-      </div>
-      <RecentOrders
-        orders={recent}
-        now={now}
-        cancelBusy={cancelling !== null}
-        cancellingId={cancelling?.from === "list" ? cancelling.id : null}
-        onCancel={(id) => void handleCancel(id, "list")}
-      />
+      {!wide && (
+        <>
+          <div className="sticky bottom-0 z-10 -mx-4 space-y-2 bg-bg px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+            {!sheetOpen && notices}
+            {striker}
+            {feedback ? confirm(feedback) : <CartBar count={count} total={total} onOpen={() => setSheetOpen(true)} />}
+          </div>
+          <CartSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
+            {panel(() => setSheetOpen(false))}
+          </CartSheet>
+        </>
+      )}
     </main>
   );
 }

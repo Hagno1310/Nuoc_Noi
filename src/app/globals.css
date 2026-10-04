@@ -95,8 +95,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.85) sepia(0.3);
 }
 
-/* Dải quẹt diêm: lớp nhám in chấm, đường chia duy nhất có chất liệu; tĩnh, không chuyển động */
+/* Dải quẹt diêm: lớp nhám in chấm, đường chia duy nhất có chất liệu; chỉ bùng sáng khi gửi đơn thành công */
 .striker {
+  position: relative;
+  overflow: hidden;
   height: 8px;
   border-radius: 2px;
   background-color: var(--raised);
@@ -106,6 +108,36 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     radial-gradient(var(--edge) 0.6px, transparent 0.9px);
   background-size: 5px 4px, 7px 5px, 3px 6px;
   background-position: 0 0, 2px 1px, 1px 3px;
+}
+
+/* Gửi đơn thành công: dải quẹt bùng sáng một lần như que diêm vừa quẹt (hợp đồng thiết kế) */
+@keyframes strike {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.striker-flare::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--ember), transparent);
+  animation: strike 400ms var(--ease-print) both;
+}
+
+/* Tấm giỏ đơn trượt lên từ đáy */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+.sheet-in[open] {
+  animation: sheet-up 250ms var(--ease-print) both;
+}
+.sheet-in::backdrop {
+  animation: fade-in 200ms ease-out both;
 }
 
 @keyframes fade-in {
@@ -184,8 +216,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   /* Bỏ di chuyển, giữ thay đổi độ mờ để trạng thái vẫn đọc được */
   .row-in,
   .toast-in,
-  .edit-dialog[open] {
+  .edit-dialog[open],
+  .sheet-in[open] {
     animation: fade-in 200ms ease-out both;
+  }
+  /* Dải quẹt chỉ chớp sáng rồi mờ, không chạy ngang */
+  .striker-flare::after {
+    animation: fade-in 400ms ease-out reverse both;
+    transform: none;
   }
   *,
   *::before,
