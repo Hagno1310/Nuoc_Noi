@@ -7,20 +7,29 @@ function clientReturning(result: { data: unknown; error: { message: string; code
 }
 
 describe("createStaffApi", () => {
-  it("createOrder ánh xạ đúng tham số RPC 4 tham số", async () => {
+  it("createOrder ánh xạ đúng tham số RPC, kèm hình thức thanh toán", async () => {
     const { client, rpc } = clientReturning({ data: { id: "o1" }, error: null });
-    await createStaffApi(() => client).createOrder({
+    const api = createStaffApi(() => client);
+    const base = {
       id: "o1",
       seatId: "s1",
       discountPercent: 10,
       lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000 }],
-    });
-    expect(rpc).toHaveBeenCalledWith("create_order", {
+    };
+    await api.createOrder({ ...base, payment: { method: "cash" } });
+    expect(rpc).toHaveBeenLastCalledWith("create_order", {
       p_id: "o1",
       p_seat_id: "s1",
       p_discount_percent: 10,
       p_lines: [{ menu_item_id: "m1", quantity: 2, client_price: 190000 }],
+      p_payment_method: "cash",
+      p_transfer_photo_id: null,
     });
+    await api.createOrder({ ...base, payment: { method: "transfer", photoId: "nuoc-noi/transfer/x" } });
+    expect(rpc).toHaveBeenLastCalledWith(
+      "create_order",
+      expect.objectContaining({ p_payment_method: "transfer", p_transfer_photo_id: "nuoc-noi/transfer/x" }),
+    );
   });
 
   it("lỗi không có mã là lỗi mạng; lỗi có mã giữ cả details", async () => {

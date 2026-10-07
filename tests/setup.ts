@@ -36,3 +36,9 @@ if (typeof window !== "undefined" && !window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList;
 }
+
+// jsdom chưa có URL.createObjectURL: ảnh xem trước của tấm thanh toán dùng nó
+if (typeof URL !== "undefined" && !URL.createObjectURL) {
+  URL.createObjectURL = () => "blob:preview";
+  URL.revokeObjectURL = () => {};
+}

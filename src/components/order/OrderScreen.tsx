@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useWide } from "@/hooks/useWide";
-import { menuFromError, NetworkError, RpcError, type ActiveSeat, type MyOrder, type StaffApi } from "@/lib/api";
+import { menuFromError, NetworkError, RpcError, type ActiveSeat, type MyOrder, type Payment, type StaffApi } from "@/lib/api";
 import { buzz } from "@/lib/haptics";
 import { formatVnd } from "@/lib/money";
 import {
@@ -22,11 +22,13 @@ import {
   type MenuItem,
 } from "@/lib/order/cart";
 import { getMyOrderIds, rememberOrder } from "@/lib/order/myOrders";
+import { uploadTransferPhoto } from "@/lib/order/transferPhoto";
 import { CartBar } from "./CartBar";
 import { CartPanel } from "./CartPanel";
 import { CartSheet } from "./CartSheet";
 import { ConfirmBar, type Feedback } from "./ConfirmBar";
 import { MenuBoard } from "./MenuBoard";
+import { PaymentSheet } from "./PaymentSheet";
 import { RecentOrders } from "./RecentOrders";
 import type { SeatSelection } from "./SeatPicker";
 
@@ -52,6 +54,8 @@ export type OrderScreenProps = {
   onUnauthorized: () => void;
   newId?: () => string;
   now?: () => Date;
+  // Tải ảnh chuyển khoản lên Cloudinary, trả public_id (SRS v3.3 FR-04c); test truyền hàm giả
+  uploadPhoto?: (file: Blob) => Promise<string>;
   // Có khi tài khoản là chủ quán: liên kết quay lại trang chủ quán (SRS §3.2)
   ownerHome?: string;
 };
@@ -64,6 +68,7 @@ export function OrderScreen({
   onUnauthorized,
   newId = () => crypto.randomUUID(),
   now = () => new Date(),
+  uploadPhoto = uploadTransferPhoto,
   ownerHome,
 }: OrderScreenProps) {
   const wide = useWide();
@@ -83,6 +88,9 @@ export function OrderScreen({
   const [cancelling, setCancelling] = useState<{ id: string; from: "undo" | "list" } | null>(null);
   // Giữ id tới khi gửi thành công, để bấm lại sau lỗi mạng không tạo đơn thứ hai (FR-04)
   const pendingId = useRef<string | null>(null);
+  const [payOpen, setPayOpen] = useState(false);
+  // Ảnh chuyển khoản đã tải lên: giữ qua MENU_CHANGED, lỗi mạng, đơn đã hủy; bỏ khi gửi thành công hoặc Xóa hết (FR-04c)
+  const [photoId, setPhotoId] = useState<string | null>(null);
 
   const handleError = useCallback(
     (e: unknown) => {
@@ -140,7 +148,10 @@ export function OrderScreen({
   const dec = edit((id: string) => setCart((c) => decrement(c, id)));
   const setQty = (id: string, q: number) => edit<void>(() => setCart((c) => setQuantity(c, id, q)))();
   const remove = edit((id: string) => setCart((c) => removeLine(c, id)));
-  const clear = edit<void>(() => setCart([]));
+  const clear = edit<void>(() => {
+    setCart([]);
+    setPhotoId(null);
+  });
   const changeDiscount = edit(setDiscount);
   const changeSeat = edit(setSelection);
 
@@ -161,20 +172,23 @@ export function OrderScreen({
               ? "Mất mạng – chưa gửi được đơn"
               : null;
 
-  async function handleSubmit() {
+  async function handleSubmit(payment: Payment) {
     if (blockReason || sending || selection.kind !== "seat") return;
     const id = (pendingId.current ??= newId());
     setSending(true);
     setError(null);
     try {
-      const res = await api.createOrder({ id, seatId: selection.id, discountPercent: discount, lines: toPayload(cart) });
+      const res = await api.createOrder({ id, seatId: selection.id, discountPercent: discount, lines: toPayload(cart), payment });
       if (res.duplicate && res.status === "cancelled") {
         // Đơn đã ghi rồi bị hủy trước lần gửi lại: giữ giỏ, lần sau dùng id mới (SRS v3.1)
         pendingId.current = null;
+        setPayOpen(false);
         setInfo(CANCELLED_TEXT);
         return;
       }
       pendingId.current = null;
+      setPayOpen(false);
+      setPhotoId(null);
       setInfo(
         res.duplicate
           ? `Đơn này đã được ghi từ lần gửi trước (${res.item_count} món). Kiểm tra lại trước khi tạo đơn mới.`
@@ -192,6 +206,7 @@ export function OrderScreen({
     } catch (e) {
       const fresh = menuFromError(e);
       if (fresh) {
+        setPayOpen(false);
         setCart((c) => applyMenu(c, fresh));
         setInfo(MENU_CHANGED_TEXT);
       } else handleError(e);
@@ -239,7 +254,7 @@ export function OrderScreen({
       feedback={fb}
       cancelBusy={cancelling !== null}
       undoing={cancelling?.from === "undo" && cancelling.id === fb?.orderId}
-      onSubmit={() => void handleSubmit()}
+      onSubmit={() => blockReason === null && setPayOpen(true)}
       onUndo={(id) => void handleCancel(id, "undo")}
       onFeedbackEnd={endFeedback}
     />
@@ -309,6 +324,22 @@ export function OrderScreen({
           </CartSheet>
         </>
       )}
+      <PaymentSheet
+        open={payOpen}
+        total={total}
+        seatName={selection.kind === "seat" ? selection.name : ""}
+        sending={sending}
+        error={error}
+        photoId={photoId}
+        upload={uploadPhoto}
+        onPhoto={setPhotoId}
+        onCash={() => void handleSubmit({ method: "cash" })}
+        onTransfer={() => {
+          if (photoId) void handleSubmit({ method: "transfer", photoId });
+        }}
+        onClose={() => setPayOpen(false)}
+        onUnauthorized={onUnauthorized}
+      />
     </main>
   );
 }

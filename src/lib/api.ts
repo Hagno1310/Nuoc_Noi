@@ -2,7 +2,16 @@ import type { MenuChange } from "@/lib/order/cart";
 
 // SRS FR-04: dữ liệu gửi server. Server quyết định mọi số tiền; clientPrice chỉ để server phát hiện thực đơn đã đổi.
 export type OrderLineInput = { menuItemId: string; quantity: number; clientPrice: number };
-export type CreateOrderInput = { id: string; seatId: string; discountPercent: number; lines: OrderLineInput[] };
+// SRS v3.3 FR-04c: chuyển khoản luôn kèm public_id ảnh đã tải lên
+export type Payment = { method: "cash" } | { method: "transfer"; photoId: string };
+export type PaymentMethod = Payment["method"];
+export type CreateOrderInput = {
+  id: string;
+  seatId: string;
+  discountPercent: number;
+  lines: OrderLineInput[];
+  payment: Payment;
+};
 export type CreatedOrder = {
   id: string;
   item_count: number;
@@ -15,6 +24,8 @@ export type CreatedOrder = {
   business_date: string;
   duplicate: boolean;
   status: "paid" | "cancelled";
+  payment_method: PaymentMethod;
+  transfer_photo_id: string | null;
 };
 export type OrderLine = { item_name: string; unit_price: number; quantity: number; line_amount: number };
 export type MyOrder = {
@@ -27,6 +38,8 @@ export type MyOrder = {
   seat_name: string;
   status: "paid" | "cancelled";
   created_at: string;
+  payment_method: PaymentMethod;
+  transfer_photo_id: string | null;
   lines: OrderLine[] | null;
 };
 export type ActiveSeat = { id: string; name: string; kind: "table" | "counter" };
@@ -102,6 +115,8 @@ export function createStaffApi(getClient: () => RpcClient): StaffApi {
           quantity: l.quantity,
           client_price: l.clientPrice,
         })),
+        p_payment_method: input.payment.method,
+        p_transfer_photo_id: input.payment.method === "transfer" ? input.payment.photoId : null,
       }),
     cancelOrder: async (orderId) => {
       await call(getClient(), "cancel_order", { p_order_id: orderId });

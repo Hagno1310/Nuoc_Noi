@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { OrderScreen, type OrderScreenProps } from "@/components/order/OrderScreen";
 import { NetworkError, RpcError, type CreateOrderInput, type CreatedOrder, type StaffApi } from "@/lib/api";
 import { discountAmount, type MenuItem } from "@/lib/order/cart";
+import { UploadError } from "@/lib/order/transferPhoto";
 import { getMyOrderIds } from "@/lib/order/myOrders";
 
 const NOW = new Date("2026-10-05T14:00:00Z");
@@ -28,6 +29,8 @@ const created = (i: CreateOrderInput, over: Partial<CreatedOrder> = {}): Created
     business_date: "2026-10-05",
     duplicate: false,
     status: "paid",
+    payment_method: "cash",
+    transfer_photo_id: null,
     ...over,
   };
 };
@@ -51,6 +54,7 @@ function setup(overrides: Partial<OrderScreenProps> = {}, apiOverrides: Partial<
     onUnauthorized: vi.fn(),
     newId: () => `order-${++n}`,
     now: () => NOW,
+    uploadPhoto: vi.fn(async () => PHOTO),
     ...overrides,
   };
   const user = userEvent.setup();
@@ -62,6 +66,34 @@ const row = (name: RegExp) => screen.getByRole("button", { name });
 async function openCart(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: "Giỏ đơn" }));
   return screen.getByRole("dialog", { name: "Giỏ đơn" });
+}
+
+const PHOTO = "nuoc-noi/transfer/11111111-1111-1111-1111-111111111111";
+const PHOTO2 = "nuoc-noi/transfer/22222222-2222-2222-2222-222222222222";
+const photoFile = () => new File(["x"], "ck.png", { type: "image/png" });
+const payDialog = () => screen.getByRole("dialog", { name: "Thanh toán" });
+function deferred<T>() {
+  let resolve!: (v: T) => void;
+  let reject!: (e: unknown) => void;
+  const promise = new Promise<T>((a, b) => {
+    resolve = a;
+    reject = b;
+  });
+  return { promise, resolve, reject };
+}
+async function chooseCash(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(within(payDialog()).getByRole("button", { name: "Tiền mặt" }));
+}
+// Một Classic, chọn Quầy 1, mở tấm thanh toán
+async function openPayment(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(row(/^Classic/));
+  const cart = await openCart(user);
+  await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+  await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+  return { cart, pay: payDialog() };
+}
+async function takePhoto(user: ReturnType<typeof userEvent.setup>, pay: HTMLElement) {
+  await user.upload(within(pay).getByLabelText("Ảnh chuyển khoản"), photoFile());
 }
 
 describe("OrderScreen", () => {
@@ -90,11 +122,13 @@ describe("OrderScreen", () => {
     await user.click(within(cart).getByRole("button", { name: "10%" }));
     expect(within(cart).getByTestId("total")).toHaveTextContent("342.000đ");
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     expect(api.createOrder).toHaveBeenCalledWith({
       id: "order-1",
       seatId: "s1",
       discountPercent: 10,
       lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000 }],
+      payment: { method: "cash" },
     });
     expect(await screen.findByRole("status")).toHaveTextContent("Đã tạo đơn 2 món – 342.000đ");
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -151,6 +185,7 @@ describe("OrderScreen", () => {
     await user.type(pct, "7");
     fireEvent.blur(pct);
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     expect(api.createOrder).toHaveBeenCalledWith(expect.objectContaining({ discountPercent: 7 }));
   });
 
@@ -172,9 +207,10 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     expect(await within(cart).findByRole("alert")).toHaveTextContent("kiểm tra mạng");
     expect(within(cart).getByLabelText("Số lượng Classic")).toHaveValue("1");
-    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     await screen.findByText(/Đã tạo đơn/);
     expect(createOrder.mock.calls.map((c) => c[0].id)).toEqual(["order-1", "order-1"]);
   });
@@ -188,6 +224,7 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     expect(await screen.findByText(/Đơn này đã được ghi từ lần gửi trước \(1 món\)/)).toBeInTheDocument();
   });
 
@@ -201,9 +238,11 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     expect(await within(cart).findByText("Đơn này đã bị hủy – bấm Xác nhận đơn để tạo đơn mới.")).toBeInTheDocument();
     expect(within(cart).getByLabelText("Số lượng Classic")).toHaveValue("1");
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     await screen.findByText(/Đã tạo đơn/);
     expect(createOrder.mock.calls.map((c) => c[0].id)).toEqual(["order-1", "order-2"]);
   });
@@ -218,6 +257,7 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     expect(await within(cart).findByText("Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.")).toBeInTheDocument();
     expect(within(cart).getByTestId("total")).toHaveTextContent("200.000đ");
   });
@@ -238,6 +278,7 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     await user.click(await screen.findByRole("button", { name: "Hoàn tác" }));
     expect(api.cancelOrder).toHaveBeenCalledWith("order-1");
   });
@@ -248,6 +289,7 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     expect(props.onUnauthorized).toHaveBeenCalled();
   });
 
@@ -259,6 +301,7 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
     await screen.findByText(/Đã tạo đơn/);
     expect(vibrate).toHaveBeenCalledWith(30);
   });
@@ -268,9 +311,9 @@ describe("OrderScreen", () => {
       {},
       {
         listOrdersByIds: vi.fn(async () => [
-          { id: "a", item_count: 3, subtotal_amount: 480000, discount_percent: 10, discount_amount: 48000, total_amount: 432000, seat_name: "Bàn 1", status: "paid" as const, created_at: new Date(NOW.getTime() - 60_000).toISOString(), lines: [{ item_name: "Classic", unit_price: 190000, quantity: 2, line_amount: 380000 }, { item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
-          { id: "b", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "paid" as const, created_at: new Date(NOW.getTime() - 10 * 60_000).toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
-          { id: "c", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "cancelled" as const, created_at: NOW.toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
+          { id: "a", item_count: 3, subtotal_amount: 480000, discount_percent: 10, discount_amount: 48000, total_amount: 432000, seat_name: "Bàn 1", status: "paid" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: new Date(NOW.getTime() - 60_000).toISOString(), lines: [{ item_name: "Classic", unit_price: 190000, quantity: 2, line_amount: 380000 }, { item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
+          { id: "b", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "paid" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: new Date(NOW.getTime() - 10 * 60_000).toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
+          { id: "c", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "cancelled" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: NOW.toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
         ]),
       },
     );
@@ -301,5 +344,151 @@ describe("OrderScreen", () => {
     expect(screen.queryByRole("button", { name: "Giỏ đơn" })).toBeNull();
     expect(screen.getByRole("region", { name: "Giỏ đơn" })).toBeInTheDocument();
     spy.mockRestore();
+  });
+
+  it("Quay lại: đóng tấm thanh toán, giỏ còn nguyên, chưa gửi đơn", async () => {
+    const { api, user } = setup();
+    const { cart, pay } = await openPayment(user);
+    expect(within(pay).getByTestId("pay-total")).toHaveTextContent("190.000đ");
+    expect(within(pay).getByText("Quầy 1")).toBeInTheDocument();
+    await user.click(within(pay).getByRole("button", { name: "Quay lại" }));
+    expect(screen.queryByRole("dialog", { name: "Thanh toán" })).toBeNull();
+    expect(api.createOrder).not.toHaveBeenCalled();
+    expect(within(cart).getByLabelText("Số lượng Classic")).toHaveValue("1");
+  });
+
+  it("chuyển khoản: QR, chụp ảnh bắt buộc, xác nhận khóa tới khi tải ảnh xong, gửi kèm ảnh", async () => {
+    const up = deferred<string>();
+    const uploadPhoto = vi.fn(() => up.promise);
+    const { api, user } = setup({ uploadPhoto });
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    expect(within(pay).getByRole("img", { name: "Mã QR chuyển khoản của quán" })).toBeInTheDocument();
+    expect(within(pay).queryByRole("button", { name: "Xác nhận đã thanh toán" })).toBeNull();
+    await takePhoto(user, pay);
+    expect(within(pay).getByRole("img", { name: "Ảnh chuyển khoản vừa chụp" })).toBeInTheDocument();
+    const confirm = within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" });
+    expect(confirm).toBeDisabled();
+    expect(confirm).toHaveTextContent("Đang tải ảnh…");
+    await act(async () => up.resolve(PHOTO));
+    await waitFor(() => expect(confirm).toBeEnabled());
+    await user.click(confirm);
+    expect(api.createOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "order-1", payment: { method: "transfer", photoId: PHOTO } }),
+    );
+    expect(await screen.findByRole("status")).toHaveTextContent("Đã tạo đơn 1 món – 190.000đ");
+    expect(screen.queryByRole("dialog", { name: "Thanh toán" })).toBeNull();
+  });
+
+  it("tải ảnh lỗi: báo lỗi, Thử lại gửi lại chính ảnh đó", async () => {
+    const uploadPhoto = vi.fn().mockRejectedValueOnce(new UploadError("FAILED")).mockResolvedValueOnce(PHOTO);
+    const { user } = setup({ uploadPhoto });
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    expect(await within(pay).findByText("Chưa tải được ảnh – kiểm tra mạng rồi thử lại.")).toBeInTheDocument();
+    expect(within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" })).toBeDisabled();
+    await user.click(within(pay).getByRole("button", { name: "Thử lại" }));
+    await waitFor(() => expect(within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" })).toBeEnabled());
+    expect(uploadPhoto).toHaveBeenCalledTimes(2);
+    expect(uploadPhoto.mock.calls[1][0]).toBe(uploadPhoto.mock.calls[0][0]);
+  });
+
+  it("chụp lại khi ảnh trước chưa tải xong: chỉ ảnh mới nhất được gửi (Review Focus 1)", async () => {
+    const first = deferred<string>();
+    const second = deferred<string>();
+    const uploadPhoto = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+    const { api, user } = setup({ uploadPhoto });
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    await takePhoto(user, pay); // "Chụp lại" mở cùng ô chọn ảnh
+    await act(async () => second.resolve(PHOTO2));
+    await act(async () => first.resolve(PHOTO));
+    const confirm = within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" });
+    await waitFor(() => expect(confirm).toBeEnabled());
+    await user.click(confirm);
+    expect(api.createOrder).toHaveBeenCalledWith(expect.objectContaining({ payment: { method: "transfer", photoId: PHOTO2 } }));
+  });
+
+  it("lỗi mạng khi gửi chuyển khoản: giữ tấm và ảnh, bấm lại cùng id và cùng ảnh (Review Focus 2)", async () => {
+    const createOrder = vi
+      .fn()
+      .mockRejectedValueOnce(new NetworkError())
+      .mockImplementationOnce(async (i: CreateOrderInput) => created(i));
+    const uploadPhoto = vi.fn(async () => PHOTO);
+    const { user } = setup({ uploadPhoto }, { createOrder });
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    const confirm = within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" });
+    await waitFor(() => expect(confirm).toBeEnabled());
+    await user.click(confirm);
+    expect(await within(pay).findByRole("alert")).toHaveTextContent("kiểm tra mạng");
+    expect(within(pay).getByRole("img", { name: "Ảnh chuyển khoản vừa chụp" })).toBeInTheDocument();
+    await user.click(confirm);
+    await screen.findByText(/Đã tạo đơn/);
+    expect(createOrder.mock.calls.map((c) => [c[0].id, c[0].payment])).toEqual([
+      ["order-1", { method: "transfer", photoId: PHOTO }],
+      ["order-1", { method: "transfer", photoId: PHOTO }],
+    ]);
+    expect(uploadPhoto).toHaveBeenCalledTimes(1);
+  });
+
+  it("MENU_CHANGED: đóng tấm, giữ ảnh; mở lại vào thẳng bước kiểm tra ảnh; Xóa hết thì bỏ ảnh", async () => {
+    const details = JSON.stringify([
+      { id: "m1", name: "Classic", price: 200000, is_archived: false },
+      { id: "m2", name: "Neat", price: 100000, is_archived: false },
+    ]);
+    const createOrder = vi
+      .fn()
+      .mockRejectedValueOnce(new RpcError("MENU_CHANGED", details))
+      .mockImplementation(async (i: CreateOrderInput) => created(i));
+    const uploadPhoto = vi.fn(async () => PHOTO);
+    const { user } = setup({ uploadPhoto }, { createOrder });
+    const { cart, pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    const confirm = within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" });
+    await waitFor(() => expect(confirm).toBeEnabled());
+    await user.click(confirm);
+    expect(await within(cart).findByText("Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Thanh toán" })).toBeNull();
+
+    // Mở lại: vào thẳng bước kiểm tra ảnh, không phải chụp lại
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await user.click(within(payDialog()).getByRole("button", { name: "Chuyển khoản" }));
+    expect(within(payDialog()).getByRole("button", { name: "Xác nhận đã thanh toán" })).toBeEnabled();
+    await user.click(within(payDialog()).getByRole("button", { name: "Quay lại" }));
+
+    // Xóa hết thì bỏ ảnh: lần sau chọn Chuyển khoản phải quét QR và chụp lại
+    await user.click(within(cart).getByRole("button", { name: "Xóa hết" }));
+    await user.click(within(cart).getByRole("button", { name: "Chắc chắn xóa hết?" }));
+    await user.click(row(/^Classic/));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await user.click(within(payDialog()).getByRole("button", { name: "Chuyển khoản" }));
+    expect(within(payDialog()).getByRole("img", { name: "Mã QR chuyển khoản của quán" })).toBeInTheDocument();
+    expect(uploadPhoto).toHaveBeenCalledTimes(1);
+  });
+
+  it("bấm hai lần chỉ gửi một lần (Review Focus 3)", async () => {
+    const pending = deferred<CreatedOrder>();
+    const createOrder = vi.fn(() => pending.promise);
+    const { user } = setup({}, { createOrder });
+    const { pay } = await openPayment(user);
+    const cash = within(pay).getByRole("button", { name: "Tiền mặt" });
+    await user.click(cash);
+    await user.click(cash);
+    expect(createOrder).toHaveBeenCalledTimes(1);
+    expect(cash).toHaveTextContent("Đang gửi…");
+  });
+
+  it("upload bị từ chối quyền thì đăng xuất (Review Focus 5)", async () => {
+    const uploadPhoto = vi.fn().mockRejectedValueOnce(new UploadError("UNAUTHORIZED"));
+    const { props, user } = setup({ uploadPhoto });
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    await waitFor(() => expect(props.onUnauthorized).toHaveBeenCalled());
   });
 });
