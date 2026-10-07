@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/client";
@@ -52,12 +53,13 @@ export function NewOrderNotice() {
       className="pointer-events-none fixed inset-x-4 top-4 z-30 flex justify-center lg:left-auto lg:right-10 lg:top-8"
     >
       {order && (
-        <p
+        <Link
           key={order.id}
-          className="toast-in rounded-lg border border-edge bg-raised px-4 py-3 font-medium tabular-nums"
+          href={`/admin/history?order=${order.id}`}
+          className="toast-in pointer-events-auto flex min-h-12 items-center rounded-lg border border-edge bg-raised px-4 py-3 font-medium tabular-nums"
         >
           Đơn mới: {order.seat_name} · {order.item_count} món · {formatVnd(order.total_amount)}
-        </p>
+        </Link>
       )}
     </div>
   );
