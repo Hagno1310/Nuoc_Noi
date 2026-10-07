@@ -20,7 +20,7 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 - [ ] 9. Đổi đơn giá chung sang 30.000đ: tab `/order` đổi giá ngay và ô giá nhấp nháy. Lịch sử đổi giá có thêm một dòng ghi email chủ quán. Nhập 600.000: bị báo "Giá phải là số nguyên từ 1đ đến 500.000đ.".
 - [ ] 10. Thêm chỗ ngồi (chọn loại Bàn hoặc Ghế quầy), đổi tên, sắp xếp trong từng loại, ẩn chỗ ngồi (bấm "Ẩn" rồi "Chắc chắn ẩn?"): tải lại `/order` thì thấy thay đổi ở đúng nhóm. Đơn cũ vẫn giữ tên chỗ ngồi cũ.
 - [ ] 11. Đổi PIN quán (bấm "Đổi PIN quán" rồi "Chắc chắn đổi PIN?"): lần bấm tiếp theo trên tab `/order` của nhân viên bị chuyển về `/login`. PIN mới vào được.
-- [ ] 12. Lịch sử đơn hàng: lọc theo khoảng ngày (nhập ngược thì tự đảo), hủy một đơn ("Hủy" rồi "Chắc chắn hủy?"), rồi xuất CSV. Mở file bằng Excel: tiếng Việt hiển thị đúng, có 7 cột, đơn hủy ghi "Đã hủy".
+- [ ] 12. Lịch sử đơn hàng: lọc theo khoảng ngày (nhập ngược thì tự đảo), hủy một đơn ("Hủy" rồi "Chắc chắn hủy?"), rồi xuất CSV. Mở file bằng Excel: tiếng Việt hiển thị đúng, có 9 cột (Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Số lượng, Đơn giá, Thành tiền, Trạng thái, Thanh toán), mỗi dòng đơn một hàng kèm hàng "Giảm giá N%" nếu có, đơn hủy ghi "Đã hủy".
 - [ ] 13. Tài khoản nhân viên mở `/admin/dashboard`: thấy "Tài khoản này không phải tài khoản chủ quán.". Mở `/admin/login` thì vẫn thấy form đăng nhập.
 
 ## Cài ra màn hình chính
