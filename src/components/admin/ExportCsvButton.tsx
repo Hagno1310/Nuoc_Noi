@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ownerErrorText } from "@/lib/admin/errors";
-import { csvFileName, ordersToCsv, type HistoryRow } from "@/lib/csv";
+import { csvFileName, ordersToCsv, type CsvOrder } from "@/lib/csv";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 
 const BATCH = 1000;
@@ -15,23 +15,24 @@ export function ExportCsvButton({ from, to }: { from: string; to: string }) {
     setBusy(true);
     setError(null);
     const supabase = getBrowserSupabase();
-    const rows: HistoryRow[] = [];
+    const rows: CsvOrder[] = [];
     for (let start = 0; ; start += BATCH) {
       const { data, error } = await supabase
         .from("orders")
         .select(
-          "created_at, business_date, seat_name, quantity, unit_price, total_amount, status",
+          "created_at, business_date, seat_name, discount_percent, discount_amount, status, payment_method, order_lines(item_name, unit_price, quantity, line_amount, sort_order)",
         )
         .gte("business_date", from)
         .lte("business_date", to)
         .order("created_at")
         .order("id")
+        .order("sort_order", { referencedTable: "order_lines" })
         .range(start, start + BATCH - 1);
       if (error) {
         setError(ownerErrorText(error));
         return setBusy(false);
       }
-      rows.push(...(data as HistoryRow[]));
+      rows.push(...(data as CsvOrder[]));
       if (data.length < BATCH) break;
     }
     const url = URL.createObjectURL(
