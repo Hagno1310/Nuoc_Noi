@@ -5,12 +5,14 @@ import { cleanup } from "@testing-library/react";
 // Vitest không bật globals, nên Testing Library không tự dọn DOM giữa các test
 afterEach(() => {
   cleanup();
-  localStorage.clear();
+  if (typeof localStorage !== "undefined") {
+    localStorage.clear();
+  }
 });
 
 
 // jsdom có <dialog> nhưng chưa có showModal/close: polyfill tối thiểu cho hộp thoại sửa (EditDialog)
-if (!HTMLDialogElement.prototype.showModal) {
+if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.showModal) {
   HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
     this.open = true;
   };
@@ -21,7 +23,7 @@ if (!HTMLDialogElement.prototype.showModal) {
 }
 
 // jsdom chưa có matchMedia: mặc định là màn hẹp (điện thoại); test màn rộng tự mock lại
-if (!window.matchMedia) {
+if (typeof window !== "undefined" && !window.matchMedia) {
   window.matchMedia = (query: string) =>
     ({
       matches: false,
