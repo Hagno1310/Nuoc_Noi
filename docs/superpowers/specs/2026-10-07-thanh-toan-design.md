@@ -91,7 +91,7 @@ Nút "Xác nhận đơn" giữ chữ, điều kiện khóa và lý do khóa. B�
 - **Gửi lỗi mạng:** giữ tấm ở bước hiện tại, giữ ảnh và `id` đơn; báo lỗi như hiện nay.
 - **`MENU_CHANGED`:** đóng tấm, hiện thông báo "Thực đơn vừa đổi…" như hiện nay. **Giữ public_id ảnh đã upload và `id` đơn**: lần mở tấm sau, chọn Chuyển khoản thì vào thẳng bước Xem trước. Ảnh giữ lại bị bỏ khi đơn gửi thành công hoặc khi bấm "Xóa hết".
 - **Đơn đã bị hủy** (lần gửi lại trùng `id` đã hủy): xử lý như hiện nay; ảnh giữ lại, lần gửi sau dùng `id` mới với cùng ảnh.
-- Mất mạng: nút "Xác nhận đơn" đã khóa sẵn.
+- Mất mạng hoặc giỏ có món vừa ngừng bán trong lúc tấm đang mở: khóa "Tiền mặt" và "Xác nhận đã thanh toán", ghi lý do ngay trên nút; giữ ảnh và `id` đơn (SRS R41).
 
 ### 4.2. Đơn vừa tạo (FR-04b)
 

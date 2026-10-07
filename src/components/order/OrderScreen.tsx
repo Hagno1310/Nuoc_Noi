@@ -334,6 +334,7 @@ export function OrderScreen({
         seatName={selection.kind === "seat" ? selection.name : ""}
         sending={sending}
         error={error}
+        blockReason={blockReason}
         photoId={photoId}
         upload={async (f) => {
           const g = photoGen.current;

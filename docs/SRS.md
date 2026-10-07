@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 3.3 |
+| **Phiên bản** | 3.4 |
 | **Tác giả** | Chủ quán / Developer |
-| **Ngày cập nhật** | 2026-10-07 |
+| **Ngày cập nhật** | 2026-10-08 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.4** | Trong tấm thanh toán, khi mất mạng hoặc giỏ có món vừa ngừng bán thì khóa nút gửi và ghi lý do ngay trên nút; giữ ảnh và mã đơn (R41). |
 | **Thay đổi ở v3.3** | **Hình thức thanh toán**: nhân viên chọn tiền mặt hoặc chuyển khoản trước khi đơn được ghi; chuyển khoản hiện mã QR của quán và bắt buộc chụp **ảnh chuyển khoản** (lưu trên Cloudinary). Lịch sử đơn hàng, Đơn vừa tạo và CSV có hình thức thanh toán; xem lại được ảnh (R39). Chữ gốc 16px ở mọi cỡ màn (R40). Thiết kế: `docs/superpowers/specs/2026-10-07-thanh-toan-design.md`. |
 | **Thay đổi ở v3.2** | Bỏ "Mang về": mọi đơn bắt buộc chọn một chỗ ngồi (R38). |
 | **Thay đổi ở v3.1** | Gửi lại một đơn đã bị hủy thì báo và giữ giỏ đơn; lịch sử đổi giá có trạng thái trống và câu lỗi riêng; nút chính trên trang chủ quán cao ít nhất 48px (R37). |
@@ -180,6 +181,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
   - Bấm "Xác nhận đã thanh toán" thì gửi đơn kèm ảnh.
 - **Server từ chối** hình thức thanh toán không hợp lệ (`PAYMENT_REQUIRED`), đơn chuyển khoản không có ảnh hợp lệ (`PHOTO_REQUIRED`), và đơn tiền mặt có kèm ảnh (`INVALID_PAYMENT`).
 - **Gửi thất bại vì lỗi mạng:** giữ tấm thanh toán và ảnh; lần bấm lại dùng cùng `id`.
+- **Đang mở tấm mà điều kiện khóa của FR-04 xuất hiện** (mất mạng, giỏ có món đã ngừng bán): nút "Tiền mặt" và "Xác nhận đã thanh toán" bị khóa, lý do khóa hiện ngay trên nút; ảnh và `id` đơn được giữ, hết điều kiện khóa thì gửi tiếp được.
 - **Thực đơn vừa đổi** hoặc **đơn đã bị hủy** (FR-04): đóng tấm và báo như FR-04. Ảnh đã tải lên được giữ; lần mở tấm sau, chọn Chuyển khoản thì vào thẳng bước kiểm tra ảnh. Ảnh giữ lại bị bỏ khi gửi đơn thành công hoặc khi bấm "Xóa hết".
 
 **FR-04b: Đơn vừa tạo và hủy đơn**
@@ -389,3 +391,4 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | R38 (v3.2) | Bỏ Mang về | Quán không dùng lựa chọn Mang về. Mọi đơn bắt buộc có một chỗ ngồi; server từ chối đơn không có chỗ ngồi (`SEAT_REQUIRED`), bỏ cột `is_takeaway`. Khách mang về thì ghi vào một chỗ ngồi; chủ quán có thể tạo chỗ ngồi riêng nếu cần. |
 | R39 (v3.3) | Thanh toán | Chọn tiền mặt hoặc chuyển khoản trước khi đơn được ghi; không có trạng thái chờ thanh toán. Chuyển khoản: QR cố định của quán, bắt buộc chụp ảnh, xem trước và chụp lại được; ảnh lưu trên Cloudinary, DB lưu public_id. Upload có chữ ký do server cấp. Xem lại ảnh ở Đơn vừa tạo và Lịch sử đơn hàng. Dòng tổng tách tiền mặt / chuyển khoản; CSV thêm cột Thanh toán. Thay Q9. |
 | R40 (v3.3) | Chữ gốc | 16px ở mọi cỡ màn, thay mức 15px dưới `lg` của R31. Vùng chạm và ô nhập giữ như R31. |
+| R41 (v3.4) | Khóa nút trong tấm thanh toán | Khi điều kiện khóa của FR-04 xuất hiện lúc tấm thanh toán đang mở, khóa nút gửi trong tấm và ghi lý do; không đóng tấm, giữ ảnh và mã đơn (NFR-01). |

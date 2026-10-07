@@ -14,6 +14,8 @@ export type PaymentSheetProps = {
   seatName: string;
   sending: boolean;
   error: string | null;
+  // Điều kiện khóa của FR-04 xuất hiện lúc tấm đang mở (SRS R41)
+  blockReason: string | null;
   // Ảnh đã tải lên, OrderScreen giữ qua MENU_CHANGED và lỗi mạng (spec §4.1)
   photoId: string | null;
   upload: (file: Blob) => Promise<string>;
@@ -32,6 +34,7 @@ export function PaymentSheet({
   seatName,
   sending,
   error,
+  blockReason,
   photoId,
   upload,
   onPhoto,
@@ -119,8 +122,9 @@ export function PaymentSheet({
         {step === "choose" && (
           <section className="space-y-3">
             <h2 className="text-center font-display text-2xl">Khách trả bằng?</h2>
+            {open && blockReason && <p className="text-center text-sm text-ink-muted">{blockReason}</p>}
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" disabled={sending} onClick={onCash} className={choice}>
+              <button type="button" disabled={sending || !!blockReason} onClick={onCash} className={choice}>
                 {sending ? "Đang gửi…" : "Tiền mặt"}
               </button>
               <button
@@ -175,6 +179,7 @@ export function PaymentSheet({
                 </button>
               </div>
             )}
+            {open && blockReason && <p className="text-center text-sm text-ink-muted">{blockReason}</p>}
             <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
               <button
                 type="button"
@@ -187,7 +192,7 @@ export function PaymentSheet({
               <button
                 type="button"
                 aria-label="Xác nhận đã thanh toán"
-                disabled={!photoId || uploading || sending}
+                disabled={!photoId || uploading || sending || !!blockReason}
                 onClick={onTransfer}
                 className={primary}
               >

@@ -509,4 +509,29 @@ describe("OrderScreen", () => {
     expect(within(payDialog()).getByRole("img", { name: "Mã QR chuyển khoản của quán" })).toBeInTheDocument();
     expect(within(payDialog()).queryByRole("button", { name: "Xác nhận đã thanh toán" })).toBeNull();
   });
+
+  it("mất mạng khi tấm thanh toán đang mở: khóa Tiền mặt, ghi lý do; có mạng lại thì gửi tiếp cùng id", async () => {
+    const { api, props, user, rerender } = setup();
+    const { pay } = await openPayment(user);
+    rerender(<OrderScreen {...props} online={false} />);
+    expect(within(pay).getByRole("button", { name: "Tiền mặt" })).toBeDisabled();
+    expect(within(pay).getByText("Mất mạng – chưa gửi được đơn")).toBeInTheDocument();
+    rerender(<OrderScreen {...props} online />);
+    await user.click(within(pay).getByRole("button", { name: "Tiền mặt" }));
+    expect(api.createOrder).toHaveBeenCalledTimes(1);
+    expect(api.createOrder).toHaveBeenCalledWith(expect.objectContaining({ id: "order-1" }));
+  });
+
+  it("món vừa ngừng bán khi đang xem ảnh: khóa Xác nhận đã thanh toán, ghi lý do, giữ ảnh", async () => {
+    const { props, user, rerender } = setup();
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    const confirm = within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" });
+    await waitFor(() => expect(confirm).toBeEnabled());
+    rerender(<OrderScreen {...props} menu={MENU.map((m) => (m.id === "m1" ? { ...m, is_archived: true } : m))} />);
+    expect(confirm).toBeDisabled();
+    expect(within(pay).getByText("Bỏ món đã ngừng bán khỏi đơn")).toBeInTheDocument();
+    expect(within(pay).getByRole("img", { name: "Ảnh chuyển khoản vừa chụp" })).toBeInTheDocument();
+  });
 });
