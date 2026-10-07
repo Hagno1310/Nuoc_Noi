@@ -25,8 +25,8 @@ select throws_ok($$select public.history_totals('2026-09-30', '2026-10-15')$$, '
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated","session_id":"00000000-0000-0000-0000-0000000000a5"}', true);
 select is(public.history_totals('2026-09-30', '2026-10-15'),
-  '{"revenue": 218000, "item_count": 10, "order_count": 4, "discount_total": 7000}'::jsonb,
-  'dòng tổng: doanh thu sau giảm, không tính đơn hủy, kèm tổng số tiền đã giảm');
+  '{"revenue": 218000, "item_count": 10, "order_count": 4, "discount_total": 7000, "cash_revenue": 218000, "transfer_revenue": 0}'::jsonb,
+  'dòng tổng: doanh thu sau giảm, không tính đơn hủy, kèm tổng số tiền đã giảm và tách theo hình thức thanh toán');
 
 select throws_ok($$select public.update_business_day_start_hour(24)$$, 'P0001', 'INVALID_HOUR', 'giờ trong khoảng 0–23');
 select public.update_business_day_start_hour(4);

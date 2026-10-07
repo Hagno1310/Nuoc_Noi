@@ -40,12 +40,12 @@ select throws_ok($$select public.update_business_day_start_hour(3)$$, 'P0001', '
 
 create temp table st as select public.owner_stats('2026-10-14') as r;
 
-select is((select r -> 'day' -> 'current' from st), '{"revenue": 50000, "item_count": 2, "order_count": 1, "discount_total": 0}'::jsonb, 'ngày kinh doanh hiện tại không tính đơn hủy');
-select is((select r -> 'day' -> 'previous' from st), '{"revenue": 100000, "item_count": 4, "order_count": 1, "discount_total": 0}'::jsonb, 'ngày kinh doanh hôm trước');
-select is((select r -> 'week' -> 'current' from st), '{"revenue": 175000, "item_count": 7, "order_count": 3, "discount_total": 0}'::jsonb, 'tuần này từ thứ Hai đến hôm nay');
-select is((select r -> 'week' -> 'previous' from st), '{"revenue": 60000, "item_count": 3, "order_count": 1, "discount_total": 0}'::jsonb, 'tuần trước chỉ tính cùng đoạn thứ Hai đến thứ Tư');
-select is((select r -> 'month' -> 'current' from st), '{"revenue": 335000, "item_count": 15, "order_count": 5, "discount_total": 0}'::jsonb, 'tháng này từ ngày 1 đến hôm nay');
-select is((select r -> 'month' -> 'previous' from st), '{"revenue": 120000, "item_count": 6, "order_count": 1, "discount_total": 0}'::jsonb, 'tháng trước chỉ tính ngày 1 đến ngày 14');
+select is((select r -> 'day' -> 'current' from st), '{"revenue": 50000, "item_count": 2, "order_count": 1, "discount_total": 0, "cash_revenue": 50000, "transfer_revenue": 0}'::jsonb, 'ngày kinh doanh hiện tại không tính đơn hủy');
+select is((select r -> 'day' -> 'previous' from st), '{"revenue": 100000, "item_count": 4, "order_count": 1, "discount_total": 0, "cash_revenue": 100000, "transfer_revenue": 0}'::jsonb, 'ngày kinh doanh hôm trước');
+select is((select r -> 'week' -> 'current' from st), '{"revenue": 175000, "item_count": 7, "order_count": 3, "discount_total": 0, "cash_revenue": 175000, "transfer_revenue": 0}'::jsonb, 'tuần này từ thứ Hai đến hôm nay');
+select is((select r -> 'week' -> 'previous' from st), '{"revenue": 60000, "item_count": 3, "order_count": 1, "discount_total": 0, "cash_revenue": 60000, "transfer_revenue": 0}'::jsonb, 'tuần trước chỉ tính cùng đoạn thứ Hai đến thứ Tư');
+select is((select r -> 'month' -> 'current' from st), '{"revenue": 335000, "item_count": 15, "order_count": 5, "discount_total": 0, "cash_revenue": 335000, "transfer_revenue": 0}'::jsonb, 'tháng này từ ngày 1 đến hôm nay');
+select is((select r -> 'month' -> 'previous' from st), '{"revenue": 120000, "item_count": 6, "order_count": 1, "discount_total": 0, "cash_revenue": 120000, "transfer_revenue": 0}'::jsonb, 'tháng trước chỉ tính ngày 1 đến ngày 14');
 
 select is((select jsonb_array_length(r -> 'month_days') from st), 31, 'chuỗi tháng có đủ 31 ngày của tháng 10');
 select is((select r -> 'month_days' -> 13 from st), '{"day": 14, "revenue": 50000, "previous_revenue": 0}'::jsonb, 'ngày 14: doanh thu hiện tại và cùng ngày tháng trước');
