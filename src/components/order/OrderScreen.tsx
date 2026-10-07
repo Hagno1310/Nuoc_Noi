@@ -91,6 +91,8 @@ export function OrderScreen({
   const [payOpen, setPayOpen] = useState(false);
   // Ảnh chuyển khoản đã tải lên: giữ qua MENU_CHANGED, lỗi mạng, đơn đã hủy; bỏ khi gửi thành công hoặc Xóa hết (FR-04c)
   const [photoId, setPhotoId] = useState<string | null>(null);
+  // Tăng khi bỏ ảnh (Xóa hết, gửi xong): ảnh đang tải dở của giỏ cũ không được ghi lại
+  const photoGen = useRef(0);
 
   const handleError = useCallback(
     (e: unknown) => {
@@ -151,6 +153,7 @@ export function OrderScreen({
   const clear = edit<void>(() => {
     setCart([]);
     setPhotoId(null);
+    photoGen.current++;
   });
   const changeDiscount = edit(setDiscount);
   const changeSeat = edit(setSelection);
@@ -189,6 +192,7 @@ export function OrderScreen({
       pendingId.current = null;
       setPayOpen(false);
       setPhotoId(null);
+      photoGen.current++;
       setInfo(
         res.duplicate
           ? `Đơn này đã được ghi từ lần gửi trước (${res.item_count} món). Kiểm tra lại trước khi tạo đơn mới.`
@@ -331,7 +335,12 @@ export function OrderScreen({
         sending={sending}
         error={error}
         photoId={photoId}
-        upload={uploadPhoto}
+        upload={async (f) => {
+          const g = photoGen.current;
+          const id = await uploadPhoto(f);
+          if (g !== photoGen.current) throw new Error("STALE_PHOTO");
+          return id;
+        }}
         onPhoto={setPhotoId}
         onCash={() => void handleSubmit({ method: "cash" })}
         onTransfer={() => {

@@ -491,4 +491,22 @@ describe("OrderScreen", () => {
     await takePhoto(user, pay);
     await waitFor(() => expect(props.onUnauthorized).toHaveBeenCalled());
   });
+
+  it("ảnh tải dở của giỏ cũ không sống lại sau Xóa hết", async () => {
+    const up = deferred<string>();
+    const uploadPhoto = vi.fn(() => up.promise);
+    const { user } = setup({ uploadPhoto });
+    const { cart, pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    await user.click(within(pay).getByRole("button", { name: "Quay lại" }));
+    await user.click(within(cart).getByRole("button", { name: "Xóa hết" }));
+    await user.click(within(cart).getByRole("button", { name: "Chắc chắn xóa hết?" }));
+    await act(async () => up.resolve(PHOTO));
+    await user.click(row(/^Classic/));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await user.click(within(payDialog()).getByRole("button", { name: "Chuyển khoản" }));
+    expect(within(payDialog()).getByRole("img", { name: "Mã QR chuyển khoản của quán" })).toBeInTheDocument();
+    expect(within(payDialog()).queryByRole("button", { name: "Xác nhận đã thanh toán" })).toBeNull();
+  });
 });
