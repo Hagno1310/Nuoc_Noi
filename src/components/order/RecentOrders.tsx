@@ -1,15 +1,17 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { Camera } from "lucide-react";
 import type { MyOrder } from "@/lib/api";
 import { formatVnd } from "@/lib/money";
 import { summarize } from "@/lib/order/cart";
 import { formatVnTime } from "@/lib/time";
+import { PhotoViewer } from "@/components/TransferPhoto";
 
 const CANCEL_WINDOW_MS = 5 * 60 * 1000;
 
 // SRS FR-04b: đơn do máy này tạo trong ngày kinh doanh, in như sổ: giờ và chỗ ngồi | món | thành tiền.
-// Đơn hủy giữ dòng, gạch ngang, có dấu HỦY in.
+// Đơn chuyển khoản có nút máy ảnh để xem lại ảnh (v3.3). Đơn hủy giữ dòng, gạch ngang, có dấu HỦY in.
 export function RecentOrders({
   orders,
   now,
@@ -30,6 +32,7 @@ export function RecentOrders({
     return () => clearInterval(timer);
   }, []);
   const nowMs = now().getTime();
+  const [photo, setPhoto] = useState<string | null>(null);
 
   return (
     <section aria-label="Đơn vừa tạo" className="space-y-2 pt-8 pb-8">
@@ -53,7 +56,19 @@ export function RecentOrders({
               </div>
               <p className={`text-sm ${muted}`}>{summarize(o.lines)}</p>
               <div className="flex flex-col items-end gap-1">
-                <p className={`font-semibold tabular-nums ${muted}`}>{formatVnd(o.total_amount)}</p>
+                <div className="flex items-center gap-1">
+                  {o.transfer_photo_id && (
+                    <button
+                      type="button"
+                      aria-label="Xem ảnh chuyển khoản"
+                      onClick={() => setPhoto(o.transfer_photo_id)}
+                      className="grid size-12 place-items-center rounded-lg text-ink-muted transition-colors duration-150 active:bg-ink active:text-bg"
+                    >
+                      <Camera aria-hidden="true" size={20} />
+                    </button>
+                  )}
+                  <p className={`font-semibold tabular-nums ${muted}`}>{formatVnd(o.total_amount)}</p>
+                </div>
                 {o.discount_percent > 0 && <p className="text-xs text-ink-muted">−{o.discount_percent}%</p>}
                 {cancelled && (
                   <span className="rounded-sm border border-line px-1 text-xs font-semibold text-ink-muted">HỦY</span>
@@ -73,6 +88,7 @@ export function RecentOrders({
           );
         })}
       </ul>
+      <PhotoViewer publicId={photo} onClose={() => setPhoto(null)} />
     </section>
   );
 }
