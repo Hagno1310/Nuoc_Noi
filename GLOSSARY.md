@@ -81,7 +81,7 @@ _Avoid_: Tổng tiền, thu nhập, lợi nhuận
 ## Trạng thái đơn
 
 **Đã thanh toán** (Paid):
-Trạng thái mặc định của đơn hàng: khách trả tiền ngay khi tạo đơn.
+Trạng thái mặc định của đơn hàng: khách đã trả bằng tiền mặt hoặc chuyển khoản trước khi đơn được ghi.
 _Avoid_: Hoàn thành, đã chốt
 
 **Hủy đơn** / **Đã hủy** (Cancelled):
@@ -91,6 +91,24 @@ _Avoid_: Xóa đơn, hoàn tiền, void
 **Cửa sổ hủy** (Cancel window):
 5 phút tính từ lúc tạo đơn. Trong khoảng này, nhân viên được tự hủy bất kỳ đơn nào. Hết khoảng này, chỉ chủ quán hủy được.
 _Avoid_: Thời gian hoàn tác
+
+## Thanh toán
+
+**Hình thức thanh toán** (Payment method):
+Cách khách trả tiền cho một đơn hàng: tiền mặt hoặc chuyển khoản. Nhân viên chọn trước khi đơn được ghi.
+_Avoid_: Phương thức, kiểu trả
+
+**Tiền mặt** (Cash):
+Khách trả bằng tiền giấy tại quầy.
+_Avoid_: Cash, TM
+
+**Chuyển khoản** (Bank transfer):
+Khách quét mã QR của quán và chuyển tiền qua ngân hàng. Bắt buộc có ảnh chuyển khoản.
+_Avoid_: CK, banking, QR pay
+
+**Ảnh chuyển khoản** (Transfer photo):
+Ảnh nhân viên chụp màn hình xác nhận chuyển tiền trên điện thoại của khách, lưu kèm đơn hàng để đối chiếu.
+_Avoid_: Bill, hóa đơn, biên lai, chứng từ
 
 ## Con người
 

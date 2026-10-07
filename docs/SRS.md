@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 3.2 |
+| **Phiên bản** | 3.3 |
 | **Tác giả** | Chủ quán / Developer |
-| **Ngày cập nhật** | 2026-10-04 |
+| **Ngày cập nhật** | 2026-10-07 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.3** | **Hình thức thanh toán**: nhân viên chọn tiền mặt hoặc chuyển khoản trước khi đơn được ghi; chuyển khoản hiện mã QR của quán và bắt buộc chụp **ảnh chuyển khoản** (lưu trên Cloudinary). Lịch sử đơn hàng, Đơn vừa tạo và CSV có hình thức thanh toán; xem lại được ảnh (R39). Chữ gốc 16px ở mọi cỡ màn (R40). Thiết kế: `docs/superpowers/specs/2026-10-07-thanh-toan-design.md`. |
 | **Thay đổi ở v3.2** | Bỏ "Mang về": mọi đơn bắt buộc chọn một chỗ ngồi (R38). |
 | **Thay đổi ở v3.1** | Gửi lại một đơn đã bị hủy thì báo và giữ giỏ đơn; lịch sử đổi giá có trạng thái trống và câu lỗi riêng; nút chính trên trang chủ quán cao ít nhất 48px (R37). |
 | **Thay đổi ở v3.0** | Bỏ đồng giá: **thực đơn** nhiều món do chủ quán quản lý ở trang Thực đơn, đơn hàng gồm các **dòng đơn**, **giảm giá** theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi; thống kê theo **số món**; lịch sử mở xem dòng đơn; CSV 8 cột. Xóa dữ liệu thử một lần trước khi dùng thật (R32–R36). Thiết kế: `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md`. |
@@ -36,13 +37,14 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước N
 
 | Vai trò | Thiết bị | Mục đích |
 |---|---|---|
-| **Nhân viên** | Điện thoại | Tạo đơn hàng; hủy đơn bấm nhầm trong cửa sổ hủy |
+| **Nhân viên** | Điện thoại | Tạo đơn hàng, thu tiền (tiền mặt hoặc chuyển khoản kèm ảnh); hủy đơn bấm nhầm trong cửa sổ hủy |
 | **Chủ quán** | Máy tính / tablet / điện thoại | Quản lý thực đơn, chỗ ngồi, giờ mở cửa, PIN quán; xem báo cáo; hủy đơn; cũng tạo được đơn hàng |
 
 ### 1.3. Phạm vi
 
 **Trong phạm vi:**
 - Tạo đơn hàng gồm nhiều món, giảm giá theo phần trăm cho cả đơn, và hủy đơn.
+- Hình thức thanh toán: tiền mặt, hoặc chuyển khoản qua mã QR cố định của quán kèm ảnh chuyển khoản.
 - Quản lý thực đơn (kèm lịch sử đổi giá theo món), danh sách chỗ ngồi, giờ mở cửa, giờ đóng cửa và PIN quán.
 - Thống kê doanh thu, số món và số đơn theo ngày kinh doanh, tuần và tháng, so với kỳ trước, kèm biểu đồ doanh thu theo ngày.
 - Lịch sử đơn hàng và xuất CSV.
@@ -50,7 +52,7 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước N
 
 **Ngoài phạm vi:**
 - Chế độ offline. Khi mất mạng thì không tạo được đơn.
-- Hình thức thanh toán.
+- Đối soát tự động với ngân hàng; mã QR có sẵn số tiền của đơn.
 - Sửa đơn đã tạo.
 - Nhiều chi nhánh.
 - Tài khoản riêng cho từng nhân viên.
@@ -70,6 +72,7 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước N
 |---|---|
 | Frontend | Next.js 15 (App Router) + Tailwind CSS. Có web app manifest để cài app ra màn hình chính, và ảnh xem trước khi gửi link (Open Graph). **Không có service worker.** |
 | Backend | Supabase: Postgres, RPC, Realtime, Auth |
+| Lưu ảnh | Cloudinary (gói miễn phí). Server Next.js chỉ ký yêu cầu upload; trình duyệt upload thẳng lên Cloudinary. |
 | Hosting | Vercel và Supabase, đều dùng gói miễn phí |
 
 Mọi quy tắc nghiệp vụ liên quan đến **tiền, quyền và thời gian** chạy ở server, trong các hàm Postgres. Client chỉ hiển thị kết quả và gửi yêu cầu lên server.
@@ -147,10 +150,11 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 **FR-04: Gửi đơn hàng**
 - Nút "Xác nhận đơn" bị khóa khi giỏ đơn trống, khi chưa chọn chỗ ngồi, khi chưa tải được thực đơn, khi giỏ có món đã ngừng bán, hoặc khi mất mạng. Lý do khóa hiện ngay trên nút.
+- Bấm "Xác nhận đơn" thì mở **tấm thanh toán** (FR-04c). Đơn chỉ được gửi từ tấm thanh toán.
 - Khi mất mạng, màn hình hiện thông báo "Mất mạng – chưa gửi được đơn".
 - Có mạng trở lại thì màn hình tải lại danh sách chỗ ngồi và đơn vừa tạo.
 - **Server quyết định mọi số tiền của đơn**:
-  - Client gửi lên `id` (UUID do client sinh), chỗ ngồi, phần trăm giảm giá, và các dòng đơn (món, số lượng, giá đang hiển thị).
+  - Client gửi lên `id` (UUID do client sinh), chỗ ngồi, phần trăm giảm giá, các dòng đơn (món, số lượng, giá đang hiển thị), hình thức thanh toán và mã ảnh chuyển khoản (nếu có).
   - Server dùng **giá hiện hành của từng món** và tính tạm tính, số tiền giảm, thành tiền. Nếu có dòng lệch giá hoặc món đã bị ẩn, server **từ chối cả đơn** và trả về thực đơn hiện hành; giỏ đơn cập nhật theo FR-01 và màn hình hiện "Thực đơn vừa đổi – kiểm tra lại giỏ đơn rồi gửi lại.".
 - Gửi lại cùng một `id` thì **không tạo đơn thứ hai**. Trường hợp này xảy ra khi mạng chập chờn và nhân viên bấm gửi lại.
 - Nếu đơn có `id` đó **đã bị hủy** (đơn đã ghi nhưng mất phản hồi, rồi bị hủy trước lần gửi lại), màn hình hiện "Đơn này đã bị hủy – bấm Xác nhận đơn để tạo đơn mới." ở ô thông báo, giữ nguyên giỏ đơn, giảm giá và chỗ ngồi; lần bấm sau dùng `id` mới.
@@ -165,10 +169,24 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
   - Thông báo lỗi ẩn khi nhân viên đổi giỏ đơn, giảm giá hoặc chỗ ngồi.
   - Thông báo "Thực đơn vừa đổi" và thông báo đơn đã được ghi từ lần gửi trước giữ nguyên đến lần gửi đơn thành công tiếp theo hoặc lần hủy đơn thành công tiếp theo. Gửi hoặc hủy thất bại không làm mất chúng.
 
+**FR-04c: Thanh toán**
+- Tấm thanh toán chiếm toàn màn hình trên điện thoại và là hộp thoại giữa màn trên màn rộng. Tấm luôn hiện chỗ ngồi đang chọn và Thành tiền cỡ lớn.
+- **Bước chọn:** "Khách trả bằng?" với hai nút **Tiền mặt** và **Chuyển khoản**. Mọi bước có nút "Quay lại": đóng tấm, giữ nguyên giỏ đơn, giảm giá và chỗ ngồi; chưa đơn nào được ghi.
+- **Tiền mặt:** gửi đơn ngay (FR-04).
+- **Chuyển khoản:**
+  - Hiện mã QR chuyển khoản của quán và Thành tiền, kèm nút "Chụp ảnh chuyển khoản". **Không có cách bỏ qua bước chụp ảnh.**
+  - Chụp xong thì hiện ảnh để kiểm tra ("Kiểm tra ảnh"), kèm nút "Chụp lại". Ảnh được tải lên ngay. Nút "Xác nhận đã thanh toán" bị khóa và hiện "Đang tải ảnh…" cho tới khi tải xong.
+  - Tải ảnh lỗi thì báo "Chưa tải được ảnh – kiểm tra mạng rồi thử lại." kèm nút "Thử lại".
+  - Bấm "Xác nhận đã thanh toán" thì gửi đơn kèm ảnh.
+- **Server từ chối** hình thức thanh toán không hợp lệ (`PAYMENT_REQUIRED`), đơn chuyển khoản không có ảnh hợp lệ (`PHOTO_REQUIRED`), và đơn tiền mặt có kèm ảnh (`INVALID_PAYMENT`).
+- **Gửi thất bại vì lỗi mạng:** giữ tấm thanh toán và ảnh; lần bấm lại dùng cùng `id`.
+- **Thực đơn vừa đổi** hoặc **đơn đã bị hủy** (FR-04): đóng tấm và báo như FR-04. Ảnh đã tải lên được giữ; lần mở tấm sau, chọn Chuyển khoản thì vào thẳng bước kiểm tra ảnh. Ảnh giữ lại bị bỏ khi gửi đơn thành công hoặc khi bấm "Xóa hết".
+
 **FR-04b: Đơn vừa tạo và hủy đơn**
 - Màn hình order liệt kê các đơn hàng **do chính điện thoại này tạo** trong ngày kinh doanh hiện tại. Mỗi điện thoại tự nhớ danh sách đơn của mình.
 - Khi chưa có đơn nào, mục "Đơn vừa tạo" vẫn hiện, kèm câu "Chưa có đơn nào.".
 - Mỗi đơn ghi giờ · chỗ ngồi · tóm tắt món (ví dụ "2 Classic, 1 Neat") · thành tiền, thêm "−N%" nếu có giảm giá.
+- Đơn chuyển khoản có nút icon máy ảnh cạnh thành tiền ("Xem ảnh chuyển khoản"); bấm thì xem ảnh toàn màn hình, có nút "Đóng".
 - Đơn còn trong **cửa sổ hủy** (5 phút kể từ lúc tạo) thì có nút "Hủy". Nút "Hoàn tác" cũng dùng chính chức năng hủy này.
 - **Quy tắc hủy (server kiểm tra):**
   - Nhân viên được hủy **bất kỳ đơn nào** còn trong cửa sổ hủy.
@@ -241,16 +259,16 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 - Mất kết nối Realtime thì không có thông báo; Tổng quan vẫn tự tải lại mỗi 60 giây.
 
 **FR-07: Lịch sử đơn hàng, `/admin/history`**
-- **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số món, Giảm giá, Thành tiền, Trạng thái.
-  - Trên điện thoại, mỗi đơn hiện thành một dòng hai tầng (thời gian · chỗ ngồi và trạng thái; "N món" kèm "−N%" nếu có giảm giá, và thành tiền), đủ 6 trường trên. Từ tablet trở lên là bảng 6 cột.
-  - Bấm vào một đơn thì mở xuống các dòng đơn ("2 × Classic · 190.000đ · 380.000đ"), rồi Tạm tính, Giảm giá, Thành tiền. Bấm lần nữa thì đóng. Bấm nút Hủy không mở đơn.
+- **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số món, Giảm giá, Thành tiền, Thanh toán, Trạng thái.
+  - Trên điện thoại, mỗi đơn hiện thành một dòng hai tầng (thời gian · chỗ ngồi và trạng thái; "N món" kèm "−N%" nếu có giảm giá, thành tiền, và hình thức thanh toán), đủ 7 trường trên. Từ tablet trở lên là bảng 7 cột.
+  - Bấm vào một đơn thì mở xuống các dòng đơn ("2 × Classic · 190.000đ · 380.000đ"), rồi Tạm tính, Giảm giá, Thành tiền, hình thức thanh toán, và ảnh chuyển khoản thu nhỏ (bấm vào để xem to; ảnh không tải được thì báo "Không tải được ảnh."). Bấm lần nữa thì đóng. Bấm nút Hủy không mở đơn.
   - Địa chỉ `?order=<mã đơn>` mở sẵn và cuộn tới đơn đó.
 - **Lọc:** theo khoảng **Từ ngày – Đến ngày**, tính theo ngày kinh doanh.
   - Mặc định là hôm nay.
   - Ngày không hợp lệ thì thay bằng hôm nay.
   - "Từ ngày" lớn hơn "Đến ngày" thì tự đảo lại.
 - **Đơn đã hủy:** vẫn hiện, có gạch ngang, nhưng không tính vào dòng tổng.
-- **Dòng tổng** của khoảng đang lọc: số đơn, số món, doanh thu, và tổng số tiền đã giảm ("Đã giảm X đ").
+- **Dòng tổng** của khoảng đang lọc: số đơn, số món, doanh thu, tổng số tiền đã giảm ("Đã giảm X đ"), và doanh thu tách theo hình thức thanh toán ("Tiền mặt X đ · Chuyển khoản Y đ").
 - **Phân trang:** 50 đơn mỗi trang.
 - **Lỗi khi tải** (đều kèm "Kiểm tra mạng rồi tải lại trang."):
   - Không xác định được ngày kinh doanh hiện tại: "Không tải được lịch sử đơn hàng.", không hiện bảng.
@@ -260,7 +278,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 
 **FR-07a: Xuất CSV**
 - Xuất toàn bộ đơn trong khoảng đang lọc, mã hóa UTF-8 có BOM, xuống dòng bằng CRLF.
-- 8 cột: `Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Số lượng, Đơn giá, Thành tiền, Trạng thái`.
+- 9 cột: `Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Số lượng, Đơn giá, Thành tiền, Trạng thái, Thanh toán`. Cột Thanh toán ghi "Tiền mặt" hoặc "Chuyển khoản", lặp ở mọi hàng của đơn. Không xuất ảnh.
 - Mỗi dòng đơn là một hàng. Đơn có giảm giá có thêm một hàng: Món là `Giảm giá N%`, Số lượng và Đơn giá để trống, Thành tiền là số tiền giảm mang dấu âm. Cộng cột Thành tiền của các đơn đã thanh toán ra đúng doanh thu.
 - Ô văn bản bắt đầu bằng `= + - @` được thêm dấu `'` ở đầu, để Excel không hiểu nhầm là công thức.
 - Tên file: `don-hang_<từ>_<đến>.csv`.
@@ -280,8 +298,10 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | `menu_price_history` | `menu_item_id`, `price`, `effective_from`, `changed_by` (ghi bằng trigger khi thêm món hoặc đổi giá) |
 | `seats` | `name`, `kind` (`table` = Bàn, `counter` = Ghế quầy), `sort_order`, `is_archived` |
 | `app_roles` | `user_id`, `role` (`owner` hoặc `staff`). Chỉ có **một** tài khoản `staff`. |
-| `orders` | `id` (do client sinh), `item_count`, `subtotal_amount`, `discount_percent` (0–100), `discount_amount`, `total_amount`, `seat_id` (bắt buộc), `seat_name`, `status` (`paid`/`cancelled`), `created_by`, `created_at`, `business_date`, `cancelled_at`, `cancelled_by` |
+| `orders` | `id` (do client sinh), `item_count`, `subtotal_amount`, `discount_percent` (0–100), `discount_amount`, `total_amount`, `seat_id` (bắt buộc), `seat_name`, `status` (`paid`/`cancelled`), `created_by`, `created_at`, `business_date`, `cancelled_at`, `cancelled_by`, `payment_method` (`cash`/`transfer`), `transfer_photo_id` (public_id ảnh trên Cloudinary; bắt buộc khi `transfer`, trống khi `cash`) |
 | `order_lines` | `order_id`, `menu_item_id`, `item_name`, `unit_price`, `quantity` (1–99), `line_amount` (cột tự tính = `quantity × unit_price`), `sort_order` |
+
+Đơn tạo trước v3.3 có `payment_method = 'cash'` vì khi đó app chưa ghi hình thức thanh toán.
 
 **Quy tắc tính `business_date`:** lấy giờ Việt Nam của thời điểm tạo đơn, lùi lại `business_day_start_hour` giờ, rồi lấy phần ngày. Giá trị này được tính một lần lúc tạo đơn và lưu vào đơn.
 
@@ -293,7 +313,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 |---|---|
 | NFR-01 | Mỗi lần bấm nút trên `/order` có phản hồi trên giao diện dưới 200ms. Trong lúc gửi đơn, nút hiện trạng thái "Đang gửi…". |
 | NFR-02 | Mobile-first. Nút chính trên màn order cao ít nhất 56px; trên trang chủ quán ít nhất 48px. Mọi vùng chạm ít nhất 48px. Thành tiền hiển thị cỡ lớn. |
-| NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. |
+| NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. `CLOUDINARY_API_SECRET` chỉ nằm ở server Vercel (không có tiền tố `NEXT_PUBLIC_`) và chỉ route ký upload đọc nó; route chỉ ký cho nhân viên hoặc chủ quán đang đăng nhập. |
 | NFR-05 | Tiền là số nguyên. Server tính đơn giá, tạm tính, số tiền giảm và thành tiền. Không bao giờ xóa cứng đơn hàng, chỗ ngồi hoặc món. Ngoại lệ duy nhất: migration v3.0 xóa dữ liệu thử một lần trước khi dùng thật (R36). |
 | NFR-06 | Giao diện tiếng Việt, tiền định dạng `25.000đ`, giờ Việt Nam. |
 | NFR-07 | Chạy trên Chrome Android và Safari iOS bản mới nhất. Cài được ra màn hình chính. |
@@ -306,6 +326,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
   - Tạo project Supabase và chạy migration.
   - Tạo tài khoản chủ quán và tài khoản nhân viên bằng script.
   - Kiểm tra thực đơn, đặt giờ mở cửa và chỗ ngồi.
+  - Tạo tài khoản Cloudinary, đặt `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` trên Vercel.
   - Deploy lên Vercel.
 - **Nghỉ hơn 7 ngày:** Supabase gói miễn phí tạm dừng database. Vào trang Supabase bấm **Restore** để chạy lại.
 - **Sao lưu:** xuất CSV hằng tháng.
@@ -366,3 +387,5 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | R36 (v3.0) | Dữ liệu thử | App chưa dùng thật: migration v3.0 xóa toàn bộ đơn hàng và lịch sử đổi giá một lần (local và prod), sau khi chủ quán xác nhận số đơn trên prod. Sau đó NFR-05 áp dụng lại. |
 | R37 (v3.1) | Đơn đã hủy, lịch sử giá, nút chính | Gửi lại đơn đã bị hủy: báo "Đơn này đã bị hủy…" và giữ giỏ đơn, lần sau dùng id mới. Lịch sử đổi giá có trạng thái trống và câu lỗi riêng, không làm mất danh sách món. Nút chính trang chủ quán ≥ 48px (dùng trên máy tính/tablet, không trong cảnh một tay giữa giờ đông); màn order giữ ≥ 56px. |
 | R38 (v3.2) | Bỏ Mang về | Quán không dùng lựa chọn Mang về. Mọi đơn bắt buộc có một chỗ ngồi; server từ chối đơn không có chỗ ngồi (`SEAT_REQUIRED`), bỏ cột `is_takeaway`. Khách mang về thì ghi vào một chỗ ngồi; chủ quán có thể tạo chỗ ngồi riêng nếu cần. |
+| R39 (v3.3) | Thanh toán | Chọn tiền mặt hoặc chuyển khoản trước khi đơn được ghi; không có trạng thái chờ thanh toán. Chuyển khoản: QR cố định của quán, bắt buộc chụp ảnh, xem trước và chụp lại được; ảnh lưu trên Cloudinary, DB lưu public_id. Upload có chữ ký do server cấp. Xem lại ảnh ở Đơn vừa tạo và Lịch sử đơn hàng. Dòng tổng tách tiền mặt / chuyển khoản; CSV thêm cột Thanh toán. Thay Q9. |
+| R40 (v3.3) | Chữ gốc | 16px ở mọi cỡ màn, thay mức 15px dưới `lg` của R31. Vùng chạm và ô nhập giữ như R31. |

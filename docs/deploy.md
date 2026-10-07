@@ -36,7 +36,10 @@ Quán chỉ có **một** tài khoản chủ quán (SRS FR-05a).
 1. Đẩy repo lên GitHub, rồi import vào https://vercel.com.
 2. Environment Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` và `NEXT_PUBLIC_STAFF_EMAIL=nhanvien@quan.local`.
    **Không** thêm service_role key (SRS NFR-04).
+   Thêm `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (Cloudinary → Settings → API Keys). Hai biến sau **không** có tiền tố `NEXT_PUBLIC_`.
 3. Deploy. Hàm server chạy ở Singapore (`sin1`, khai báo trong `vercel.json`), cạnh Supabase; đổi region Supabase thì đổi cả dòng này.
+
+Đặt cùng ba biến vào `.env.local` để chạy local (file không commit).
 
 ## 4. Cài đặt quán và kiểm tra lần đầu
 

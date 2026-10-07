@@ -95,8 +95,7 @@ Nút "Xác nhận đơn" giữ chữ, điều kiện khóa và lý do khóa. B�
 
 ### 4.2. Đơn vừa tạo (FR-04b)
 
-- Đơn chuyển khoản có icon máy ảnh (lucide `Camera`) cạnh thành tiền, `aria-label="Xem ảnh chuyển khoản"`.
-- Chạm vào đơn chuyển khoản thì mở **trình xem ảnh** toàn màn hình (ảnh rộng ~1200px), nút "Đóng" ≥ 48px; Esc cũng đóng.
+- Đơn chuyển khoản có nút icon máy ảnh (lucide `Camera`, vùng chạm 48px) cạnh thành tiền, `aria-label="Xem ảnh chuyển khoản"`. Bấm thì mở **trình xem ảnh** toàn màn hình (ảnh rộng ~1200px), nút "Đóng" ≥ 48px; Esc cũng đóng.
 - Đơn tiền mặt không chạm được, như hiện nay. Nút Hủy vẫn không mở ảnh.
 
 ## 5. Trang chủ quán
