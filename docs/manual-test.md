@@ -26,3 +26,22 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 ## Cài ra màn hình chính
 
 - [ ] 14. Chrome Android: menu ⋮ → "Thêm vào màn hình chính" → mở app từ biểu tượng (logo Nước Nôi) thì vào thẳng `/order`, toàn màn hình. Safari iOS: Chia sẻ → "Thêm vào MH chính", kết quả tương tự.
+
+## Thanh toán và ảnh chuyển khoản (SRS v3.3 FR-04c, R39)
+
+Cần `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` thật. Thử trên **Chrome Android** và **Safari iOS** bằng điện thoại thật (camera thật).
+
+- [ ] Xác nhận đơn → Tiền mặt: đơn tạo ngay, "Đã tạo đơn…" + Hoàn tác.
+- [ ] Xác nhận đơn → Chuyển khoản: QR hiện rõ, quét được bằng app ngân hàng.
+- [ ] "Chụp ảnh chuyển khoản" mở camera sau. Chụp xong thấy ảnh, nút xác nhận hiện "Đang tải ảnh…" rồi bật.
+- [ ] "Chụp lại" thay ảnh; ảnh mới nhất là ảnh được lưu (mở Lịch sử để kiểm tra).
+- [ ] Bật chế độ máy bay sau khi chụp: báo "Chưa tải được ảnh…"; tắt máy bay, "Thử lại" thành công.
+- [ ] "Quay lại" ở mọi bước: giỏ đơn còn nguyên, không có đơn mới trong Lịch sử.
+- [ ] Đơn vừa tạo: đơn chuyển khoản có nút máy ảnh, bấm xem ảnh to, "Đóng" tắt.
+- [ ] Lịch sử đơn hàng: mở đơn chuyển khoản thấy ảnh nhỏ; bấm thấy ảnh to; dòng tổng tách Tiền mặt / Chuyển khoản; CSV có cột Thanh toán.
+- [ ] Đổi PIN quán khi điện thoại nhân viên đang ở bước chụp ảnh: lần tải ảnh kế tiếp đưa về `/login`.
+
+## Chữ gốc 16px (R40)
+
+- [ ] Điện thoại 360px: nút Ghế quầy vẫn 2 hàng × 6; thanh giỏ đơn không tràn.
+- [ ] Trang chủ quán ở 390px: thanh điều hướng dưới và dòng tổng Lịch sử không tràn.

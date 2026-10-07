@@ -47,7 +47,6 @@
 
 html {
   background-color: var(--bg);
-  font-size: 93.75%; /* điện thoại: chữ 15px, từ lg trở lên 16px */
 }
 
 body {
@@ -173,12 +172,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .row-in {
   animation: row-in 240ms var(--ease-print) both;
-}
-
-@media (min-width: 64rem) {
-  html {
-    font-size: 100%;
-  }
 }
 
 /* iOS Safari phóng to trang khi chạm ô nhập có chữ dưới 16px. Nằm trong base để class text-* vẫn thắng.
