@@ -1,0 +1,12 @@
+Thêm Trang chọn menu cho Order
+Giá Menu: Khai trương sẽ có -> MVP
+Trong Menu: Có 2 loại giá
+- BeSpoke: 190k
+- Classic: 190k
+- Signature: 250k
+- Bình Zax: 800k
+- MixDrink: 150k
+- Neat: 100k (Ngoại trừ Absithe) [MVP]
+- Mocktail: 100k
+
+Feature: Điền Discount điền theo phần trăm

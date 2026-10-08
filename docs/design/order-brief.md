@@ -40,7 +40,7 @@
 1. Tiêu đề "Giỏ đơn" và **Xóa hết** (viền danger, trên cùng, xa Xác nhận; hai bước "Chắc chắn xóa hết?").
 2. Dòng đơn: tên món và đơn giá; − / ô số / + (mỗi nút 48px); thành tiền dòng canh phải.
 3. Giảm giá: nút 5%, 10%, 15%, 20% và ô nhập "%"; bấm lại nút đang chọn thì bỏ. Tổng: Tạm tính, Giảm N% −X đ, **Thành tiền** cỡ lớn.
-4. Chỗ ngồi: Ghế quầy 2 hàng × 6 như mép quầy thật; Bàn và Mang về 4 cột. Nút cao 56px, số chữ hẹp đậm 1.5rem. Đang chọn: khối mực cam, chữ đen; các chỗ khác in xám nhạt hơn.
+4. Chỗ ngồi: Ghế quầy 2 hàng × 6 như mép quầy thật; Bàn 4 cột. Nút cao 56px, số chữ hẹp đậm 1.5rem. Đang chọn: khối mực cam, chữ đen; các chỗ khác in xám nhạt hơn.
 5. Tên chỗ ngồi đang chọn cỡ lớn ("Ghế 5"), không có chữ "Đang chọn:"; chưa chọn thì "Chưa chọn chỗ ngồi" màu cảnh báo.
 6. **Xác nhận đơn**: khối mực cam, cao 64px, dính đáy tấm. Bị khóa thì ghi lý do ngay trên nút.
 
@@ -56,7 +56,7 @@ Bảng giá chiếm khoảng 60% bên trái (một hoặc hai cột hàng tùy b
 
 ## 7. Dữ liệu và trạng thái
 
-- **Dữ liệu:** 8 món lúc khởi tạo (chủ quán thêm được); tên món tới khoảng 24 ký tự; giá 1.000đ–5.000.000đ; mỗi dòng 1–99; tối đa 30 dòng; thành tiền tới 1.000.000.000đ; 12 ghế quầy, 3 bàn, Mang về; 0 đến khoảng 100 đơn mỗi đêm.
+- **Dữ liệu:** 8 món lúc khởi tạo (chủ quán thêm được); tên món tới khoảng 24 ký tự; giá 1.000đ–5.000.000đ; mỗi dòng 1–99; tối đa 30 dòng; thành tiền tới 1.000.000.000đ; 12 ghế quầy, 3 bàn; 0 đến khoảng 100 đơn mỗi đêm.
 - **Trạng thái cần thiết kế:**
   - Đang tải thực đơn: khung xương các ô món.
   - Thực đơn trống: "Chưa có món nào đang bán – nhờ chủ quán thêm ở trang Thực đơn."

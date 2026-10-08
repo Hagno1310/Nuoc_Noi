@@ -35,7 +35,7 @@ Thực đơn rất ngắn và mỗi món chỉ có một giá, không có biến
 
 Nguồn chuẩn là `docs/SRS.md`. Thuật ngữ nằm trong `GLOSSARY.md`.
 
-- **Nhân viên:** chạm món để thêm vào giỏ đơn, sửa số lượng, giảm giá theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi hoặc "Mang về"; hoàn tác hoặc hủy đơn trong 5 phút.
+- **Nhân viên:** chạm món để thêm vào giỏ đơn, sửa số lượng, giảm giá theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi; hoàn tác hoặc hủy đơn trong 5 phút.
 - **Chủ quán:** quản lý thực đơn ở trang Thực đơn (có lịch sử đổi giá theo món), danh sách chỗ ngồi, giờ mở cửa và PIN quán; xem doanh thu, số món, số đơn theo ngày, tuần, tháng; xem lịch sử đơn hàng (mở xem từng dòng đơn) và xuất CSV.
 - **Giao diện chỉ dùng tiếng Việt.** Tiền hiển thị dạng `25.000đ`, giờ theo giờ Việt Nam.
 

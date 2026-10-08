@@ -21,7 +21,7 @@ Các quyết định dưới đây đã được chủ quán duyệt trong buổ
 | Q-loại | Mỗi loại là một **món**: một nút, một giá. Không có món con bên trong loại. |
 | Q1/Q13 | Thực đơn khởi tạo: BeSpoke 190.000đ, Classic 190.000đ, Signature 250.000đ, Bình Zax 800.000đ, MixDrink 150.000đ, Neat 100.000đ, Absinthe 150.000đ (giá tạm), Mocktail 100.000đ. |
 | Q2/Q11 | Điện thoại: lưới món + thanh giỏ đơn ở đáy, mở thành tấm giỏ đơn. Màn ≥ 768px: lưới món trái, phiếu đơn phải. |
-| Q3 | Chọn món trước. Chỗ ngồi chọn trong giỏ đơn, **bắt buộc** (chỗ ngồi hoặc Mang về). |
+| Q3 | Chọn món trước. Chỗ ngồi chọn trong giỏ đơn, **bắt buộc**. Không có Mang về (SRS v3.2 R38). |
 | Q4 | Nút Ghế quầy và Bàn to, nổi bật hơn. Có dải "Đang chọn: …" ngay trên Xác nhận đơn. |
 | Q5 | Dòng đơn có − / ô số / +. Bấm − khi còn 1 thì xóa dòng. Số lượng 1–99. Ô trống hoặc 0 khi rời ô thì trả về số cũ. Nút "Xóa hết", xác nhận hai bước. |
 | Q6 | Đơn vị đếm là **Số món**: tổng số lượng các dòng đơn. |
@@ -88,7 +88,7 @@ Ghi bằng trigger khi thêm món hoặc khi `price` đổi, nên mọi đườn
   - `discount_percent` integer 0–100, mặc định 0.
   - `discount_amount` integer = `floor(subtotal_amount × discount_percent / 100 / 1000) × 1000`.
   - `total_amount` integer = `subtotal_amount − discount_amount`.
-- Ràng buộc mới: `seat_id is not null or is_takeaway`, tức bắt buộc chọn chỗ ngồi hoặc Mang về (Q3).
+- Ràng buộc: `seat_id not null`; cột `is_takeaway` đã bỏ (SRS v3.2 R38, migration `20261005000400`).
 - `subtotal_amount` tối đa 1.000.000.000đ. Server tính bằng `bigint` rồi kiểm tra, nên không tràn số nguyên.
 
 `settings.current_price` bị bỏ.
@@ -106,12 +106,12 @@ Chỗ ngồi, giờ mở/đóng cửa, PIN quán và tài khoản giữ nguyên.
 
 ## 4. Server (RPC và quyền)
 
-**`create_order(p_id, p_seat_id, p_is_takeaway, p_discount_percent, p_lines jsonb)`**
+**`create_order(p_id, p_seat_id, p_discount_percent, p_lines jsonb)`**
 - Kiểm tra `is_staff()`, giữ mã lỗi `FORBIDDEN`.
 - `p_lines` là mảng `[{menu_item_id, quantity, client_price}]`:
   - 1–30 dòng, không trùng `menu_item_id`, `quantity` 1–99.
   - `client_price` là giá màn order đang hiện, để server phát hiện lệch giá.
-- Bắt buộc có chỗ ngồi hoặc Mang về. Chỗ ngồi phải chưa ẩn.
+- Bắt buộc có chỗ ngồi (`SEAT_REQUIRED`). Chỗ ngồi phải chưa ẩn.
 - `p_discount_percent` là số nguyên 0–100.
 - Có dòng nào lệch giá hoặc món đã ẩn thì từ chối **cả đơn** bằng `MENU_CHANGED`. Kèm theo đó là danh sách món hiện hành (id, tên, giá, đã ẩn) để màn order cập nhật giỏ.
 - Gửi lại cùng `p_id` thì trả về đơn đã có, không tạo đơn thứ hai (giữ hành vi FR-04).
@@ -147,7 +147,7 @@ Thứ tự từ trên xuống:
 - **Dòng đơn:** tên món, đơn giá nhỏ bên dưới; − (48px) / ô số (`inputmode="numeric"`) / + (48px); thành tiền dòng ở bên phải.
 - **Giảm giá:** nút 5%, 10%, 15%, 20% và ô "%" nhập tay. Bấm lại nút đang chọn thì bỏ giảm giá.
 - **Tổng:** "Tạm tính 570.000đ", "Giảm 10% −57.000đ", **"Thành tiền 513.000đ"** cỡ Display Total.
-- **Chỗ ngồi:** lưới Ghế quầy 2 hàng × 6, Bàn và Mang về 4 cột.
+- **Chỗ ngồi:** lưới Ghế quầy 2 hàng × 6, Bàn 4 cột.
   - Nút cao 56px, số dùng Anton 1.5rem, viền `--edge` 2px.
   - Nút đang chọn có nền ember, chữ `--ember-ink`.
 - **Dải "Đang chọn: Ghế 5"** (hoặc "Chưa chọn chỗ ngồi" màu cảnh báo).
@@ -159,7 +159,7 @@ Lưới món 3–4 cột chiếm khoảng 60% bên trái. Phiếu đơn chiếm 
 
 ### 5.3. Trạng thái
 
-- **Giỏ đơn** lưu trong bộ nhớ trang; tải lại trang thì mất. Mã đơn `p_id` được sinh khi gửi lần đầu, và giữ nguyên khi gửi lại sau lỗi mạng, cho tới khi gửi thành công hoặc giỏ đổi.
+- **Giỏ đơn** lưu trong bộ nhớ trang; tải lại trang thì mất. Mã đơn `p_id` được sinh khi gửi lần đầu, và giữ nguyên khi gửi lại sau lỗi mạng kể cả khi giỏ đã sửa (FR-04), để không thành hai đơn nếu lần đầu đã ghi; mã chỉ đổi sau khi gửi thành công hoặc server báo đơn đó đã bị hủy.
 - **Thực đơn đổi realtime:**
   - Món trong giỏ đổi giá: dòng cập nhật giá mới, nền nổi bật khoảng 3 giây.
   - Món trong giỏ bị ẩn: dòng bị gạch, kèm "Món đã ngừng bán – bỏ khỏi đơn rồi gửi lại", và nút Xác nhận bị khóa.

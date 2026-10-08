@@ -1,413 +1,413 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-03T22:52:47.064Z",
+  "generatedAt": "2026-10-04T18:20:40.527Z",
   "title": "Design System: Nước Nôi",
   "extensions": {
     "colorMeta": {
-      "olive-black": {
+      "matte-black": {
         "role": "neutral",
-        "displayName": "Ô liu gần đen",
-        "canonical": "oklch(22.8% 0.018 127)",
+        "displayName": "Bìa đen mờ",
+        "canonical": "#141210",
         "cssVar": "--bg",
         "tonalRamp": [
-          "#090d05",
-          "#22261c",
-          "#3d4238",
-          "#5b6055",
-          "#7a7f74",
-          "#9ba195",
-          "#c1c6ba",
-          "#ebf1e4"
+          "#171412",
+          "#332e29",
+          "#554d44",
+          "#776b5f",
+          "#998c80",
+          "#b6ada4",
+          "#d2ccc6",
+          "#edebe8"
         ]
       },
-      "olive-raised": {
+      "card-raised": {
         "role": "neutral",
-        "displayName": "Ô liu nổi",
-        "canonical": "oklch(31.4% 0.029 124)",
+        "displayName": "Bìa nổi",
+        "canonical": "#221f1b",
         "cssVar": "--raised",
         "tonalRamp": [
-          "#090d02",
-          "#212617",
-          "#3c4332",
-          "#5a614f",
-          "#79806e",
-          "#9aa28f",
-          "#c0c8b4",
-          "#eaf2de"
-        ]
+          "#171512",
+          "#332f29",
+          "#554e44",
+          "#776d5f",
+          "#998e7f",
+          "#b7afa4",
+          "#d2cdc6",
+          "#edebe8"
+        ],
+        "note": "--surface cùng giá trị"
       },
-      "olive-line": {
+      "rule-line": {
         "role": "neutral",
-        "displayName": "Ô liu kẻ",
-        "canonical": "oklch(42.4% 0.042 122)",
+        "displayName": "Đường kẻ",
+        "canonical": "#3a352e",
         "cssVar": "--line",
         "tonalRamp": [
-          "#080e00",
-          "#20270f",
-          "#3c432a",
-          "#596247",
-          "#798266",
-          "#9aa386",
-          "#bfc9ab",
-          "#e9f4d5"
+          "#171512",
+          "#332f29",
+          "#554e44",
+          "#776d5f",
+          "#998e7f",
+          "#b7afa4",
+          "#d2cdc6",
+          "#edebe8"
         ]
       },
-      "olive-edge": {
+      "ash": {
         "role": "neutral",
-        "displayName": "Ô liu viền",
-        "canonical": "oklch(58.6% 0.052 119)",
+        "displayName": "Tro",
+        "canonical": "#958d81",
         "cssVar": "--edge",
         "tonalRamp": [
-          "#090e00",
-          "#212707",
-          "#3c4423",
-          "#5a6240",
-          "#79825f",
-          "#9aa47f",
-          "#c0caa4",
-          "#eaf4cd"
-        ]
+          "#161513",
+          "#322f2a",
+          "#534e46",
+          "#746d62",
+          "#968e82",
+          "#b4afa6",
+          "#d0cdc8",
+          "#ecebe9"
+        ],
+        "note": "--ink-muted và --chart-previous cùng giá trị; 5.7:1 trên nền, 5.0:1 trên bìa nổi"
       },
       "cream-ink": {
         "role": "neutral",
         "displayName": "Kem",
-        "canonical": "oklch(88.4% 0.050 89)",
+        "canonical": "#efe6d2",
         "cssVar": "--ink",
         "tonalRamp": [
-          "#130900",
-          "#2e2202",
-          "#4a3e1f",
-          "#695c3c",
-          "#897c5b",
-          "#ab9d7b",
-          "#d1c3a0",
-          "#fceec9"
-        ]
+          "#1e180b",
+          "#443618",
+          "#715a28",
+          "#9e7e38",
+          "#c3a156",
+          "#d4bc87",
+          "#e4d5b4",
+          "#f4eee1"
+        ],
+        "note": "15:1 trên nền"
       },
-      "sage-muted": {
-        "role": "neutral",
-        "displayName": "Xám xô thơm",
-        "canonical": "oklch(74.3% 0.046 117)",
-        "cssVar": "--ink-muted",
-        "tonalRamp": [
-          "#0a0d00",
-          "#22270a",
-          "#3e4326",
-          "#5b6143",
-          "#7b8162",
-          "#9ca382",
-          "#c1c9a7",
-          "#ecf3d0"
-        ]
-      },
-      "ember": {
+      "flame-ember": {
         "role": "primary",
-        "displayName": "Than hồng",
-        "canonical": "oklch(71.8% 0.144 57)",
+        "displayName": "Mực cam lửa",
+        "canonical": "#e8572c",
         "cssVar": "--ember",
         "tonalRamp": [
-          "#2e0000",
-          "#510000",
-          "#732000",
-          "#974100",
-          "#bb6300",
-          "#e08436",
-          "#ffab5f",
-          "#ffd58a"
-        ]
+          "#250c04",
+          "#531a09",
+          "#8a2b0f",
+          "#c13c15",
+          "#e85a30",
+          "#ef8a6c",
+          "#f5b6a3",
+          "#fbe2da"
+        ],
+        "note": "--chart-current cùng giá trị"
       },
       "ember-ink": {
         "role": "primary",
-        "displayName": "Chữ trên than hồng",
-        "canonical": "oklch(22.8% 0.018 127)",
+        "displayName": "Chữ trên mực cam",
+        "canonical": "#141210",
         "cssVar": "--ember-ink",
         "tonalRamp": [
-          "#090d05",
-          "#22261c",
-          "#3d4238",
-          "#5b6055",
-          "#7a7f74",
-          "#9ba195",
-          "#c1c6ba",
-          "#ebf1e4"
+          "#171412",
+          "#332e29",
+          "#554d44",
+          "#776b5f",
+          "#998c80",
+          "#b6ada4",
+          "#d2ccc6",
+          "#edebe8"
+        ],
+        "note": "5.2:1 trên cam; chữ kem trên cam 2.9:1 bị cấm"
+      },
+      "ok-green": {
+        "role": "tertiary",
+        "displayName": "Xanh ổn",
+        "canonical": "#8fbf7a",
+        "cssVar": "--ok",
+        "tonalRamp": [
+          "#121c0d",
+          "#283e1e",
+          "#426732",
+          "#5c9146",
+          "#7db464",
+          "#a2ca91",
+          "#c5deba",
+          "#e8f2e3"
         ]
       },
-      "amber-warn": {
+      "warn-amber": {
         "role": "tertiary",
-        "displayName": "Hổ phách cảnh báo",
-        "canonical": "oklch(81.3% 0.122 85)",
+        "displayName": "Hổ phách",
+        "canonical": "#e8b04a",
         "cssVar": "--warn",
         "tonalRamp": [
-          "#200000",
-          "#3d1a00",
-          "#5c3700",
-          "#7c5600",
-          "#9d7700",
-          "#c09837",
-          "#e7be60",
-          "#ffe98b"
+          "#241905",
+          "#51380a",
+          "#885e11",
+          "#be8318",
+          "#e5a633",
+          "#edc06e",
+          "#f4d8a5",
+          "#faefdb"
         ]
       },
-      "coral-danger": {
+      "danger-rose": {
         "role": "tertiary",
-        "displayName": "San hô nguy hiểm",
-        "canonical": "oklch(73.6% 0.126 32)",
+        "displayName": "Hồng nguy",
+        "canonical": "#ef6f7a",
         "cssVar": "--danger",
         "tonalRamp": [
-          "#2f0000",
-          "#510000",
-          "#741a0b",
-          "#983c2c",
-          "#bc5d4b",
-          "#e27f6b",
-          "#ffa590",
-          "#ffcfb9"
+          "#250407",
+          "#53090f",
+          "#8a0f1a",
+          "#c11524",
+          "#e83040",
+          "#ef6c77",
+          "#f5a3aa",
+          "#fbdadd"
         ]
       }
     },
     "typographyMeta": {
-      "display-count": {
-        "displayName": "Số cốc",
-        "purpose": "Số cốc trên màn hình order; 4.5rem, 6rem khi cao ≥ 740px, 8rem khi rộng ≥ 380px và cao ≥ 740px."
-      },
-      "display-total": {
-        "displayName": "Thành tiền",
-        "purpose": "Thành tiền; 2.25rem, 3.75rem khi cao ≥ 740px."
-      },
-      "display-revenue": {
-        "displayName": "Doanh thu hôm nay",
-        "purpose": "Tâm cung giờ trên Tổng quan."
+      "display-plate": {
+        "displayName": "Tấm in doanh thu",
+        "purpose": "Chỉ doanh thu ngày kinh doanh trong tấm in đảo màu của đồng hồ; cỡ theo bề rộng đồng hồ (container query)."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Tiêu đề Tổng quan, doanh thu tháng, phím +1 +2 +5 +10."
+        "purpose": "Tiêu đề trang; doanh thu kỳ trong sổ so sánh ở lg."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Tiêu đề mục Đơn vừa tạo, số cốc dưới doanh thu, chữ \"cốc\"."
-      },
-      "label-confirm": {
-        "displayName": "Nhãn Xác nhận đơn",
-        "purpose": "Chỉ cho nút Xác nhận đơn."
+        "purpose": "Tiêu đề mục, tên món, tiêu đề biểu đồ và hộp thoại, ô chọn giờ."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Mọi chữ giao diện thường."
+        "purpose": "Nội dung, ô nhập, thông báo."
       },
       "body-strong": {
         "displayName": "Body Strong",
-        "purpose": "Nút viền, ghế, thành tiền trong dòng sổ."
+        "purpose": "Chữ nút chính, giá món."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Nhãn ô nhập, Đơn giá, điều hướng."
+        "purpose": "Nhãn ô nhập, tên kỳ, nút viền, điều hướng."
       },
       "caption": {
         "displayName": "Caption",
-        "purpose": "Nhãn nhóm ghế, trạng thái dòng sổ, giờ hiện tại."
+        "purpose": "Kỳ trước, chú giải, trục biểu đồ, phần trăm, giờ hiện tại, dấu ẨN."
       }
     },
-    "shadows": [
-      {
-        "name": "logo-halo",
-        "value": "drop-shadow(0 0 1px rgb(230 216 180 / .5)) drop-shadow(0 0 14px rgb(230 138 60 / .35)) drop-shadow(0 0 40px rgb(230 138 60 / .18))",
-        "purpose": "filter cho ảnh logo và motif điếu thuốc; không cho chữ."
-      },
-      {
-        "name": "seat-glow",
-        "value": "0 0 18px rgb(230 138 60 / .45)",
-        "purpose": "box-shadow của ghế đang chọn."
-      },
-      {
-        "name": "streak-bloom",
-        "value": "blur(6px); opacity .55",
-        "purpose": "Bản sao mờ dưới vệt sáng .streak."
-      },
-      {
-        "name": "arc-glow",
-        "value": "feGaussianBlur stdDeviation 3.5",
-        "purpose": "Quầng dưới cung giờ và đốm than."
-      }
-    ],
+    "shadows": [],
     "motion": [
       {
-        "name": "ease-exposure",
+        "name": "ease-print",
         "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Đường cong của exposure-streak."
+        "purpose": "Đường cong chung cho chuyển trạng thái, hộp thoại, thông báo."
       },
       {
-        "name": "exposure-streak",
-        "value": "250ms",
-        "purpose": "Vệt ember kéo dài rồi trượt xuống 48px khi tạo đơn; ẩn khi prefers-reduced-motion."
+        "name": "control",
+        "value": "150ms",
+        "purpose": "Mọi button/a/summary/input/select đổi color, background, border, opacity, transform."
       },
       {
         "name": "press",
-        "value": "150ms",
-        "purpose": "Phím, PIN, nút Xác nhận chuyển trạng thái nhấn."
+        "value": "scale(.98) 150ms",
+        "purpose": "Nhấn nút chính."
       },
       {
-        "name": "select",
-        "value": "200ms",
-        "purpose": "Ghế chọn/lùi bóng, Đơn giá vừa đổi."
+        "name": "fade-in",
+        "value": "180ms ease-out",
+        "purpose": "Ô sửa tại chỗ và danh sách đã ẩn hiện ra."
+      },
+      {
+        "name": "dialog-in",
+        "value": "200ms; translateY(8px) scale(.98) → none",
+        "purpose": "Hộp thoại sửa nổi lên; nền sau mờ dần 200ms."
+      },
+      {
+        "name": "toast-in",
+        "value": "200ms; translateY(-8px) → none",
+        "purpose": "Thông báo đơn mới."
+      },
+      {
+        "name": "count-up",
+        "value": "600ms",
+        "purpose": "Số liệu Tổng quan chạy từ cũ sang mới khi tự tải lại."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "opacity only",
+        "purpose": "prefers-reduced-motion: hộp thoại/thông báo chỉ mờ dần, transition 0ms, không chạy số."
       }
     ],
     "breakpoints": [
-      {
-        "name": "tall",
-        "value": "min-height: 740px"
-      },
-      {
-        "name": "min-380w",
-        "value": "380px"
-      },
       {
         "name": "sm",
         "value": "640px"
       },
       {
         "name": "lg",
-        "value": "1024px"
+        "value": "1024px",
+        "note": "cỡ chữ gốc 15px → 16px; sidebar 256px"
       }
     ]
   },
   "components": [
     {
-      "name": "Xác nhận đơn",
+      "name": "Nút chính",
       "kind": "button",
-      "refersTo": "button-confirm",
-      "description": "Nút hành động chính dính đáy màn hình order.",
-      "html": "<button class=\"ds-confirm\">Xác nhận đơn</button> <button class=\"ds-confirm\" disabled>Xác nhận đơn</button>",
-      "css": ".ds-confirm{min-height:64px;width:100%;border:0;border-radius:16px;background:var(--ember,#e68a3c);color:var(--ember-ink,#1a1e15);font-family:Anton,\"Be Vietnam Pro\",sans-serif;font-size:1.5rem;letter-spacing:.025em;transition:transform 150ms,background-color 150ms}.ds-confirm:active{transform:scale(.98)}.ds-confirm:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}.ds-confirm:disabled{background:var(--raised,#2e3424);color:var(--ink-muted,#a9b08f)}"
+      "refersTo": "button-primary",
+      "description": "Lưu, Lưu giờ, Đăng nhập: khối cam, chữ đen, cao 48px.",
+      "html": "<button class=\"ds-primary\">Lưu</button> <button class=\"ds-primary\" disabled>Lưu giờ</button>",
+      "css": ".ds-primary{min-height:48px;padding:0 20px;border:0;border-radius:8px;background:var(--ember,#e8572c);color:var(--ember-ink,#141210);font-family:Archivo,system-ui,sans-serif;font-weight:600;font-size:1rem;transition:transform 150ms var(--ease-print, cubic-bezier(0.16,1,0.3,1)),opacity 150ms}.ds-primary:active{transform:scale(.98)}.ds-primary:focus-visible{outline:2px solid var(--ember,#e8572c);outline-offset:2px}.ds-primary:disabled{opacity:.4}"
     },
     {
-      "name": "Phím số lượng",
+      "name": "Nút viền",
       "kind": "button",
-      "refersTo": "button-key",
-      "description": "Viền mảnh khi nghỉ, khối kem khi nhấn.",
-      "html": "<div class=\"ds-keys\"><button class=\"ds-key\">+1</button><button class=\"ds-key\">+5</button><button class=\"ds-key\">+10</button></div>",
-      "css": ".ds-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ds-key{min-height:56px;border:1px solid var(--edge,#78815e);border-radius:12px;background:transparent;color:var(--ink,#e6d8b4);font-family:Anton,\"Be Vietnam Pro\",sans-serif;font-size:1.875rem;letter-spacing:.025em;transition:background-color 150ms,color 150ms,border-color 150ms}.ds-key:active{background:var(--ink,#e6d8b4);border-color:var(--ink,#e6d8b4);color:var(--bg,#1a1e15)}.ds-key:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}"
+      "refersTo": "button-outline",
+      "description": "Việc phụ: Hủy, Thêm món, Hiện lại, Đăng xuất.",
+      "html": "<button class=\"ds-outline\">Hủy</button>",
+      "css": ".ds-outline{min-height:48px;padding:0 16px;border:1px solid var(--edge,#958d81);border-radius:8px;background:transparent;color:var(--ink,#efe6d2);font-family:Archivo,system-ui,sans-serif;font-size:.875rem;font-weight:500;transition:border-color 150ms,background-color 150ms,color 150ms}.ds-outline:hover{border-color:var(--ink,#efe6d2)}.ds-outline:active{background:var(--ink,#efe6d2);color:var(--bg,#141210)}.ds-outline:focus-visible{outline:2px solid var(--ember,#e8572c);outline-offset:2px}"
     },
     {
-      "name": "Ghế",
-      "kind": "chip",
-      "refersTo": "seat",
-      "description": "Ghế đang chọn phát sáng; các ghế khác lùi về opacity .6.",
-      "html": "<div class=\"ds-seats\"><button class=\"ds-seat ds-dim\">1</button><button class=\"ds-seat\" aria-pressed=\"true\">2</button><button class=\"ds-seat ds-dim\">3</button></div>",
-      "css": ".ds-seats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ds-seat{min-height:48px;border:1px solid var(--edge,#78815e);border-radius:8px;background:transparent;color:var(--ink,#e6d8b4);font-family:\"Be Vietnam Pro\",sans-serif;font-weight:600;font-variant-numeric:tabular-nums;transition:opacity 200ms,background-color 200ms,color 200ms}.ds-seat:active{background:var(--raised,#2e3424)}.ds-seat[aria-pressed=true]{background:var(--ember,#e68a3c);border-color:var(--ember,#e68a3c);color:var(--ember-ink,#1a1e15);box-shadow:0 0 18px rgb(230 138 60/.45)}.ds-dim{opacity:.6}.ds-seat:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}"
-    },
-    {
-      "name": "Nút Hủy hai bước",
+      "name": "Ẩn hai bước",
       "kind": "button",
       "refersTo": "button-danger",
-      "description": "Viền danger khi nghỉ; khối danger khi đã \"Chắc chắn hủy?\".",
-      "html": "<button class=\"ds-danger\">Hủy</button> <button class=\"ds-danger ds-armed\">Chắc chắn hủy?</button>",
-      "css": ".ds-danger{min-height:48px;padding:0 16px;border:1px solid rgb(238 138 118/.7);border-radius:8px;background:transparent;color:var(--danger,#ee8a76);font-family:\"Be Vietnam Pro\",sans-serif;font-weight:600}.ds-danger:active,.ds-armed{background:var(--danger,#ee8a76);border-color:var(--danger,#ee8a76);color:var(--ember-ink,#1a1e15)}.ds-danger:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}"
+      "description": "\"Ẩn món\" → \"Chắc chắn ẩn?\", trong hộp thoại, xa nút Lưu.",
+      "html": "<button class=\"ds-danger\">Ẩn món</button> <button class=\"ds-danger ds-armed\">Chắc chắn ẩn?</button>",
+      "css": ".ds-danger{min-height:48px;padding:0 12px;border:1px solid color-mix(in srgb,var(--danger,#ef6f7a) 70%,transparent);border-radius:8px;background:transparent;color:var(--danger,#ef6f7a);font-family:Archivo,system-ui,sans-serif;font-size:.875rem;font-weight:600;transition:background-color 150ms,color 150ms,border-color 150ms}.ds-armed{background:var(--danger,#ef6f7a);border-color:var(--danger,#ef6f7a);color:var(--ember-ink,#141210)}.ds-danger:focus-visible{outline:2px solid var(--ember,#e8572c);outline-offset:2px}"
     },
     {
       "name": "Ô nhập",
       "kind": "input",
       "refersTo": "input-field",
-      "description": "Viền edge, nền trong suốt, con trỏ ember.",
-      "html": "<label class=\"ds-field\"><span>Đơn giá chung mới (đ/cốc)</span><input inputmode=\"numeric\" value=\"25000\"></label>",
-      "css": ".ds-field{display:block;color:var(--ink,#e6d8b4);font-family:\"Be Vietnam Pro\",sans-serif}.ds-field input{display:block;margin-top:4px;min-height:48px;width:100%;max-width:20rem;padding:12px;border:1px solid var(--edge,#78815e);border-radius:8px;background:transparent;color:inherit;font-size:1.25rem;font-variant-numeric:tabular-nums;caret-color:var(--ember,#e68a3c)}.ds-field input:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}"
+      "description": "Viền tro, focus viền cam, lỗi chữ danger dưới ô.",
+      "html": "<label class=\"ds-field\">Giá<input inputmode=\"numeric\" value=\"190.000\"></label><p class=\"ds-err\" role=\"alert\">Giá chưa hợp lệ.</p>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:4px;color:var(--ink-muted,#958d81);font-family:Archivo,system-ui,sans-serif;font-size:.875rem}.ds-field input{min-height:48px;padding:8px;border:1px solid var(--edge,#958d81);border-radius:8px;background:transparent;color:var(--ink,#efe6d2);font:inherit;font-size:max(16px,1em);font-variant-numeric:tabular-nums;caret-color:var(--ember,#e8572c);transition:border-color 150ms}.ds-field input:focus{border-color:var(--ember,#e8572c)}.ds-field input:focus-visible{outline:2px solid var(--ember,#e8572c);outline-offset:2px}.ds-err{margin:4px 0 0;color:var(--danger,#ef6f7a);font-family:Archivo,system-ui,sans-serif;font-size:.875rem}"
+    },
+    {
+      "name": "Dòng sổ thực đơn",
+      "kind": "custom",
+      "refersTo": "section-title",
+      "description": "Tiêu đề mục kẻ 1px; dòng: tay cầm kéo, tên sửa tại chỗ, giá, nút ⋯; đường thả cam; món ẩn in xám với dấu ẨN.",
+      "html": "<div class=\"ds-ledger\"><div class=\"ds-title\">Món đang bán</div><div class=\"ds-row\"><span class=\"ds-grip\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"9\" cy=\"5\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"19\" r=\"1\"/><circle cx=\"15\" cy=\"5\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"19\" r=\"1\"/></svg></span><button class=\"ds-name\">Highball</button><span class=\"ds-price\">120.000đ</span><button class=\"ds-more\" aria-label=\"Sửa Highball\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"5\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/></svg></button></div><div class=\"ds-row ds-drop\"><span class=\"ds-grip\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"9\" cy=\"5\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"19\" r=\"1\"/><circle cx=\"15\" cy=\"5\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"19\" r=\"1\"/></svg></span><button class=\"ds-name\">Neat</button><span class=\"ds-price\">100.000đ</span><button class=\"ds-more\" aria-label=\"Sửa Neat\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"5\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/></svg></button></div><div class=\"ds-row ds-hidden\">Mocktail <span class=\"ds-mark\">ẨN</span></div></div>",
+      "css": ".ds-ledger{color:var(--ink,#efe6d2);font-family:Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums}.ds-title{padding-bottom:8px;border-bottom:1px solid var(--line,#3a352e);font-stretch:72%;font-weight:800;font-size:1.25rem}.ds-row{display:flex;align-items:center;gap:4px;min-height:48px;border-bottom:1px solid var(--line,#3a352e)}.ds-grip{display:flex;width:32px;justify-content:center;color:var(--ink-muted,#958d81);cursor:grab}.ds-name{flex:1;min-height:48px;border:0;background:none;color:inherit;text-align:left;font-family:inherit;font-stretch:72%;font-weight:800;font-size:1.25rem;transition:color 150ms}.ds-name:hover,.ds-name:focus-visible{color:var(--ember,#e8572c)}.ds-price{width:8rem;text-align:right;font-weight:600}.ds-more{display:flex;min-width:48px;min-height:48px;align-items:center;justify-content:center;border:0;border-radius:6px;background:none;color:var(--ink-muted,#958d81);transition:background-color 150ms,color 150ms}.ds-more:hover{background:var(--raised,#221f1b);color:var(--ink,#efe6d2)}.ds-more:focus-visible{outline:2px solid var(--ember,#e8572c);outline-offset:2px}.ds-drop{border-bottom:2px solid var(--ember,#e8572c)}.ds-hidden{gap:8px;color:var(--ink-muted,#958d81)}.ds-mark{padding:0 4px;border:1px solid var(--line,#3a352e);border-radius:4px;font-size:.75rem;font-weight:600}"
+    },
+    {
+      "name": "Hộp thoại sửa",
+      "kind": "card",
+      "refersTo": "edit-dialog",
+      "description": "Dialog gốc giữa màn hình: bìa nổi, viền tro, bo 12px; Ẩn trái, Hủy + Lưu phải.",
+      "html": "<div class=\"ds-dialog\"><div class=\"ds-dh\">BeSpoke</div><label class=\"ds-dl\">Tên món<input value=\"BeSpoke\"></label><div class=\"ds-da\"><button class=\"ds-dd\">Ẩn món</button><button class=\"ds-dx\">Hủy</button><button class=\"ds-ds\">Lưu</button></div></div>",
+      "css": ".ds-dialog{width:min(24rem,100%);padding:20px;border:1px solid var(--edge,#958d81);border-radius:12px;background:var(--raised,#221f1b);color:var(--ink,#efe6d2);font-family:Archivo,system-ui,sans-serif;animation:ds-rise 200ms var(--ease-print, cubic-bezier(0.16,1,0.3,1)) both}@keyframes ds-rise{from{opacity:0;transform:translateY(8px) scale(.98)}}.ds-dh{margin-bottom:20px;font-stretch:72%;font-weight:800;font-size:1.25rem}.ds-dl{display:flex;flex-direction:column;gap:4px;color:var(--ink-muted,#958d81);font-size:.875rem}.ds-dl input{min-height:48px;padding:8px;border:1px solid var(--edge,#958d81);border-radius:8px;background:transparent;color:var(--ink,#efe6d2);font:inherit;font-size:16px}.ds-dl input:focus{border-color:var(--ember,#e8572c);outline:2px solid var(--ember,#e8572c);outline-offset:2px}.ds-da{display:flex;gap:8px;margin-top:20px}.ds-da button{min-height:48px;border-radius:8px;font-family:inherit;font-size:.875rem}.ds-dd{padding:0 12px;border:1px solid color-mix(in srgb,var(--danger,#ef6f7a) 70%,transparent);background:none;color:var(--danger,#ef6f7a);font-weight:600}.ds-dx{margin-left:auto;padding:0 16px;border:1px solid var(--edge,#958d81);background:none;color:var(--ink,#efe6d2)}.ds-dx:hover{border-color:var(--ink,#efe6d2)}.ds-da .ds-ds{padding:0 20px;border:0;background:var(--ember,#e8572c);color:var(--ember-ink,#141210);font-size:1rem;font-weight:600}.ds-ds:active{transform:scale(.98)}@media (prefers-reduced-motion:reduce){.ds-dialog{animation:none}}"
     },
     {
       "name": "Điều hướng chủ quán",
       "kind": "nav",
       "refersTo": "nav-item",
-      "description": "Thanh 4 cột ở đáy trên điện thoại; mục hiện tại gạch chân ember.",
-      "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">Tổng quan</a><a href=\"#\">Lịch sử đơn hàng</a><a href=\"#\">Cài đặt</a><a href=\"#\">Màn hình order</a></nav>",
-      "css": ".ds-nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line,#4a5238);background:var(--bg,#1a1e15);font-family:\"Be Vietnam Pro\",sans-serif}.ds-nav a{display:flex;min-height:48px;align-items:center;justify-content:center;padding:0 8px;text-align:center;font-size:.875rem;font-weight:500;color:var(--ink-muted,#a9b08f);text-decoration:none}.ds-nav a:hover{color:var(--ink,#e6d8b4)}.ds-nav a[aria-current=page]{color:var(--ink,#e6d8b4);font-weight:600;text-decoration:underline 2px var(--ember,#e68a3c);text-underline-offset:.2em}.ds-nav a:focus-visible{outline:2px solid var(--ember,#e68a3c);outline-offset:2px}"
+      "description": "Điện thoại: icon cố định ở đáy; mục hiện tại chữ kem, icon cam.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\" aria-label=\"Tổng quan\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"m12 14 4-4\"/><path d=\"M3.34 19a10 10 0 1 1 17.32 0\"/></svg></a><a href=\"#\" aria-label=\"Thực đơn\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8\"/><path d=\"M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7\"/><path d=\"m2.1 21.8 6.4-6.3\"/><path d=\"m19 5-7 7\"/></svg></a><a href=\"#\" aria-label=\"Cài đặt\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><circle cx=\"12\" cy=\"12\" r=\"9\"/></svg></a></nav>",
+      "css": ".ds-nav{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line,#3a352e);background:var(--bg,#141210)}.ds-nav a{display:flex;min-height:48px;align-items:center;justify-content:center;color:var(--ink-muted,#958d81);transition:color 150ms}.ds-nav a:hover{color:var(--ink,#efe6d2)}.ds-nav a[aria-current=page]{color:var(--ink,#efe6d2)}.ds-nav a[aria-current=page] svg{color:var(--ember,#e8572c)}.ds-nav a:focus-visible{outline:2px solid var(--ember,#e8572c);outline-offset:2px}"
     },
     {
-      "name": "Khung cài đặt",
-      "kind": "card",
-      "refersTo": "section-card",
-      "description": "Viền line, không nền, không bóng.",
-      "html": "<section class=\"ds-card\"><h2>Giờ mở cửa</h2><p>Ngày kinh doanh bắt đầu lúc 20:00.</p></section>",
-      "css": ".ds-card{border:1px solid var(--line,#4a5238);border-radius:12px;padding:16px;color:var(--ink,#e6d8b4);font-family:\"Be Vietnam Pro\",sans-serif}.ds-card h2{margin:0 0 12px;font-family:Anton,\"Be Vietnam Pro\",sans-serif;font-weight:400;font-size:1.25rem;letter-spacing:.025em}.ds-card p{margin:0}"
-    },
-    {
-      "name": "Vệt sáng",
+      "name": "Đồng hồ giờ mở cửa + tấm in",
       "kind": "custom",
-      "refersTo": "streak",
-      "description": "Đường kẻ của thế giới Phơi sáng dài, tĩnh.",
-      "html": "<div class=\"ds-streak-wrap\"><span class=\"ds-num\">175.000đ</span><span class=\"ds-streak\"></span></div>",
-      "css": ".ds-streak-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink,#e6d8b4)}.ds-num{font-family:Anton,sans-serif;font-size:2.25rem;letter-spacing:.025em;font-variant-numeric:tabular-nums}.ds-streak{position:relative;display:block;width:80%;height:2px;border-radius:999px;background:linear-gradient(90deg,transparent,var(--ember,#e68a3c) 12%,var(--ink,#e6d8b4) 55%,rgb(230 216 180/.25) 85%,transparent)}.ds-streak::after{content:\"\";position:absolute;inset:-3px 0;border-radius:inherit;background:inherit;filter:blur(6px);opacity:.55}"
+      "refersTo": "revenue-plate",
+      "description": "Rãnh 1px, nét cam phần đã trôi qua, đốm giờ hiện tại; tấm cam đảo màu duy nhất của màn.",
+      "html": "<div class=\"ds-dial\"><svg viewBox=\"0 0 200 200\" aria-hidden=\"true\"><path d=\"M 23.8 144 A 88 88 0 1 1 176.2 144\" fill=\"none\" stroke=\"var(--line,#3a352e)\" stroke-width=\"1\"/><path d=\"M 23.8 144 A 88 88 0 1 1 187.7 108.4\" fill=\"none\" stroke=\"var(--ember,#e8572c)\" stroke-width=\"2.5\" stroke-linecap=\"round\"/><circle cx=\"187.7\" cy=\"108.4\" r=\"3.2\" fill=\"var(--ember,#e8572c)\"/></svg><div class=\"ds-dc\"><p class=\"ds-plate\">1.590.000đ</p><p class=\"ds-sub\">7 món · 3 đơn</p><p class=\"ds-now\">Bây giờ 01:12</p></div></div>",
+      "css": ".ds-dial{position:relative;width:280px;aspect-ratio:1;container-type:inline-size;color:var(--ink,#efe6d2);font-family:Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums}.ds-dial svg{position:absolute;inset:0;overflow:visible}.ds-dc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 12%}.ds-dc p{margin:0}.ds-plate{padding:4px 12px;border-radius:6px;background:var(--ember,#e8572c);color:var(--ember-ink,#141210);font-stretch:72%;font-weight:800;font-size:clamp(2rem,12cqw,4.5rem);line-height:1}.ds-sub{font-stretch:72%;font-weight:800;font-size:1.25rem}.ds-now{color:var(--ink-muted,#958d81);font-size:.75rem}"
+    },
+    {
+      "name": "Dải quẹt diêm",
+      "kind": "custom",
+      "refersTo": "striker",
+      "description": "Đường chia duy nhất có kết cấu; tĩnh.",
+      "html": "<span class=\"ds-striker\"></span>",
+      "css": ".ds-striker{display:block;width:240px;height:8px;border-radius:2px;background-color:var(--raised,#221f1b);background-image:radial-gradient(var(--edge,#958d81) 0.8px,transparent 1.1px),radial-gradient(var(--line,#3a352e) 1.2px,transparent 1.6px),radial-gradient(var(--edge,#958d81) 0.6px,transparent 0.9px);background-size:5px 4px,7px 5px,3px 6px;background-position:0 0,2px 1px,1px 3px}"
     }
   ],
   "narrative": {
-    "northStar": "Phơi sáng dài",
-    "overview": "Mỗi màn hình là một tấm ảnh chụp đêm phơi sáng lâu trong quán bar tối: nền ô liu gần đen có nhiễu hạt như phim, vài con số màu kem cháy sáng ở giữa khung, mọi thứ khác lùi vào bóng tối cho tới khi được chạm. Ánh sáng là chất liệu duy nhất của chiều sâu: vệt sáng ngang thay cho đường kẻ, quầng sáng quanh logo như đèn bar bị nhòe, ghế đang chọn phát sáng như một nguồn sáng, cung giờ của chủ quán là một vệt đèn kéo dài kết thúc bằng đốm than hồng như đầu điếu thuốc.\n\nMật độ khác nhau theo vai trò. Màn hình order thưa và to: hai con số khổng lồ, phím trong vùng ngón cái, một thanh ember duy nhất ở đáy. Trang chủ quán đặc hơn: sổ đơn hàng là bảng chữ kem trên nền ô liu, cài đặt là các khung viền mảnh. Cả hai dùng chung một bảng màu, một màu nhấn, hai họ chữ.\n\nThế giới này từ chối lưới ô màu sáng của POS có thực đơn và bảng điều khiển admin dạng thẻ thống kê với biểu đồ. Chỉ có giao diện tối, vì quán là phòng tối.",
+    "northStar": "Bao diêm quán bar",
+    "overview": "Mỗi màn hình là mặt một bao diêm của quán Nước Nôi: bìa đen mờ in phẳng, chữ kem, và đúng một màu mực cam như đầu que diêm. Thứ bậc đến từ cách in chứ không từ ánh sáng: chữ biển hẹp và đậm cho con số và tiêu đề, chữ thường cho phần còn lại, một hệ đường kẻ 1px chia sổ, và một tấm in đảo màu duy nhất mỗi màn (trên Tổng quan là doanh thu ngày kinh doanh nằm trong đồng hồ giờ mở cửa). Dải quẹt diêm nhám là chất liệu duy nhất có kết cấu.\n\nTrang chủ quán (đã dựng) là mặt sau của cùng bao diêm: đọc doanh thu tối nay trong một cái nhìn, rồi chỉ khi cần mới vào Thực đơn, Lịch sử đơn hàng hay Cài đặt. Danh sách là sổ in, thao tác theo thói quen web/app quen thuộc: kéo tay cầm, chạm chữ để sửa tại chỗ, nút ⋯ mở hộp thoại. Màn hình order (`/order`) do đợt 3 dựng theo hợp đồng trong `.impeccable/surfaces/src-app-order-page-tsx.md`; tài liệu này chưa mô tả nó.\n\nThế giới này từ chối POS tối phát sáng kiểu neon, lưới ô màu, và bảng điều khiển thẻ thống kê với biểu đồ phát sáng. Chỉ có nền tối, vì quán là phòng tối. Chữ trên giao diện tối giản; chữ SRS ghim cứng thì giữ nguyên.",
     "keyCharacteristics": [
-      "Chỉ có nền tối: ô liu gần đen với nhiễu hạt tĩnh, không có chế độ sáng.",
-      "Chữ màu kem, không bao giờ trắng.",
-      "Một màu nhấn ember cho hành động chính, chỗ ngồi đang chọn, focus và các nguồn sáng.",
-      "Điều khiển là viền mảnh khi nghỉ, khối đặc khi nhấn, gạch ngang khi đã hủy.",
-      "Con số lớn dùng mặt chữ poster Anton; mọi chữ giao diện khác dùng Be Vietnam Pro, số luôn `tabular-nums`.",
-      "Logo là hình vẽ tay gốc, chỉ dùng từ file PNG, có quầng sáng ember."
+      "Bìa đen mờ phẳng, chữ kem, một mực cam; trung tính khóa đúng 5 bậc.",
+      "Một họ chữ Archivo: hẹp đậm (wdth 72, 800) cho con số và tiêu đề, thường cho câu chữ; số luôn `tabular-nums`.",
+      "Một hệ đường kẻ 1px; không quầng sáng, không vệt sáng, không hạt nhiễu, không bóng đổ.",
+      "Một tấm in đảo màu mỗi màn.",
+      "Trạng thái là dấu in: món/chỗ ngồi ẩn in xám kèm dấu \"ẨN\" có viền; đơn đã hủy giữ dòng, gạch ngang.",
+      "Chuyển động ngắn, chỉ báo thay đổi trạng thái."
     ],
     "rules": [
       {
-        "name": "The One Ember Rule",
-        "body": "Ember chỉ dành cho hành động chính, lựa chọn đang có hiệu lực, focus và các nguồn sáng của thế giới (vệt sáng, đầu cung). Không dùng ember cho trang trí, nhãn hay trạng thái lỗi.",
+        "name": "The One Spot Ink Rule",
+        "body": "Mực cam chỉ cho hành động chính, lựa chọn đang có hiệu lực, focus, dữ liệu \"kỳ này\", và đúng một tấm in đảo màu mỗi màn. Không dùng cho trang trí, nhãn hay lỗi.",
         "section": "colors"
       },
       {
-        "name": "The Cream-Not-White Rule",
-        "body": "Không có `#FFFFFF` ở bất cứ đâu. Chữ sáng nhất là kem; khối sáng nhất là ember hoặc kem khi nhấn.",
+        "name": "The Five Neutrals Rule",
+        "body": "Trung tính chỉ có 5 bậc: bìa đen, bìa nổi, đường kẻ, tro, kem. Không thêm bậc, không dùng opacity để chế bậc mới cho chữ.",
         "section": "colors"
       },
       {
-        "name": "The Darkroom Rule",
-        "body": "Không có vùng sáng lớn. Khối đặc sáng chỉ xuất hiện ở nút hành động chính, ghế đang chọn và phím đang bị nhấn.",
+        "name": "The Framed Alarm Rule",
+        "body": "Màu cảnh báo và lỗi ở yên trong khung của nó (dòng lỗi, nút phá hủy, mũi tên so sánh); không tô cả dòng, cả khối hay cả trang.",
         "section": "colors"
       },
       {
-        "name": "The Two Faces Rule",
-        "body": "Be Vietnam Pro cho mọi chữ giao diện. Anton chỉ cho con số hiển thị lớn, phím cộng số lượng, nhãn Xác nhận đơn và tiêu đề trang/mục. Quyết định này đã được người dùng duyệt và đứng trên dòng \"một họ font sans\" của `.claude/rules/ui-craft.md`. Không thêm họ chữ thứ ba, không dùng Anton cho câu văn, nhãn ô nhập hay thông báo.",
+        "name": "The One Family Rule",
+        "body": "Chỉ Archivo. Hẹp đậm cho con số và tiêu đề; thường cho câu chữ. Không thêm họ chữ thứ hai, không dùng chữ hẹp cho câu văn hay thông báo.",
         "section": "typography"
       },
       {
         "name": "The Tabular Rule",
-        "body": "Mọi con số về tiền, số lượng và giờ dùng `tabular-nums` (đặt sẵn trên `body`), để con số không nhảy khi thay đổi.",
+        "body": "Mọi con số về tiền, số lượng và giờ dùng `tabular-nums` (đặt sẵn trên `body`).",
         "section": "typography"
       },
       {
-        "name": "The One Frame Rule",
-        "body": "Mọi thứ cần để tạo một đơn (số cốc, chỗ ngồi, phím, Xác nhận đơn) nằm trọn trong khung đầu ở 360×640 mà không cuộn.",
+        "name": "The Owner Forty-Eight Rule",
+        "body": "Nút chính trang chủ quán cao 48px, ngoại lệ có chủ ý so với 56px của màn hình order (SRS NFR-02, R37). Mọi vùng chạm ≥ 48px.",
         "section": "layout"
       },
       {
         "name": "The Narrow Ledger Rule",
-        "body": "Không đặt bảng có `min-width` lớn trong `overflow-x-auto` ở khổ điện thoại: Chrome Android thu nhỏ cả trang. Dưới `sm` dùng dòng sổ hai tầng.",
+        "body": "Không đặt bảng có `min-width` lớn trong `overflow-x-auto` ở khổ điện thoại; dưới `sm` sổ xếp thành dòng hai tầng.",
         "section": "layout"
       },
       {
-        "name": "The Light-Is-Depth Rule",
-        "body": "Quầng sáng chỉ gắn với thứ đang phát sáng (logo, lựa chọn, vệt sáng, đầu cung). Không dùng bóng đổ xám hay bóng lệch cứng để nâng thẻ, nút hay hộp thoại.",
+        "name": "The Flat Print Rule",
+        "body": "Mọi thứ in phẳng trên bìa. Không `box-shadow`, không `filter: drop-shadow`, không quầng, không vệt sáng, kể cả trên logo.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Striker Rule",
+        "body": "Dải quẹt diêm (`.striker`: cao 8px, bo 2px, chấm nhám tĩnh trên bìa nổi) là đường chia duy nhất có kết cấu: dưới dải trên điện thoại và dưới chữ chính trong sidebar. Mọi đường chia khác là đường kẻ 1px.",
         "section": "elevation"
       }
     ],
     "dos": [
       "Do dùng token vai trò (`bg-bg`, `text-ink`, `border-edge`, `bg-ember`…) trong component; không dùng mã màu hay tên màu Tailwind.",
-      "Do giữ ember cho hành động chính, lựa chọn đang có hiệu lực, focus và nguồn sáng (One Ember Rule).",
-      "Do vẽ điều khiển bằng viền mảnh `--edge` khi nghỉ và chuyển thành khối kem (hoặc ember nếu là lựa chọn) khi nhấn.",
-      "Do hiển thị đơn đã hủy bằng gạch ngang + chữ sage, giữ nguyên dòng; không xóa, không tô đỏ cả dòng.",
-      "Do dùng vệt sáng `.streak` thay cho đường kẻ trang trí đứng một mình.",
-      "Do dùng logo và motif từ file PNG gốc, có halo (trừ motif ly cocktail ở trạng thái trống).",
-      "Do giữ chuyển động trong 150–250ms, chỉ để báo thay đổi trạng thái, và tắt khi `prefers-reduced-motion`.",
-      "Do kiểm tra màn hình order ở 360×640 và 390×844: không được cuộn mới tới nút Xác nhận đơn."
+      "Do giữ mực cam cho hành động chính, lựa chọn đang có hiệu lực, focus và một tấm in đảo màu mỗi màn (One Spot Ink Rule).",
+      "Do đặt chữ đen `--ember-ink` trên mọi nền cam hoặc danger.",
+      "Do chia sổ, mục và danh sách bằng đường kẻ 1px; dải quẹt diêm chỉ ở dưới dải trên và dưới chữ chính sidebar.",
+      "Do theo thói quen quen thuộc cho dòng sổ: tay cầm kéo, chạm chữ để sửa tại chỗ, ⋯ mở hộp thoại giữa màn hình; giờ mở cửa là một form với một nút \"Lưu giờ\".",
+      "Do in món/chỗ ngồi ẩn bằng chữ tro kèm dấu \"ẨN\" có viền; in đơn đã hủy bằng gạch ngang, chữ tro, giữ dòng.",
+      "Do đặt nút phá hủy hai bước xa nút Lưu và trông khác hẳn nó.",
+      "Do giữ chuyển động trong 150–200ms: mọi điều khiển đổi màu/nền/viền/độ mờ/transform 150ms, nhấn nút chính `scale(.98)`, hộp thoại 200ms, ô sửa và danh sách đã ẩn mờ dần 180ms, thông báo 200ms; riêng số liệu Tổng quan chạy 600ms khi tự tải lại. Với `prefers-reduced-motion`: bỏ di chuyển, chỉ giữ đổi độ mờ, tắt chạy số.",
+      "Do giữ chữ tối giản; chữ SRS ghim cứng thì giữ nguyên."
     ],
     "donts": [
       "Don't thêm chế độ sáng, vùng nền sáng lớn hay chữ trắng `#FFFFFF`.",
-      "Don't vẽ lại logo bằng CSS, SVG hay một font gần giống; không đặt halo lên chữ.",
-      "Don't dùng Anton cho câu văn, nhãn ô nhập, thông báo hay nút thường; không thêm họ chữ thứ ba.",
-      "Don't dùng bóng đổ xám hoặc bóng lệch cứng để nâng bề mặt; chiều sâu chỉ đến từ tông `--raised` và quầng sáng của vật phát sáng.",
-      "Don't làm lưới ô màu sáng kiểu POS có thực đơn, hay thẻ thống kê và biểu đồ trên trang Tổng quan.",
-      "Don't cho vệt sáng hay nhiễu hạt chuyển động; chỉ `exposure-streak` được chạy, và chỉ khi tạo đơn.",
-      "Don't đặt bảng rộng có `min-width` trong `overflow-x-auto` ở khổ điện thoại.",
-      "Don't dùng ký tự Unicode hay emoji làm icon; dùng `lucide-react` với `aria-hidden` hoặc `aria-label`."
+      "Don't dùng bóng đổ, quầng sáng, vệt sáng, gradient hay hạt nhiễu, kể cả trên logo.",
+      "Don't đặt chữ kem trên nền cam (2.9:1).",
+      "Don't in tấm cam đảo màu thứ hai trên cùng một màn.",
+      "Don't thêm bậc trung tính thứ sáu hay họ chữ thứ hai.",
+      "Don't làm thẻ thống kê hay biểu đồ phát sáng; dữ liệu là sổ in và cột phẳng.",
+      "Don't tô đỏ cả dòng hay cả khối cho lỗi hoặc cảnh báo.",
+      "Don't dùng ký tự Unicode hay emoji làm icon; dùng `lucide-react` với `aria-hidden` hoặc `aria-label`.",
+      "Don't dùng `window.prompt`, `confirm`, `alert`."
     ]
   }
 }

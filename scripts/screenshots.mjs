@@ -1,4 +1,4 @@
-// Chụp ảnh trang chủ quán cho finish review (impeccable): node scripts/screenshots.mjs
+// Chụp ảnh trang chủ quán và màn order cho finish review (impeccable): node scripts/screenshots.mjs
 // Cần dev server ở localhost:3000 và tài khoản thử trong README (chỉ dùng trên máy local).
 import { chromium } from "playwright";
 const base = "http://localhost:3000";
@@ -37,6 +37,26 @@ for (const [w, h, prefix] of [[390, 844, "mobile"], [1440, 900, "desktop"]]) {
     await p.waitForTimeout(300);
     await p.screenshot({ path: `${out}/${prefix}-${file}.png` });
     await p.close();
+  }
+  await ctx.close();
+}
+// Màn order bằng tài khoản nhân viên: nhập PIN quán trên bàn phím số
+for (const [w, h, prefix] of [[390, 844, "order"], [360, 640, "order-360"], [1024, 768, "order-wide"]]) {
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, reducedMotion: "reduce" });
+  const p = await ctx.newPage();
+  await p.goto(base + "/login");
+  for (const d of "123456") await p.getByRole("button", { name: d, exact: true }).click();
+  await p.waitForURL("**/order", { timeout: 30000 });
+  await p.waitForTimeout(1500);
+  await p.screenshot({ path: `${out}/${prefix}.png` });
+  await p.getByRole("button", { name: /^Classic/ }).click();
+  await p.getByRole("button", { name: /^Classic/ }).click();
+  await p.getByRole("button", { name: /^Neat/ }).click();
+  await p.screenshot({ path: `${out}/${prefix}-cart.png` });
+  if (w < 768) {
+    await p.getByRole("button", { name: "Giỏ đơn" }).click();
+    await p.waitForTimeout(400);
+    await p.screenshot({ path: `${out}/${prefix}-sheet.png` });
   }
   await ctx.close();
 }
