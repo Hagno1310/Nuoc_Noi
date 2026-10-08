@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 3.5 |
+| **Phiên bản** | 3.6 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-08 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.6** | Route ký upload ảnh chuyển khoản không cho ghi đè ảnh đã có, và lỗi tạm thời khi kiểm tra quyền không đăng xuất nhân viên (R43). |
 | **Thay đổi ở v3.5** | Giỏ đơn trống (bấm Xóa hết hoặc bỏ từng món) thì bỏ ảnh chuyển khoản đang giữ (R42). |
 | **Thay đổi ở v3.4** | Trong tấm thanh toán, khi mất mạng hoặc giỏ có món vừa ngừng bán thì khóa nút gửi và ghi lý do ngay trên nút; giữ ảnh và mã đơn (R41). |
 | **Thay đổi ở v3.3** | **Hình thức thanh toán**: nhân viên chọn tiền mặt hoặc chuyển khoản trước khi đơn được ghi; chuyển khoản hiện mã QR của quán và bắt buộc chụp **ảnh chuyển khoản** (lưu trên Cloudinary). Lịch sử đơn hàng, Đơn vừa tạo và CSV có hình thức thanh toán; xem lại được ảnh (R39). Chữ gốc 16px ở mọi cỡ màn (R40). Thiết kế: `docs/superpowers/specs/2026-10-07-thanh-toan-design.md`. |
@@ -316,7 +317,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 |---|---|
 | NFR-01 | Mỗi lần bấm nút trên `/order` có phản hồi trên giao diện dưới 200ms. Trong lúc gửi đơn, nút hiện trạng thái "Đang gửi…". |
 | NFR-02 | Mobile-first. Nút chính trên màn order cao ít nhất 56px; trên trang chủ quán ít nhất 48px. Mọi vùng chạm ít nhất 48px. Thành tiền hiển thị cỡ lớn. |
-| NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. `CLOUDINARY_API_SECRET` chỉ nằm ở server Vercel (không có tiền tố `NEXT_PUBLIC_`) và chỉ route ký upload đọc nó; route chỉ ký cho nhân viên hoặc chủ quán đang đăng nhập. |
+| NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. `CLOUDINARY_API_SECRET` chỉ nằm ở server Vercel (không có tiền tố `NEXT_PUBLIC_`) và chỉ route ký upload đọc nó; route chỉ ký cho nhân viên hoặc chủ quán đang đăng nhập. Chữ ký upload kèm `overwrite=false`, nên không ghi đè được ảnh đã có. Kiểm tra quyền lỗi tạm thời thì route trả 503 và màn order báo "Chưa tải được ảnh – kiểm tra mạng rồi thử lại."; chỉ khi không có quyền mới trả 401 và đăng xuất. |
 | NFR-05 | Tiền là số nguyên. Server tính đơn giá, tạm tính, số tiền giảm và thành tiền. Không bao giờ xóa cứng đơn hàng, chỗ ngồi hoặc món. Ngoại lệ duy nhất: migration v3.0 xóa dữ liệu thử một lần trước khi dùng thật (R36). |
 | NFR-06 | Giao diện tiếng Việt, tiền định dạng `25.000đ`, giờ Việt Nam. |
 | NFR-07 | Chạy trên Chrome Android và Safari iOS bản mới nhất. Cài được ra màn hình chính. |
@@ -394,3 +395,4 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | R40 (v3.3) | Chữ gốc | 16px ở mọi cỡ màn, thay mức 15px dưới `lg` của R31. Vùng chạm và ô nhập giữ như R31. |
 | R41 (v3.4) | Khóa nút trong tấm thanh toán | Khi điều kiện khóa của FR-04 xuất hiện lúc tấm thanh toán đang mở, khóa nút gửi trong tấm và ghi lý do; không đóng tấm, giữ ảnh và mã đơn (NFR-01). |
 | R42 (v3.5) | Bỏ ảnh khi giỏ trống | Giỏ đơn trống vì bất cứ lý do gì thì bỏ ảnh chuyển khoản đang giữ, để ảnh của khách trước không gắn vào đơn của khách sau. |
+| R43 (v3.6) | Ký upload | Chữ ký kèm `overwrite=false`; lỗi tạm thời khi kiểm tra quyền trả 503 (thử lại được), không có quyền trả 401 (đăng xuất). |

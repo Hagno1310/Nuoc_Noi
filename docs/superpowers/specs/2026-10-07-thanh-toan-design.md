@@ -57,9 +57,9 @@ Các quyết định dưới đây đã được chủ quán duyệt trong buổ
 ### 3.3. Ký upload
 
 `POST /api/transfer-photo/sign` (route handler Next.js, runtime Node):
-1. Tạo Supabase server client từ cookie; gọi RPC `is_staff()` (đúng cho cả nhân viên và chủ quán, đồng thời xác nhận phiên còn tồn tại). Sai hoặc lỗi → 401.
+1. Tạo Supabase server client từ cookie; gọi RPC `is_staff()` (đúng cho cả nhân viên và chủ quán, đồng thời xác nhận phiên còn tồn tại). Không có quyền → 401; lỗi khi gọi RPC → 503.
 2. Sinh `public_id = nuoc-noi/transfer/<crypto.randomUUID()>`, `timestamp` hiện tại.
-3. Ký `public_id` + `timestamp` bằng SHA-1 với `CLOUDINARY_API_SECRET` (`node:crypto`, không thêm thư viện).
+3. Ký `overwrite=false` + `public_id` + `timestamp` bằng SHA-1 với `CLOUDINARY_API_SECRET` (`node:crypto`, không thêm thư viện).
 4. Trả `{ cloudName, apiKey, publicId, timestamp, signature }`.
 
 Trình duyệt `POST` ảnh tới `https://api.cloudinary.com/v1_1/<cloud>/image/upload` với các trường trên. Chữ ký Cloudinary hết hạn sau 1 giờ.

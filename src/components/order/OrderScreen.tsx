@@ -42,7 +42,7 @@ const ERROR_TEXT: Record<string, string> = {
   ORDER_NOT_FOUND: "Không tìm thấy đơn.",
   PAYMENT_REQUIRED: "Chọn Tiền mặt hoặc Chuyển khoản rồi gửi lại.",
   PHOTO_REQUIRED: "Chụp lại ảnh chuyển khoản rồi gửi lại.",
-  INVALID_PAYMENT: "Thông tin thanh toán không hợp lệ. Quay lại rồi chọn lại.",
+  INVALID_PAYMENT: "Hình thức thanh toán không hợp lệ. Quay lại rồi chọn lại.",
   CANCEL_WINDOW_EXPIRED: "Đã quá 5 phút, nhờ chủ quán hủy đơn.",
 };
 const CANCEL_NETWORK_ERROR = "Chưa hủy được – kiểm tra mạng rồi thử lại.";
