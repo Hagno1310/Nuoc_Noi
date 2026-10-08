@@ -16,7 +16,7 @@ describe("uploadTransferPhoto", () => {
     const [url, init] = fetchFn.mock.calls[1];
     expect(url).toBe("https://api.cloudinary.com/v1_1/demo/image/upload");
     const form = init.body as FormData;
-    expect([form.get("api_key"), form.get("timestamp"), form.get("public_id"), form.get("signature")]).toEqual(["k", "1", ID, "s"]);
+    expect([form.get("api_key"), form.get("timestamp"), form.get("public_id"), form.get("signature"), form.get("overwrite")]).toEqual(["k", "1", ID, "s", "false"]);
   });
 
   it("route ký trả 401 → UNAUTHORIZED", async () => {

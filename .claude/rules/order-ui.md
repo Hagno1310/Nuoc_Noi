@@ -19,6 +19,6 @@ Quy tắc thiết kế (kích thước vùng chạm, màu, icon, trạng thái) 
 - **Gửi đơn:**
   - Màn hình chỉ reset sau khi server xác nhận đơn.
   - Bấm gửi lại sau lỗi mạng phải dùng **cùng mã đơn**, cho tới khi gửi thành công.
-- **Mất mạng:** khóa nút "Xác nhận đơn" và hiện thông báo. Đây là cách xử lý duy nhất, vì mọi thao tác đều cần mạng (SRS §1.3).
+- **Mất mạng:** khóa nút "Xác nhận đơn" và hiện thông báo. Trong tấm thanh toán, các nút gửi cũng bị khóa và ghi lý do ngay trên nút (SRS R41). Đây là cách xử lý duy nhất, vì mọi thao tác đều cần mạng (SRS §1.3).
 - **Mã lỗi `FORBIDDEN`** từ RPC nghĩa là phiên đăng nhập đã bị thu hồi. Khi đó đăng xuất và chuyển về `/login`.
 - **Gọi RPC** qua `createStaffApi` trong `src/lib/api.ts`, để mọi lỗi đều được phân loại thành `NetworkError` hoặc `RpcError`.

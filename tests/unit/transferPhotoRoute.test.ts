@@ -18,8 +18,13 @@ describe("POST /api/transfer-photo/sign", () => {
   it("không phải nhân viên/chủ quán đang đăng nhập → 401", async () => {
     rpc.mockResolvedValue({ data: false, error: null });
     expect((await POST()).status).toBe(401);
-    rpc.mockResolvedValue({ data: null, error: { message: "JWT expired" } });
-    expect((await POST()).status).toBe(401);
+  });
+
+  it("lỗi tạm khi kiểm tra quyền → 503, không phải 401", async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: "timeout" } });
+    const res = await POST();
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "UNAVAILABLE" });
   });
 
   it("ký public_id do server sinh, không trả secret", async () => {
@@ -29,7 +34,8 @@ describe("POST /api/transfer-photo/sign", () => {
     expect(rpc).toHaveBeenCalledWith("is_staff");
     expect(body.publicId).toMatch(/^nuoc-noi\/transfer\/[0-9a-f-]{36}$/);
     expect(body).toMatchObject({ cloudName: "demo", apiKey: "key123" });
-    expect(body.signature).toBe(signParams({ public_id: body.publicId, timestamp: body.timestamp }, "secret456"));
+    expect(body.signature).toBe(signParams({ public_id: body.publicId, timestamp: body.timestamp, overwrite: "false" }, "secret456"));
+    expect(body.overwrite).toBe("false");
     expect(JSON.stringify(body)).not.toContain("secret456");
   });
 

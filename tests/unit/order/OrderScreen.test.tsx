@@ -471,6 +471,21 @@ describe("OrderScreen", () => {
     expect(uploadPhoto).toHaveBeenCalledTimes(1);
   });
 
+  it("bỏ từng món đến khi giỏ trống thì bỏ ảnh đang giữ (SRS R42)", async () => {
+    const { user } = setup();
+    const { cart, pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: "Chuyển khoản" }));
+    await takePhoto(user, pay);
+    await waitFor(() => expect(within(pay).getByRole("button", { name: "Xác nhận đã thanh toán" })).toBeEnabled());
+    await user.click(within(pay).getByRole("button", { name: "Quay lại" }));
+    await user.click(within(cart).getByRole("button", { name: "Bớt 1 Classic" }));
+    await user.click(row(/^Classic/));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await user.click(within(payDialog()).getByRole("button", { name: "Chuyển khoản" }));
+    expect(within(payDialog()).getByRole("img", { name: "Mã QR chuyển khoản của quán" })).toBeInTheDocument();
+    expect(within(payDialog()).queryByRole("button", { name: "Xác nhận đã thanh toán" })).toBeNull();
+  });
+
   it("bấm hai lần chỉ gửi một lần (Review Focus 3)", async () => {
     const pending = deferred<CreatedOrder>();
     const createOrder = vi.fn(() => pending.promise);

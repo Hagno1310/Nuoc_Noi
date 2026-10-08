@@ -7,7 +7,8 @@ import { createServerSupabase } from "@/lib/supabase/server";
 export async function POST() {
   const supabase = await createServerSupabase();
   const { data: allowed, error } = await supabase.rpc("is_staff");
-  if (error || allowed !== true) return NextResponse.json({ error: "FORBIDDEN" }, { status: 401 });
+  if (error) return NextResponse.json({ error: "UNAVAILABLE" }, { status: 503 });
+  if (allowed !== true) return NextResponse.json({ error: "FORBIDDEN" }, { status: 401 });
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
@@ -21,6 +22,7 @@ export async function POST() {
     apiKey,
     publicId,
     timestamp,
-    signature: signParams({ public_id: publicId, timestamp }, secret),
+    overwrite: "false",
+    signature: signParams({ public_id: publicId, timestamp, overwrite: "false" }, secret),
   });
 }

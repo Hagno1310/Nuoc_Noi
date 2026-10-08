@@ -23,7 +23,7 @@ const HEADER = [
   "Thanh toán",
 ];
 const STATUS_LABEL: Record<CsvOrder["status"], string> = { paid: "Đã thanh toán", cancelled: "Đã hủy" };
-const PAYMENT_LABEL: Record<CsvOrder["payment_method"], string> = { cash: "Tiền mặt", transfer: "Chuyển khoản" };
+export const PAYMENT_LABEL: Record<CsvOrder["payment_method"], string> = { cash: "Tiền mặt", transfer: "Chuyển khoản" };
 
 function textCell(value: string): string {
   // Chặn CSV injection: Excel coi ô bắt đầu bằng = + - @ là công thức

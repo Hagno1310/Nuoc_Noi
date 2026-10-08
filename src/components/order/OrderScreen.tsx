@@ -40,6 +40,9 @@ const ERROR_TEXT: Record<string, string> = {
   SEAT_NOT_FOUND: "Chỗ ngồi không còn tồn tại. Tải lại trang.",
   TOTAL_TOO_LARGE: "Đơn quá lớn (trên 1 tỷ đồng). Tách thành nhiều đơn.",
   ORDER_NOT_FOUND: "Không tìm thấy đơn.",
+  PAYMENT_REQUIRED: "Chọn Tiền mặt hoặc Chuyển khoản rồi gửi lại.",
+  PHOTO_REQUIRED: "Chụp lại ảnh chuyển khoản rồi gửi lại.",
+  INVALID_PAYMENT: "Thông tin thanh toán không hợp lệ. Quay lại rồi chọn lại.",
   CANCEL_WINDOW_EXPIRED: "Đã quá 5 phút, nhờ chủ quán hủy đơn.",
 };
 const CANCEL_NETWORK_ERROR = "Chưa hủy được – kiểm tra mạng rồi thử lại.";
@@ -89,7 +92,7 @@ export function OrderScreen({
   // Giữ id tới khi gửi thành công, để bấm lại sau lỗi mạng không tạo đơn thứ hai (FR-04)
   const pendingId = useRef<string | null>(null);
   const [payOpen, setPayOpen] = useState(false);
-  // Ảnh chuyển khoản đã tải lên: giữ qua MENU_CHANGED, lỗi mạng, đơn đã hủy; bỏ khi gửi thành công hoặc Xóa hết (FR-04c)
+  // Ảnh chuyển khoản đã tải lên: giữ qua MENU_CHANGED, lỗi mạng, đơn đã hủy; bỏ khi gửi thành công hoặc giỏ trống (FR-04c, R42)
   const [photoId, setPhotoId] = useState<string | null>(null);
   // Tăng khi bỏ ảnh (Xóa hết, gửi xong): ảnh đang tải dở của giỏ cũ không được ghi lại
   const photoGen = useRef(0);
@@ -152,9 +155,13 @@ export function OrderScreen({
   const remove = edit((id: string) => setCart((c) => removeLine(c, id)));
   const clear = edit<void>(() => {
     setCart([]);
+  });
+  // Giỏ trống vì bất cứ lý do gì: bỏ ảnh đang giữ và ảnh đang tải dở (SRS R42)
+  useEffect(() => {
+    if (cart.length > 0) return;
     setPhotoId(null);
     photoGen.current++;
-  });
+  }, [cart.length]);
   const changeDiscount = edit(setDiscount);
   const changeSeat = edit(setSelection);
 
@@ -258,7 +265,11 @@ export function OrderScreen({
       feedback={fb}
       cancelBusy={cancelling !== null}
       undoing={cancelling?.from === "undo" && cancelling.id === fb?.orderId}
-      onSubmit={() => blockReason === null && setPayOpen(true)}
+      onSubmit={() => {
+        if (blockReason !== null) return;
+        setError(null);
+        setPayOpen(true);
+      }}
       onUndo={(id) => void handleCancel(id, "undo")}
       onFeedbackEnd={endFeedback}
     />

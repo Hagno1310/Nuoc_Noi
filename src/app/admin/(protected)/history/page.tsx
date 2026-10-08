@@ -4,13 +4,13 @@ import { ExportCsvButton } from "@/components/admin/ExportCsvButton";
 import { OwnerCancelButton } from "@/components/admin/OwnerCancelButton";
 import { ScrollToOrder } from "@/components/admin/ScrollToOrder";
 import { TransferPhotoThumb } from "@/components/TransferPhoto";
+import { PAYMENT_LABEL } from "@/lib/csv";
 import { normalizeRange, parsePage } from "@/lib/admin/range";
 import { formatVnd } from "@/lib/money";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { formatVnDateTime } from "@/lib/time";
 
 const PAGE_SIZE = 50;
-const PAYMENT_LABEL = { cash: "Tiền mặt", transfer: "Chuyển khoản" } as const;
 type Params = { from?: string; to?: string; page?: string; order?: string };
 type Totals = {
   revenue: number;
@@ -30,7 +30,7 @@ type Row = {
   discount_amount: number;
   total_amount: number;
   status: "paid" | "cancelled";
-  payment_method: keyof typeof PAYMENT_LABEL;
+  payment_method: "cash" | "transfer";
   transfer_photo_id: string | null;
   order_lines: { item_name: string; unit_price: number; quantity: number; line_amount: number }[];
 };

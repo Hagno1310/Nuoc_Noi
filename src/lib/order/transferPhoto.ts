@@ -7,7 +7,7 @@ export class UploadError extends Error {
   }
 }
 
-type Signed = { cloudName: string; apiKey: string; publicId: string; timestamp: number; signature: string };
+type Signed = { cloudName: string; apiKey: string; publicId: string; timestamp: number; overwrite?: string; signature: string };
 
 async function attempt<T>(run: () => Promise<T>): Promise<T> {
   try {
@@ -30,6 +30,7 @@ export async function uploadTransferPhoto(file: Blob, fetchFn: typeof fetch = fe
   form.append("api_key", signed.apiKey);
   form.append("timestamp", String(signed.timestamp));
   form.append("public_id", signed.publicId);
+  form.append("overwrite", "false");
   form.append("signature", signed.signature);
   return attempt(async () => {
     const res = await fetchFn(`https://api.cloudinary.com/v1_1/${signed.cloudName}/image/upload`, {
