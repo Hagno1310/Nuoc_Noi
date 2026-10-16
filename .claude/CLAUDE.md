@@ -8,7 +8,7 @@ Khi các nguồn nói khác nhau, thứ tự ưu tiên là:
 
 > `docs/SRS.md` → `GLOSSARY.md` → kế hoạch trong `docs/superpowers/plans/` → code hiện có
 
-Về giao diện (màu, font, khoảng cách, icon), thứ tự là `PRODUCT.md` → `DESIGN.md` → `.claude/rules/ui-craft.md`. Cả ba đứng trên code mẫu trong kế hoạch.
+Về giao diện (màu, font, khoảng cách, icon), thứ tự là `PRODUCT.md` → `DESIGN.md` (kèm bản vẽ `design/design.pen`) → `.claude/rules/ui-craft.md`. Cả ba đứng trên code mẫu trong kế hoạch.
 
 ## Khi gặp chỗ lệch SRS
 

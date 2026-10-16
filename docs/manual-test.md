@@ -16,11 +16,11 @@ Dùng Chrome ở chế độ thiết bị di động (DevTools → Toggle device
 
 ## Chủ quán
 
-- [ ] 8. Đăng nhập `/admin/login`. Tổng quan đúng doanh thu và số cốc của ngày kinh doanh (không tính đơn hủy); cung chỉ vẽ phần ngày kinh doanh đã trôi qua. Tạo thêm một đơn: trong vòng 60 giây số liệu tự cập nhật.
+- [ ] 8. Đăng nhập `/admin/login`. Tổng quan đúng doanh thu và số cốc của ngày kinh doanh (không tính đơn hủy); thanh giờ mở cửa tô phần đã trôi qua và ghi "Còn H giờ M phút đến giờ đóng cửa". Tạo thêm một đơn: trong vòng 60 giây số liệu tự cập nhật.
 - [ ] 9. Đổi đơn giá chung sang 30.000đ: tab `/order` đổi giá ngay và ô giá nhấp nháy. Lịch sử đổi giá có thêm một dòng ghi email chủ quán. Nhập 600.000: bị báo "Giá phải là số nguyên từ 1đ đến 500.000đ.".
 - [ ] 10. Thêm chỗ ngồi (chọn loại Bàn hoặc Ghế quầy), đổi tên, sắp xếp trong từng loại, ẩn chỗ ngồi (bấm "Ẩn" rồi "Chắc chắn ẩn?"): tải lại `/order` thì thấy thay đổi ở đúng nhóm. Đơn cũ vẫn giữ tên chỗ ngồi cũ.
 - [ ] 11. Đổi PIN quán (bấm "Đổi PIN quán" rồi "Chắc chắn đổi PIN?"): lần bấm tiếp theo trên tab `/order` của nhân viên bị chuyển về `/login`. PIN mới vào được.
-- [ ] 12. Lịch sử đơn hàng: lọc theo khoảng ngày (nhập ngược thì tự đảo), hủy một đơn ("Hủy" rồi "Chắc chắn hủy?"), rồi xuất CSV. Mở file bằng Excel: tiếng Việt hiển thị đúng, có 9 cột (Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Số lượng, Đơn giá, Thành tiền, Trạng thái, Thanh toán), mỗi dòng đơn một hàng kèm hàng "Giảm giá N%" nếu có, đơn hủy ghi "Đã hủy".
+- [ ] 12. Lịch sử đơn hàng: lọc theo khoảng ngày (nhập ngược thì tự đảo), hủy một đơn ("Hủy" rồi "Chắc chắn hủy?"), rồi xuất CSV. Mở file bằng Excel: tiếng Việt hiển thị đúng, có 10 cột (Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Ghi chú, Số lượng, Đơn giá, Thành tiền, Trạng thái, Thanh toán), mỗi dòng đơn một hàng kèm hàng "Giảm giá N%" nếu có, đơn hủy ghi "Đã hủy".
 - [ ] 13. Tài khoản nhân viên mở `/admin/dashboard`: thấy "Tài khoản này không phải tài khoản chủ quán.". Mở `/admin/login` thì vẫn thấy form đăng nhập.
 
 ## Cài ra màn hình chính
@@ -45,3 +45,14 @@ Cần `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API
 
 - [ ] Điện thoại 360px: nút Ghế quầy vẫn 2 hàng × 6; thanh giỏ đơn không tràn.
 - [ ] Trang chủ quán ở 390px: thanh điều hướng dưới và dòng tổng Lịch sử không tràn.
+
+## Trả sau, ghi chú, nhập nhanh, báo cáo theo món (SRS v3.8 R45–R48)
+
+- [ ] Chạm giữ ô Classic: bàn phím số hiện; nhập 12 → Xong: ô hiện 12.
+- [ ] Trong giỏ, chạm "+ Ghi chú" → "Ít đá" → Lưu: dòng hiện ghi chú; chạm Classic lần nữa tạo dòng riêng không ghi chú.
+- [ ] Xác nhận đơn → "Trả sau – ghi vào <chỗ ngồi>": "Đã ghi N món vào …" + Hoàn tác; nút "Chờ thanh toán" tăng 1; chỗ ngồi có chấm vàng.
+- [ ] Gửi thêm một lượt gọi vào cùng chỗ ngồi: nút ghi "Ghi thêm vào …"; chi tiết đơn có hai lượt gọi; Hủy lượt mới (trong 5 phút) thì tạm tính giảm.
+- [ ] Thu tiền: chọn 10% → Tiền mặt: "Đã thu X – …", không có Hoàn tác; Lịch sử thấy Đã thanh toán, CSV lấy giờ thu tiền.
+- [ ] Hai điện thoại cùng bấm Thu tiền một đơn: máy sau thấy "Đơn này đã được thu tiền.".
+- [ ] Tổng quan: đơn chờ thanh toán hiện riêng (màu vàng), không cộng vào doanh thu; Món bán chạy và Số món theo giờ đổi theo Tối nay / Tuần / Tháng.
+- [ ] Máy tính 1440px: trang chủ quán có thanh bên trái; Sửa món mở hộp thoại giữa màn. Điện thoại: Sửa món mở tấm từ đáy; Đăng xuất ở cuối Cài đặt.

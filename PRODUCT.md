@@ -20,7 +20,7 @@ Ghi nhận nhanh các món bán ra và doanh thu của một quán bar nhỏ bá
 
 ## Positioning
 
-Thực đơn rất ngắn và mỗi món chỉ có một giá, không có biến thể, topping hay size. Cả quy trình gọi món chỉ còn: **chạm các món** (mỗi chạm +1), **chọn chỗ ngồi**, **xác nhận**. Ứng dụng tận dụng điều đó để 8 món nằm gọn trong một màn hình, không có danh mục hay tìm kiếm, và một đơn một món chỉ mất bốn chạm. Các app POS đa năng, với cây danh mục và hộp thoại tùy chọn, không làm gọn được như vậy.
+Thực đơn rất ngắn và mỗi món chỉ có một giá, không có biến thể, topping hay size. Cả quy trình gọi món chỉ còn: **chạm các món** (mỗi chạm +1), **chọn chỗ ngồi**, **xác nhận**, rồi thu tiền ngay hoặc ghi Trả sau. Ứng dụng tận dụng điều đó để 8 món nằm gọn trong một màn hình, không có danh mục hay tìm kiếm, và một đơn một món chỉ mất bốn chạm. Các app POS đa năng, với cây danh mục và hộp thoại tùy chọn, không làm gọn được như vậy.
 
 ## Operating Context
 
@@ -35,8 +35,8 @@ Thực đơn rất ngắn và mỗi món chỉ có một giá, không có biến
 
 Nguồn chuẩn là `docs/SRS.md`. Thuật ngữ nằm trong `GLOSSARY.md`.
 
-- **Nhân viên:** chạm món để thêm vào giỏ đơn, sửa số lượng, giảm giá theo phần trăm cho cả đơn; bắt buộc chọn chỗ ngồi; hoàn tác hoặc hủy đơn trong 5 phút.
-- **Chủ quán:** quản lý thực đơn ở trang Thực đơn (có lịch sử đổi giá theo món), danh sách chỗ ngồi, giờ mở cửa và PIN quán; xem doanh thu, số món, số đơn theo ngày, tuần, tháng; xem lịch sử đơn hàng (mở xem từng dòng đơn) và xuất CSV.
+- **Nhân viên:** chạm món để thêm vào giỏ đơn (chạm giữ để nhập số lượng), sửa số lượng, ghi chú trên từng dòng đơn; bắt buộc chọn chỗ ngồi; thu tiền ngay hoặc **Trả sau** (ghi lượt gọi vào đơn chờ thanh toán của chỗ ngồi, thu tiền một lần khi khách về); giảm giá theo phần trăm lúc thu tiền; hoàn tác hoặc hủy đơn / lượt gọi trong 5 phút.
+- **Chủ quán:** quản lý thực đơn ở trang Thực đơn (có lịch sử đổi giá theo món), danh sách chỗ ngồi, giờ mở cửa và PIN quán; xem doanh thu, số món, số đơn theo ngày, tuần, tháng, đơn chờ thanh toán, món bán chạy và số món theo giờ; xem lịch sử đơn hàng (mở xem từng dòng đơn) và xuất CSV. Trang chủ quán dùng tốt trên điện thoại và có bố cục riêng cho máy tính.
 - **Giao diện chỉ dùng tiếng Việt.** Tiền hiển thị dạng `25.000đ`, giờ theo giờ Việt Nam.
 
 ## Brand Commitments

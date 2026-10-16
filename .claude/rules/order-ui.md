@@ -10,7 +10,9 @@ paths:
 
 # Quy tắc màn hình order (nhân viên)
 
-Đối chiếu SRS FR-00a đến FR-04b và NFR-01, NFR-02 trước khi sửa.
+Đối chiếu SRS FR-00a đến FR-04d và NFR-01, NFR-02 trước khi sửa.
+
+- **Trả sau:** mỗi lượt gọi có `id` riêng do client sinh; gửi lại sau lỗi mạng dùng cùng `id`. Thu tiền một đơn chờ thanh toán đi qua cùng tấm thanh toán với đơn trả ngay.
 
 Quy tắc thiết kế (kích thước vùng chạm, màu, icon, trạng thái) nằm ở `ui-craft.md`.
 

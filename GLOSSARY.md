@@ -17,12 +17,20 @@ Món không còn được chọn khi tạo đơn mới, nhưng vẫn hiện tên
 _Avoid_: Món đã xóa
 
 **Đơn hàng** (Order):
-Một lần ghi nhận khách mua một hoặc nhiều món, gồm các dòng đơn, có số tiền đã chốt tại thời điểm tạo.
+Một lần ghi nhận khách mua một hoặc nhiều món, gồm các dòng đơn của một hoặc nhiều lượt gọi. Số tiền được chốt lúc thu tiền.
 _Avoid_: Hóa đơn, giao dịch, order
 
+**Lượt gọi** (Round):
+Một lần nhân viên gửi giỏ đơn lên server. Đơn trả ngay có đúng một lượt gọi; đơn chờ thanh toán có thể có nhiều lượt gọi. Đơn giá được chốt theo từng lượt gọi.
+_Avoid_: Lần order, đợt, round
+
 **Dòng đơn** (Order line):
-Một món cùng số lượng của nó trong một đơn hàng. Lưu tên món và đơn giá tại thời điểm bán.
+Một món cùng số lượng và ghi chú của nó trong một lượt gọi. Lưu tên món và đơn giá tại thời điểm gửi.
 _Avoid_: Item, mục, chi tiết đơn
+
+**Ghi chú** (Line note):
+Lời dặn ngắn cho người pha chế trên một dòng đơn (ví dụ "ít đá"), tối đa 60 ký tự. Cùng món nhưng khác ghi chú là hai dòng đơn.
+_Avoid_: Note, yêu cầu, tùy chọn (tùy chọn là topping/size, ngoài phạm vi)
 
 **Giỏ đơn** (Cart):
 Các dòng đơn nhân viên đã chọn nhưng chưa gửi. Mất khi tải lại trang.
@@ -81,15 +89,27 @@ _Avoid_: Tổng tiền, thu nhập, lợi nhuận
 ## Trạng thái đơn
 
 **Đã thanh toán** (Paid):
-Trạng thái mặc định của đơn hàng: khách đã trả bằng tiền mặt hoặc chuyển khoản trước khi đơn được ghi.
+Đơn hàng đã được thu tiền bằng tiền mặt hoặc chuyển khoản. Đơn trả ngay có trạng thái này ngay khi được ghi; đơn chờ thanh toán chuyển sang trạng thái này lúc thu tiền.
 _Avoid_: Hoàn thành, đã chốt
+
+**Trả sau** (Pay later):
+Cách gửi giỏ đơn mà chưa thu tiền: các món được ghi thành một lượt gọi vào đơn chờ thanh toán của chỗ ngồi đang chọn.
+_Avoid_: Ghi nợ, nợ, treo bill
+
+**Chờ thanh toán** / **Đơn chờ thanh toán** (Open / Open order):
+Đơn hàng của một chỗ ngồi đã có lượt gọi nhưng chưa thu tiền. Mỗi chỗ ngồi có tối đa một đơn chờ thanh toán. Không tính vào doanh thu.
+_Avoid_: Tab, bill mở, đơn nợ
+
+**Thu tiền** (Checkout):
+Bước chọn giảm giá và hình thức thanh toán cho một đơn chờ thanh toán, sau đó đơn chuyển sang đã thanh toán.
+_Avoid_: Tính tiền, chốt bill, checkout
 
 **Hủy đơn** / **Đã hủy** (Cancelled):
 Đơn hàng được đánh dấu là không tính doanh thu. Đơn vẫn được giữ lại và vẫn hiện trong lịch sử, không bao giờ bị xóa.
 _Avoid_: Xóa đơn, hoàn tiền, void
 
 **Cửa sổ hủy** (Cancel window):
-5 phút tính từ lúc tạo đơn. Trong khoảng này, nhân viên được tự hủy bất kỳ đơn nào. Hết khoảng này, chỉ chủ quán hủy được.
+5 phút tính từ lúc tạo đơn (với đơn chờ thanh toán: từ lúc gửi từng lượt gọi). Trong khoảng này, nhân viên được tự hủy bất kỳ đơn hoặc lượt gọi nào. Hết khoảng này, chỉ chủ quán hủy được.
 _Avoid_: Thời gian hoàn tác
 
 ## Thanh toán
@@ -147,6 +167,14 @@ _Avoid_: 7 ngày gần nhất
 **Kỳ trước** (Previous period):
 Cùng đoạn của kỳ liền trước, dùng để so sánh: hôm trước, cùng các ngày của tuần trước, hoặc cùng các ngày của tháng trước.
 _Avoid_: Cùng kỳ năm trước
+
+**Món bán chạy** (Top items):
+Các món được bán nhiều nhất trong một kỳ, xếp theo số món của đơn đã thanh toán, không theo tiền.
+_Avoid_: Best seller, top sản phẩm
+
+**Số món theo giờ** (Items per hour):
+Tổng số món đã bán trong từng giờ của giờ mở cửa, cộng dồn các ngày kinh doanh của kỳ. Giờ cao nhất là **giờ cao điểm**.
+_Avoid_: Lưu lượng, traffic
 
 **Lịch sử đơn hàng** (Order history):
 Danh sách mọi đơn hàng trong một khoảng ngày, gồm cả đơn đã hủy.

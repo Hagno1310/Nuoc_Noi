@@ -1,296 +1,189 @@
 ---
 name: Nước Nôi
-description: POS cho quán nước đồng giá, trong thế giới "Bao diêm quán bar": mỗi màn hình là mặt một bao diêm in phẳng, bìa đen mờ, chữ kem, đúng một màu mực cam.
+description: POS cho quán bar Nước Nôi. Giao diện tối, gọn, thẻ bo tròn, một màu nhấn cam. Thiết kế gốc nằm ở design/design.pen.
 colors:
-  matte-black: "#141210"
-  card-raised: "#221f1b"
-  rule-line: "#3a352e"
-  ash: "#958d81"
-  cream-ink: "#efe6d2"
-  flame-ember: "#e8572c"
-  ember-ink: "#141210"
-  ok-green: "#8fbf7a"
-  warn-amber: "#e8b04a"
-  danger-rose: "#ef6f7a"
+  bg: "#111310"
+  surface: "#1b1e19"
+  surface-2: "#262a23"
+  line: "#2d3129"
+  muted: "#949a88"
+  ink: "#f3eee2"
+  accent: "#f26a3d"
+  accent-ink: "#1a0f0a"
+  accent-soft: "#3a2219"
+  ok: "#8fcf88"
+  ok-soft: "#20301e"
+  warn: "#f0b64e"
+  warn-soft: "#3a2f19"
+  danger: "#f27b84"
+  danger-soft: "#3a1e21"
 typography:
-  display-plate:
-    fontFamily: "Archivo, system-ui, sans-serif"
-    fontSize: "clamp(2rem, 12cqw, 4.5rem)"
-    fontWeight: 800
-    lineHeight: 1
-    letterSpacing: "0"
-    fontVariation: "'wdth' 72"
-    fontFeature: "tnum"
-  headline:
-    fontFamily: "Archivo, system-ui, sans-serif"
-    fontSize: "1.875rem"
-    fontWeight: 800
-    lineHeight: 1.2
-    letterSpacing: "0"
-    fontVariation: "'wdth' 72"
-  title:
-    fontFamily: "Archivo, system-ui, sans-serif"
-    fontSize: "1.25rem"
-    fontWeight: 800
-    lineHeight: 1.4
-    letterSpacing: "0"
-    fontVariation: "'wdth' 72"
-  body:
-    fontFamily: "Archivo, system-ui, sans-serif"
-    fontSize: "1rem"
-    fontWeight: 400
-    lineHeight: 1.5
-    fontFeature: "tnum"
-  body-strong:
-    fontFamily: "Archivo, system-ui, sans-serif"
-    fontSize: "1rem"
-    fontWeight: 600
-    lineHeight: 1.5
-    fontFeature: "tnum"
-  label:
-    fontFamily: "Archivo, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 500
-    lineHeight: 1.43
-  caption:
-    fontFamily: "Archivo, system-ui, sans-serif"
-    fontSize: "0.75rem"
-    fontWeight: 400
-    lineHeight: 1.33
-    fontFeature: "tnum"
+  family: "Be Vietnam Pro, system-ui, sans-serif"
+  display: { fontSize: "2.5rem–3.5rem", fontWeight: 800, lineHeight: 1.1 }
+  title-page: { fontSize: "1.75rem", fontWeight: 700 }
+  title-section: { fontSize: "1.0625rem–1.25rem", fontWeight: 700 }
+  body: { fontSize: "1rem", fontWeight: 400–500, lineHeight: 1.5 }
+  label: { fontSize: "0.8125rem–0.875rem", fontWeight: 500–600 }
+  caption: { fontSize: "0.75rem", fontWeight: 400–600 }
 rounded:
-  sm: "4px"
-  md: "6px"
-  lg: "8px"
-  xl: "12px"
+  chip: "8px–12px"
+  control: "14px"
+  button: "16px"
+  tile: "18px"
+  card: "24px"
+  sheet: "24px 24px 0 0"
+  pill: "9999px"
 spacing:
   unit: "4px"
-  xs: "8px"
-  sm: "12px"
-  md: "16px"
-  lg: "24px"
-  section: "40px"
+  gutter: "16px"
+  gap-tight: "6px–8px"
+  gap: "10px–16px"
+  section: "24px"
   touch: "48px"
-components:
-  button-primary:
-    backgroundColor: "{colors.flame-ember}"
-    textColor: "{colors.ember-ink}"
-    typography: "{typography.body-strong}"
-    rounded: "{rounded.lg}"
-    padding: "0 20px"
-    height: "48px"
-  button-outline:
-    backgroundColor: "transparent"
-    textColor: "{colors.cream-ink}"
-    typography: "{typography.label}"
-    rounded: "{rounded.lg}"
-    padding: "0 16px"
-    height: "48px"
-  button-outline-active:
-    backgroundColor: "{colors.cream-ink}"
-    textColor: "{colors.matte-black}"
-  button-danger:
-    backgroundColor: "transparent"
-    textColor: "{colors.danger-rose}"
-    typography: "{typography.label}"
-    rounded: "{rounded.lg}"
-    padding: "0 12px"
-    height: "48px"
-  button-danger-armed:
-    backgroundColor: "{colors.danger-rose}"
-    textColor: "{colors.ember-ink}"
-  input-field:
-    backgroundColor: "transparent"
-    textColor: "{colors.cream-ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.lg}"
-    padding: "8px"
-    height: "48px"
-  revenue-plate:
-    backgroundColor: "{colors.flame-ember}"
-    textColor: "{colors.ember-ink}"
-    typography: "{typography.display-plate}"
-    rounded: "{rounded.md}"
-    padding: "4px 12px"
-  edit-dialog:
-    backgroundColor: "{colors.card-raised}"
-    textColor: "{colors.cream-ink}"
-    rounded: "{rounded.xl}"
-    padding: "20px"
-    width: "min(24rem, calc(100vw - 2rem))"
-  section-title:
-    textColor: "{colors.cream-ink}"
-    typography: "{typography.title}"
-    padding: "0 0 8px"
-  hidden-mark:
-    backgroundColor: "transparent"
-    textColor: "{colors.ash}"
-    typography: "{typography.caption}"
-    rounded: "{rounded.sm}"
-    padding: "0 4px"
-  nav-item:
-    backgroundColor: "transparent"
-    textColor: "{colors.ash}"
-    typography: "{typography.label}"
-    height: "48px"
-  nav-item-current:
-    backgroundColor: "{colors.card-raised}"
-    textColor: "{colors.cream-ink}"
+  primary: "56px–64px"
 ---
 
 # Design System: Nước Nôi
 
-## Overview
+## Nguồn
 
-**Creative North Star: "Bao diêm quán bar"**
+- **Thiết kế gốc:** `design/design.pen` (mở bằng pen.dev). Canvas xếp theo 8 làn, mỗi làn là một luồng sử dụng, mỗi bước có số thứ tự và chú thích:
+  1. Nhân viên · Tạo đơn, trả tiền mặt
+  2. Nhân viên · Chuyển khoản
+  3. Nhân viên · Trạng thái đặc biệt (xóa hết, mất mạng, thực đơn vừa đổi, lỗi tải ảnh)
+  4. Chủ quán · Theo dõi doanh thu
+  5. Chủ quán · Thực đơn & cài đặt
+  6. Nhân viên · Trả sau
+  7. Nhân viên · Nhập nhanh & ghi chú
+  8. Chủ quán · Bản web (1440px)
+- Khung "Components" phía trên canvas chứa các component dùng lại: StatusBar, BtnPrimary, BtnSecondary, OwnerNav, MenuTile.
+- Hành vi lấy theo `docs/SRS.md` (v3.8). File này chỉ nói về hình thức.
 
-Mỗi màn hình là mặt một bao diêm của quán Nước Nôi: bìa đen mờ in phẳng, chữ kem, và đúng một màu mực cam như đầu que diêm. Thứ bậc đến từ cách in chứ không từ ánh sáng: chữ biển hẹp và đậm cho con số và tiêu đề, chữ thường cho phần còn lại, một hệ đường kẻ 1px chia sổ, và một tấm in đảo màu duy nhất mỗi màn (trên Tổng quan là doanh thu ngày kinh doanh nằm trong đồng hồ giờ mở cửa). Dải quẹt diêm nhám là chất liệu duy nhất có kết cấu.
+## Tổng quan
 
-Trang chủ quán (đã dựng) là mặt sau của cùng bao diêm: đọc doanh thu tối nay trong một cái nhìn, rồi chỉ khi cần mới vào Thực đơn, Lịch sử đơn hàng hay Cài đặt. Danh sách là sổ in, thao tác theo thói quen web/app quen thuộc: kéo tay cầm, chạm chữ để sửa tại chỗ, nút ⋯ mở hộp thoại. Màn hình order (`/order`) do đợt 3 dựng theo hợp đồng trong `.impeccable/surfaces/src-app-order-page-tsx.md`; tài liệu này chưa mô tả nó.
+Giao diện tối vì quán là phòng tối, nhưng **gọn và mềm**: các khối là thẻ bo tròn trên nền gần đen, phân cấp bằng **bậc nền** (bg → surface → surface-2), không dùng đường kẻ để chia sổ. Một màu nhấn cam cho hành động chính và lựa chọn đang chọn. Số tiền là chữ lớn nhất trên mỗi màn.
 
-Thế giới này từ chối POS tối phát sáng kiểu neon, lưới ô màu, và bảng điều khiển thẻ thống kê với biểu đồ phát sáng. Chỉ có nền tối, vì quán là phòng tối. Chữ trên giao diện tối giản; chữ SRS ghim cứng thì giữ nguyên.
+**Đặc điểm chính:**
+- Ba bậc nền, một màu chữ chính (ink), một màu chữ phụ (muted).
+- Một màu nhấn (accent). Ba màu trạng thái, mỗi màu có bản "soft" làm nền cho nhãn, nút phá hủy và thông báo.
+- Một họ chữ: Be Vietnam Pro (hiển thị dấu tiếng Việt rõ), số luôn `tabular-nums`.
+- Bo tròn rộng (14–24px), không đường kẻ dày, không gradient, không quầng sáng.
+- Hộp thoại trên điện thoại là **tấm trượt từ đáy**; trên máy tính là **hộp thoại giữa màn**.
 
-**Key Characteristics:**
-- Bìa đen mờ phẳng, chữ kem, một mực cam; trung tính khóa đúng 5 bậc.
-- Một họ chữ Archivo: hẹp đậm (wdth 72, 800) cho con số và tiêu đề, thường cho câu chữ; số luôn `tabular-nums`.
-- Một hệ đường kẻ 1px; không quầng sáng, không vệt sáng, không hạt nhiễu, không bóng đổ.
-- Một tấm in đảo màu mỗi màn.
-- Trạng thái là dấu in: món/chỗ ngồi ẩn in xám kèm dấu "ẨN" có viền; đơn đã hủy giữ dòng, gạch ngang.
-- Chuyển động ngắn, chỉ báo thay đổi trạng thái.
+## Màu
 
-## Colors
+| Token | Vai trò |
+|---|---|
+| `bg` | Nền mọi trang, `theme-color`. |
+| `surface` | Thẻ, ô món, tấm trượt, ô nhập trên nền bg. |
+| `surface-2` | Điều khiển nằm trong thẻ (nút phụ, stepper, ô nhập trong tấm), nút chỗ ngồi chưa chọn trong tấm, mục điều hướng đang chọn trên web. |
+| `line` | Đường chia mảnh hiếm hoi (giữa các dòng trong một thẻ danh sách), viền ô nhập phụ, grabber. |
+| `muted` | Chữ phụ, nhãn, icon chưa chọn. |
+| `ink` | Chữ chính. Khối "đang chọn" trung tính (chip giảm giá, bộ lọc, segmented) là nền ink, chữ bg. |
+| `accent` | Nút chính (Xác nhận đơn, Tiền mặt, Thu tiền, Lưu), thanh giỏ đơn khi có món, chỗ ngồi đang chọn, viền ô món đã chọn, badge số lượng, focus, cột "kỳ này" và cột cao điểm trên biểu đồ. |
+| `accent-ink` | Chữ trên nền accent và trên nền danger đặc. |
+| `accent-soft` | Nền ô món đã có trong giỏ, nền icon thông báo đơn mới, nhãn "Cao điểm". |
+| `ok` / `ok-soft` | Giảm giá trong tổng tiền, "Đã thanh toán", phần trăm tăng, "Đã tải ảnh lên". |
+| `warn` / `warn-soft` | Mọi thứ của **Trả sau và chờ thanh toán** (nút Trả sau, badge, chấm trên chỗ ngồi, nhãn trạng thái), giá vừa đổi, ghi chú dòng đơn. |
+| `danger` / `danger-soft` | Nút phá hủy (Xóa hết, Hủy, Ẩn món, Đổi PIN quán): nền soft chữ danger; khi đã bấm lần một thì nền danger chữ accent-ink. Thông báo lỗi. Phần trăm giảm. |
 
-Bìa đen ấm, chữ kem, một mực cam lửa; ba màu trạng thái chỉ sống trong khung của chính nó.
+**Quy tắc:**
+- **Một màu nhấn.** Accent chỉ cho hành động chính, lựa chọn đang có hiệu lực, focus và dữ liệu "kỳ này". Không dùng cho trang trí.
+- **Warn là màu của tiền chưa thu.** Mọi chỗ nói về đơn chờ thanh toán dùng warn, để không lẫn với doanh thu đã thu.
+- **Màu trạng thái nằm trong khung của nó:** nhãn, nút, thông báo. Không tô cả màn.
+- Không có chế độ sáng; không vùng sáng lớn. Ngoại lệ duy nhất: ảnh mã QR (nền trắng để quét được).
 
-### Primary
-- **Mực cam lửa** (`--ember`, flame-ember): nền nút hành động chính (Lưu, Lưu giờ, Đăng nhập), lựa chọn đang có hiệu lực (icon mục điều hướng hiện tại, chấm PIN đã nhập, đường thả khi kéo dòng), focus 2px offset 2px, con trỏ nhập, vùng bôi chọn, nét cung đã trôi qua và đốm giờ hiện tại của đồng hồ, cột "kỳ này" của biểu đồ (`--chart-current`), và tấm in đảo màu duy nhất của màn.
-- **Chữ trên mực cam** (`--ember-ink`): chữ trên mọi nền đặc sáng (cam, danger), 5.2:1 trên cam. Chữ kem trên cam chỉ 2.9:1, cấm.
+## Chữ
 
-### Neutral
-- **Bìa đen mờ** (`--bg`): nền mọi trang, `theme-color`, nền thanh điều hướng dưới.
-- **Bìa nổi** (`--raised` = `--surface`): một bậc duy nhất cho hộp thoại sửa, thông báo đơn mới, tooltip biểu đồ, dòng đang kéo, sidebar `lg`, nền mục điều hướng hiện tại, nền hover của nút icon.
-- **Đường kẻ** (`--line`): hệ đường kẻ duy nhất: chia dòng sổ, gạch dưới tiêu đề mục, rãnh 1px của đồng hồ, lưới chấm biểu đồ, viền dấu "ẨN", viền trên thanh điều hướng, mép sidebar.
-- **Tro** (`--edge` = `--ink-muted`): viền điều khiển và chữ phụ cùng một giá trị; 5.7:1 trên nền, 5.0:1 trên bìa nổi. Cũng là trục đáy và cột "kỳ trước" chỉ viền (`--chart-previous`).
-- **Kem** (`--ink`): chữ chính, 15:1 trên nền; khối đặc khi nhấn nút viền.
+Be Vietnam Pro, nạp bằng `next/font/google` với `subsets: ["latin", "vietnamese"]`, weight 400/500/600/700/800. Chữ gốc 16px (SRS R40); ô nhập ≥ 16px.
 
-### Trạng thái
-- **Xanh ổn** (`--ok`), **Hổ phách** (`--warn`), **Hồng nguy** (`--danger`): lỗi in chữ danger ngay dưới ô hoặc dưới form (`role="alert"`); nút phá hủy viền danger 70%, khối danger khi đã xác nhận. Phần trăm so với kỳ trước dùng xanh ổn/hồng nguy làm tông số, luôn đi kèm mũi tên lên/xuống.
+| Vai trò | Cỡ / độ đậm | Dùng cho |
+|---|---|---|
+| Display | 40–56px / 800 | Thành tiền trong tấm thanh toán, doanh thu tối nay |
+| Tiền trong tấm | 28–36px / 800 | Thành tiền / Tạm tính ở đáy tấm giỏ đơn và đơn chờ thanh toán |
+| Tiêu đề trang | 28px (32px web) / 700 | Tổng quan, Thực đơn, Lịch sử đơn hàng, Cài đặt |
+| Tiêu đề tấm / mục | 17–22px / 700 | Giỏ đơn, Chỗ ngồi, Món bán chạy |
+| Tên món trên ô | 17px / 600 | Ô món |
+| Body | 15–16px / 500 | Nội dung, ô nhập, dòng đơn |
+| Label | 13–14px / 500–600 | Nhãn ô nhập, chip, nút phụ |
+| Caption | 11–12px | Trục biểu đồ, "Kỳ trước", ghi chú, đếm ký tự |
 
-### Named Rules
-**The One Spot Ink Rule.** Mực cam chỉ cho hành động chính, lựa chọn đang có hiệu lực, focus, dữ liệu "kỳ này", và đúng một tấm in đảo màu mỗi màn. Không dùng cho trang trí, nhãn hay lỗi.
+Mọi con số về tiền, số lượng và giờ dùng `tabular-nums`.
 
-**The Five Neutrals Rule.** Trung tính chỉ có 5 bậc: bìa đen, bìa nổi, đường kẻ, tro, kem. Không thêm bậc, không dùng opacity để chế bậc mới cho chữ.
+## Bố cục
 
-**The Framed Alarm Rule.** Màu cảnh báo và lỗi ở yên trong khung của nó (dòng lỗi, nút phá hủy, mũi tên so sánh); không tô cả dòng, cả khối hay cả trang.
+**Điện thoại (390px):** lề 16px; khoảng cách giữa các khối 16px (12px trong cùng nhóm). Màn order: đầu màn (logo, "Chờ thanh toán" kèm badge, nút Đơn vừa tạo), lưới món 2 cột (gap 10px), Đơn vừa tạo bên dưới, thanh giỏ đơn dính đáy. Trang chủ quán: tiêu đề trang, các thẻ một cột, thanh điều hướng 5 mục dính đáy (icon + chữ 11px).
 
-## Typography
+**Máy tính (≥ 1024px, trang chủ quán):** thanh bên trái rộng 248px (logo, 4 mục, đường chia, Màn hình order, thẻ tài khoản kèm Đăng xuất ở đáy); nội dung lề 40px, gap 20–24px.
+- Tổng quan: hàng 1 là thẻ Tối nay (rộng) + sổ Tuần/Tháng (520px); hàng 2 là biểu đồ doanh thu theo ngày + Món bán chạy (380px); hàng 3 là Số món theo giờ.
+- Thực đơn: danh sách món (rộng) + Lịch sử đổi giá (460px).
+- Lịch sử đơn hàng: hàng bộ lọc (Từ ngày, Đến ngày, chip trạng thái), 5 ô tổng, bảng 7 cột có dòng mở xuống.
+- Cài đặt: cột trái Giờ mở cửa + PIN quán, cột phải Chỗ ngồi.
 
-**Display Font:** Archivo biến thiên, trục `wdth` (fallback system-ui, sans-serif), subset `latin` + `vietnamese`.
-**Body Font:** cùng họ Archivo, độ rộng thường.
+**Vùng chạm:** ≥ 48px; nút chính trên màn order 56–64px (NFR-02); các vùng chạm cách nhau ≥ 6–8px.
 
-**Character:** chữ biển trên bao diêm: một họ chữ, thứ bậc bằng độ rộng và độ đậm. Lớp `.font-display` đặt `font-stretch: 72%`, weight 800, tracking 0.
+## Hình khối và chiều sâu
 
-Cỡ chữ gốc 16px ở mọi cỡ màn (SRS R40); mọi cỡ `rem` tính từ đó. Ô nhập giữ chữ ≥ 16px (`max(16px, 1em)`) để iOS Safari không tự phóng to.
+- Ô món 18px, thẻ 24px, nút chính 16px, điều khiển 14px, chip 8–12px, nút tròn/pill 9999px.
+- Phẳng. Chiều sâu chỉ đến từ bậc nền. Ngoại lệ: thông báo đơn mới nổi trên nội dung có một bóng mềm (y 8, blur 24, đen 50%).
+- Lớp phủ sau tấm trượt và hộp thoại: đen 72%.
 
-### Hierarchy
-- **Display Plate** (hẹp 800, `clamp(2rem, 12cqw, 4.5rem)` theo bề rộng đồng hồ, line-height 1): chỉ cho doanh thu ngày kinh doanh trong tấm in đảo màu.
-- **Headline** (hẹp 800, 1.875rem): tiêu đề trang (Tổng quan, Thực đơn, Cài đặt, Đăng nhập); doanh thu kỳ trong sổ so sánh ở `lg`.
-- **Title** (hẹp 800, 1.25rem): tiêu đề mục, tên món trong sổ, tiêu đề biểu đồ và hộp thoại, giờ trong ô chọn giờ, "món · đơn" dưới tấm in.
-- **Body** (400, 1rem): nội dung, ô nhập, thông báo.
-- **Body Strong** (600, 1rem): chữ nút chính, giá món.
-- **Label** (500, 0.875rem): nhãn ô nhập, tên kỳ, nút viền, điều hướng.
-- **Caption** (400, 0.75rem): "Kỳ trước", chú giải và trục biểu đồ, phần trăm so sánh, "Bây giờ HH:MM", câu SRS "Nên đổi khi quán đã đóng cửa.", dấu "ẨN" (600).
+## Component
 
-### Named Rules
-**The One Family Rule.** Chỉ Archivo. Hẹp đậm cho con số và tiêu đề; thường cho câu chữ. Không thêm họ chữ thứ hai, không dùng chữ hẹp cho câu văn hay thông báo.
+### Nút
+- **Chính:** nền accent, chữ accent-ink 600, bo 16px, cao 56px (màn order 60–64px).
+- **Phụ:** nền surface-2, chữ ink 600, icon 20px, bo 16px.
+- **Phá hủy hai bước:** nền danger-soft, chữ danger; bấm lần một thành nền danger, chữ accent-ink, nhãn "Chắc chắn …?" trong vài giây. Đặt xa nút chính (trái hàng nút hoặc đầu tấm).
+- **Trả sau:** nút không nền, icon và chữ warn, dòng phụ "Giảm giá chọn lúc thu tiền" màu muted.
+- **Icon tròn:** 48×48, nền surface, icon 18–20px.
+- **Vô hiệu:** opacity .35–.45; nếu bị khóa vì lý do thì nền surface-2, chữ muted ghi lý do ngay trên nút.
 
-**The Tabular Rule.** Mọi con số về tiền, số lượng và giờ dùng `tabular-nums` (đặt sẵn trên `body`).
+### Ô món (MenuTile)
+Thẻ surface 18px, cao 116px, 2 cột. Trên: tên món (17/600, tối đa 2 dòng) và badge số lượng (tròn 30px, accent, chỉ hiện khi có trong giỏ). Dưới: giá (14/500 muted) và nút − (48px, surface-2, chỉ hiện khi có trong giỏ). Có trong giỏ: nền accent-soft, viền accent 1.5px, giá màu ink. Chạm: số nảy và rung nhẹ. Chạm giữ: mở bàn phím số.
 
-## Layout
+### Thanh giỏ đơn
+Cao 72px, bo 20px, lề 16px trên đáy. Trống: nền surface, "Giỏ đơn trống / Chạm món để thêm". Có món: nền accent, "N món" + Tạm tính 24/800 + nút "Giỏ đơn" (nền đen 12%). Thông báo gửi xong nằm ngay trên thanh: nền surface-2, icon ok, nút Hoàn tác nền accent.
 
-Một cột, ưu tiên điện thoại; trang chủ quán rộng tối đa 1152px. `--spacing` là 4px nên khoảng cách và vùng chạm không co theo cỡ chữ gốc.
+### Tấm trượt (điện thoại)
+Nền surface (tấm giỏ đơn: nền bg, đáy dính nền surface), bo trên 24px, grabber 40×4. Đầu tấm: tiêu đề + nút Đóng tròn. Đáy tấm dính: tổng tiền và nút chính.
 
-**Điện thoại:** dải trên (chữ chính vẽ tay + Đăng xuất), dải quẹt diêm dưới nó, nội dung lề 16px, thanh điều hướng 5 icon cố định ở đáy (nội dung chừa `49px + safe-area`). **`lg` (1024px):** sidebar cố định rộng 256px, nền bìa nổi, mép phải kẻ 1px: chữ chính lớn với dải quẹt diêm bên dưới, điều hướng dọc có chữ, "Màn hình order" tách sau một đường kẻ, Đăng xuất ở đáy; chỉ phần nội dung cuộn, lề 40px.
+### Hộp thoại (máy tính)
+Rộng 440px, nền surface, viền line, bo 24px, đệm 24px, giữa màn. Hàng nút: phá hủy bên trái, Hủy (surface-2) và Lưu (accent) bên phải.
 
-Tổng quan: đồng hồ giờ mở cửa rộng hết khung (tối đa 560px, 70vh) rồi sổ so sánh ba kỳ, rồi hai biểu đồ cột; `lg` đặt đồng hồ cạnh sổ (2fr : 3fr) và hai biểu đồ ở hàng dưới. Thực đơn và Cài đặt: một cột trên điện thoại, hai cột trên `lg` (6fr : 5fr). Thông báo đơn mới nổi ở mép trên (điện thoại cách lề 16px; `lg` góc trên phải).
+### Chỗ ngồi
+Nút 56px bo 14px. Ghế quầy 2 hàng × 6 (chỉ hiện số), Bàn 3 cột. Đang chọn: nền accent, chữ accent-ink. Có đơn chờ thanh toán: chấm warn 8px góc trên phải. Dải "Đang chọn: <tên>" có icon armchair accent, ngay trên nút Xác nhận đơn.
 
-**Nhịp khoảng cách:** 4px gốc; 8px giữa các nút cạnh nhau và dưới tiêu đề mục, 12–16px trong nhóm, 20px đệm hộp thoại, 24px giữa các khối trong mục, 40px (48–56px trên `lg`) giữa các mục. Vùng chạm tối thiểu 48px.
+### Dòng đơn
+Thẻ surface 18px: tên món 17/600, ghi chú (pill warn-soft, chữ warn 12px) hoặc "+ Ghi chú" muted, "đơn giá · thành tiền dòng" 13px muted; stepper − / số / + (nút 48px surface-2).
 
-### Named Rules
-**The Owner Forty-Eight Rule.** Nút chính trang chủ quán cao 48px, ngoại lệ có chủ ý so với 56px của màn hình order (SRS NFR-02, R37). Mọi vùng chạm ≥ 48px.
+### Nhãn trạng thái
+Pill bo 8px, chữ 11–12px/600: Đã thanh toán (ok-soft/ok), Chờ thanh toán (warn-soft/warn), Đã hủy (danger-soft/danger, dòng chữ gạch ngang và muted).
 
-**The Narrow Ledger Rule.** Không đặt bảng có `min-width` lớn trong `overflow-x-auto` ở khổ điện thoại; dưới `sm` sổ xếp thành dòng hai tầng.
+### Biểu đồ
+Cột bo trên 4–6px, không trục dọc. Kỳ này accent, kỳ trước surface-2, ngày chưa tới là vạch line 2px. Số món theo giờ: cột cao điểm accent kèm số, còn lại surface-2. Món bán chạy: thanh ngang 6px, món đầu accent, còn lại muted.
 
-## Elevation & Depth
+### Điều hướng
+- Điện thoại: 5 mục (Tổng quan, Thực đơn, Lịch sử, Cài đặt, Order), icon lucide 22px + chữ 11px; đang chọn icon accent, chữ ink 600.
+- Máy tính: thanh bên 248px, mục 48px bo 14px; đang chọn nền surface-2, icon accent.
 
-Phẳng hoàn toàn. Không có bóng đổ, quầng sáng, gradient hay hạt nhiễu. Chiều sâu chỉ đến từ một bậc tông (bìa đen → bìa nổi) và viền 1px. Hộp thoại sửa là bìa nổi viền tro trên nền tối mờ 70%; dòng đang kéo nhấc lên bằng nền bìa nổi.
+### Thông báo
+- Trên màn order: khung bo 14px nền `<tone>-soft`, icon và chữ `<tone>` 13px, đặt dưới đầu tấm.
+- Đơn mới (trang chủ quán): nổi ở mép trên, nền surface-2, viền line, có bóng; icon chuông trong ô accent-soft.
 
-### Named Rules
-**The Flat Print Rule.** Mọi thứ in phẳng trên bìa. Không `box-shadow`, không `filter: drop-shadow`, không quầng, không vệt sáng, kể cả trên logo.
+## Chuyển động
+150–250ms, chỉ báo thay đổi trạng thái: tấm trượt lên 250ms; nút nhấn `scale(.98)` 150ms; số trên ô món nảy 150ms; giá đổi tô warn khoảng 3 giây. Với `prefers-reduced-motion`: bỏ trượt và nảy, chỉ đổi độ mờ.
 
-**The One Striker Rule.** Dải quẹt diêm (`.striker`: cao 8px, bo 2px, chấm nhám tĩnh trên bìa nổi) là đường chia duy nhất có kết cấu: dưới dải trên điện thoại và dưới chữ chính trong sidebar. Mọi đường chia khác là đường kẻ 1px.
+## Nên và không nên
 
-## Shapes
+**Nên:**
+- Dùng token vai trò trong component (`bg-surface`, `text-muted`, `bg-accent`…), không dùng mã màu hay tên màu Tailwind.
+- Đặt hành động chính ở nửa dưới màn điện thoại.
+- Phân cấp bằng bậc nền và cỡ chữ trước, rồi mới đến màu.
+- Giữ chữ ngắn; chữ SRS ghim cứng thì giữ nguyên.
 
-Góc bo nhỏ, như góc tem in. Nút, ô nhập, thông báo, tooltip và mục điều hướng `lg` bo 8px; hộp thoại bo 12px; tấm in đảo màu, nút icon và nút viền nhỏ bo 6px; dấu "ẨN", ô chú giải và đầu cột biểu đồ bo 4px. Viền điều khiển 1px tro; đường kẻ 1px đường kẻ. Cột biểu đồ neo đáy, bo hai góc trên, khe 2px giữa cột kỳ này (tô cam) và kỳ trước (chỉ viền tro), vì cam và tro gần cùng độ sáng nên phân biệt bằng tô và viền.
-
-## Components
-
-### Buttons
-In thẳng: khối cam cho việc chính, viền tro cho việc phụ, viền hồng cho việc phá hủy.
-- **Shape:** bo 8px, cao 48px.
-- **Primary** (Lưu, Lưu giờ, Đăng nhập): khối cam, chữ đen 600, đệm ngang 20px. Nhấn thu `scale(.98)` trong 150ms; vô hiệu opacity .4; đang chạy đổi chữ ("Đang lưu…").
-- **Outline** (Hủy trong hộp thoại, Thêm món, Hiện lại, Đăng xuất): viền tro, chữ kem; hover viền kem; Đăng xuất nhấn thành khối kem chữ đen.
-- **Danger hai bước** ("Ẩn món" / "Ẩn chỗ ngồi" → "Chắc chắn ẩn?"; "Chắc chắn đổi PIN?"): viền danger 70% chữ danger, bấm lần đầu thành khối danger chữ đen. Trong hộp thoại nó nằm sát trái, Hủy và Lưu dồn sát phải.
-- **Icon** (⋯, Đóng): vùng 48×48, icon lucide 20px màu tro, hover thành kem trên bìa nổi.
-- **Focus:** viền cam 2px offset 2px trên mọi điều khiển.
-
-### Ledger Rows (Thực đơn, Chỗ ngồi)
-Dòng sổ kẻ 1px. Từ trái sang: tay cầm kéo (GripVertical, vùng 48px cao, kéo bằng con trỏ hoặc phím mũi tên), tên chạm để sửa tại chỗ (Title), giá chạm để sửa tại chỗ (Body Strong, canh phải; chỉ Thực đơn), nút ⋯. Dòng đang kéo nền bìa nổi và theo ngón tay; vị trí thả là đường cam 2px trên hoặc dưới dòng. Món/chỗ ngồi ẩn nằm trong "Món đã ẩn (n)" có thể mở: chữ tro, dấu "ẨN" viền đường kẻ, nút Hiện lại.
-
-### Inline Edit
-Chữ là một nút; hover hoặc focus chuyển chữ sang cam. Chạm mở ô viền tro (focus viền cam), mờ dần vào trong 180ms, chọn sẵn toàn bộ chữ. Enter hoặc chạm ra ngoài là lưu, Esc là hủy; lỗi in chữ danger ngay dưới ô.
-
-### Edit Dialog
-`<dialog>` gốc giữa màn hình, rộng `min(24rem, 100vw − 2rem)`, bìa nổi, viền tro, bo 12px, nền sau tối mờ 70%. Tiêu đề Title + nút Đóng; các ô có nhãn; hàng nút: Ẩn hai bước bên trái, Hủy + Lưu cam bên phải. Esc hoặc chạm nền là đóng. Hiện ra bằng nổi lên 8px và thu từ .98 trong 200ms, nền mờ dần 200ms.
-
-### Inputs / Fields
-- **Style:** nền trong suốt, viền 1px tro, bo 8px, cao 48px, nhãn Label tro ở trên. Ô giá và giờ dùng `tabular-nums`; ô chọn giờ dùng Title.
-- **Focus:** viền chuyển cam, cộng vòng focus cam 2px.
-- **Error:** dòng chữ danger dưới ô hoặc form, `role="alert"`.
-
-### Navigation
-Bốn mục chủ quán (Tổng quan, Thực đơn, Lịch sử đơn hàng, Cài đặt) và Màn hình order, mỗi mục icon lucide 20px. Chưa chọn: tro 500. Hiện tại: chữ kem, icon cam; `lg` thêm nền bìa nổi và chữ 600. Điện thoại: thanh 5 cột cố định ở đáy, chỉ icon (tên trong `aria-label`), nền bìa đen, kẻ trên 1px.
-
-### Business Day Dial (Đồng hồ giờ mở cửa)
-Giờ mở cửa → giờ đóng cửa trải trên 300°. Rãnh 1px màu đường kẻ cả vòng, vạch tro ở giờ đóng cửa, nét cam 2.5 đơn vị cho phần đã trôi qua, đốm cam ở giờ hiện tại (ẩn khi "Đã đóng cửa"). Nhãn giờ ở hai chân cung. Tâm là tấm in đảo màu doanh thu (khối cam bo 6px, chữ đen Display Plate), dưới là "món · đơn" (Title) và "Bây giờ HH:MM". Không vẽ số liệu lên cung, không chuyển động.
-
-### Period Ledger & Revenue Bars
-Sổ ba kỳ (ngày kinh doanh, tuần, tháng) kẻ 1px: tên kỳ Label tro, doanh thu Title (Headline ở `lg`), món và đơn, phần trăm có mũi tên, và một dòng "Kỳ trước" Caption; `lg` là bảng có hàng tiêu đề, số canh phải. Biểu đồ: một trục, lưới chấm đường kẻ, chú giải ô tô/ô viền, tooltip bìa nổi viền tro, bảng ẩn cho trình đọc màn hình.
-
-### New Order Notice
-Thông báo `role="status"` ở mép trên: bìa nổi, viền tro, bo 8px, chữ 500 tabular; vào bằng trượt xuống 8px trong 200ms, tự tắt sau 5 giây.
-
-## Do's and Don'ts
-
-### Do:
-- **Do** dùng token vai trò (`bg-bg`, `text-ink`, `border-edge`, `bg-ember`…) trong component; không dùng mã màu hay tên màu Tailwind.
-- **Do** giữ mực cam cho hành động chính, lựa chọn đang có hiệu lực, focus và một tấm in đảo màu mỗi màn (One Spot Ink Rule).
-- **Do** đặt chữ đen `--ember-ink` trên mọi nền cam hoặc danger.
-- **Do** chia sổ, mục và danh sách bằng đường kẻ 1px; dải quẹt diêm chỉ ở dưới dải trên và dưới chữ chính sidebar.
-- **Do** theo thói quen quen thuộc cho dòng sổ: tay cầm kéo, chạm chữ để sửa tại chỗ, ⋯ mở hộp thoại giữa màn hình; giờ mở cửa là một form với một nút "Lưu giờ".
-- **Do** in món/chỗ ngồi ẩn bằng chữ tro kèm dấu "ẨN" có viền; in đơn đã hủy bằng gạch ngang, chữ tro, giữ dòng.
-- **Do** đặt nút phá hủy hai bước xa nút Lưu và trông khác hẳn nó.
-- **Do** giữ chuyển động trong 150–200ms: mọi điều khiển đổi màu/nền/viền/độ mờ/transform 150ms, nhấn nút chính `scale(.98)`, hộp thoại 200ms, ô sửa và danh sách đã ẩn mờ dần 180ms, thông báo 200ms; riêng số liệu Tổng quan chạy 600ms khi tự tải lại. Với `prefers-reduced-motion`: bỏ di chuyển, chỉ giữ đổi độ mờ, tắt chạy số.
-- **Do** giữ chữ tối giản; chữ SRS ghim cứng thì giữ nguyên.
-
-### Don't:
-- **Don't** thêm chế độ sáng, vùng nền sáng lớn hay chữ trắng `#FFFFFF`.
-- **Don't** dùng bóng đổ, quầng sáng, vệt sáng, gradient hay hạt nhiễu, kể cả trên logo.
-- **Don't** đặt chữ kem trên nền cam (2.9:1).
-- **Don't** in tấm cam đảo màu thứ hai trên cùng một màn.
-- **Don't** thêm bậc trung tính thứ sáu hay họ chữ thứ hai.
-- **Don't** làm thẻ thống kê hay biểu đồ phát sáng; dữ liệu là sổ in và cột phẳng.
-- **Don't** tô đỏ cả dòng hay cả khối cho lỗi hoặc cảnh báo.
-- **Don't** dùng ký tự Unicode hay emoji làm icon; dùng `lucide-react` với `aria-hidden` hoặc `aria-label`.
-- **Don't** dùng `window.prompt`, `confirm`, `alert`.
+**Không nên:**
+- Thêm chế độ sáng, vùng sáng lớn hay chữ trắng `#FFFFFF`.
+- Dùng gradient, quầng sáng, nhiễu hạt; bóng đổ chỉ cho thông báo đơn mới.
+- Dùng accent cho trang trí, hay warn cho thứ không liên quan tới tiền chưa thu / thay đổi.
+- Dùng ký tự Unicode hay emoji làm icon; dùng `lucide-react`.
+- Dùng `window.prompt`, `confirm`, `alert`.

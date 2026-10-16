@@ -4,10 +4,12 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 3.6 |
+| **Phiên bản** | 3.8 |
 | **Tác giả** | Chủ quán / Developer |
-| **Ngày cập nhật** | 2026-10-08 |
+| **Ngày cập nhật** | 2026-10-17 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.8** | **Trả sau**: ghi lượt gọi vào **đơn chờ thanh toán** của chỗ ngồi, thu tiền một lần khi khách về; giảm giá chuyển sang tấm thanh toán (R45, R50). **Ghi chú** trên từng dòng đơn (R46). Tổng quan có **món bán chạy**, số món theo giờ và thời gian còn lại đến giờ đóng cửa (R47). Chạm giữ ô món để nhập số lượng (R48). Giao diện mới theo `design/design.pen`, trang chủ quán có bố cục máy tính (R49). |
+| **Thay đổi ở v3.7** | Nút − ngay trên hàng món đã có trong giỏ; tấm giỏ đơn giữ Thành tiền, dải chỗ ngồi và nút Xác nhận đơn dính đáy, chỗ ngồi đứng trước giảm giá; tấm thanh toán đặt nút ở nửa dưới (R44). |
 | **Thay đổi ở v3.6** | Route ký upload ảnh chuyển khoản không cho ghi đè ảnh đã có, và lỗi tạm thời khi kiểm tra quyền không đăng xuất nhân viên (R43). |
 | **Thay đổi ở v3.5** | Giỏ đơn trống (bấm Xóa hết hoặc bỏ từng món) thì bỏ ảnh chuyển khoản đang giữ (R42). |
 | **Thay đổi ở v3.4** | Trong tấm thanh toán, khi mất mạng hoặc giỏ có món vừa ngừng bán thì khóa nút gửi và ghi lý do ngay trên nút; giữ ảnh và mã đơn (R41). |
@@ -46,10 +48,11 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước N
 ### 1.3. Phạm vi
 
 **Trong phạm vi:**
-- Tạo đơn hàng gồm nhiều món, giảm giá theo phần trăm cho cả đơn, và hủy đơn.
+- Tạo đơn hàng gồm nhiều món, ghi chú trên từng dòng đơn, giảm giá theo phần trăm cho cả đơn, và hủy đơn.
+- Trả sau: ghi nhiều lượt gọi vào đơn chờ thanh toán của một chỗ ngồi, thu tiền một lần khi khách về.
 - Hình thức thanh toán: tiền mặt, hoặc chuyển khoản qua mã QR cố định của quán kèm ảnh chuyển khoản.
 - Quản lý thực đơn (kèm lịch sử đổi giá theo món), danh sách chỗ ngồi, giờ mở cửa, giờ đóng cửa và PIN quán.
-- Thống kê doanh thu, số món và số đơn theo ngày kinh doanh, tuần và tháng, so với kỳ trước, kèm biểu đồ doanh thu theo ngày.
+- Thống kê doanh thu, số món và số đơn theo ngày kinh doanh, tuần và tháng, so với kỳ trước, kèm biểu đồ doanh thu theo ngày; món bán chạy và số món theo giờ.
 - Lịch sử đơn hàng và xuất CSV.
 - Thông báo đơn mới trên trang chủ quán.
 
@@ -62,7 +65,8 @@ Tài liệu này mô tả yêu cầu cho phần mềm quản lý quán nước N
 - Danh sách thiết bị và thu hồi từng thiết bị.
 - Món con bên trong một món (ví dụ chọn tên ly cụ thể), tùy chọn thêm (topping, size), quản lý kho, in hóa đơn.
 - Giảm giá cho từng dòng đơn; lý do giảm giá.
-- Thống kê theo từng món.
+- Gửi ghi chú tới máy in hoặc màn hình pha chế; chia hóa đơn; chuyển đơn chờ thanh toán sang chỗ ngồi khác.
+- Doanh thu theo từng món (món bán chạy chỉ xếp theo số món).
 - Đa ngôn ngữ (giao diện chỉ có tiếng Việt).
 
 ---
@@ -123,26 +127,30 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 **FR-01: Chọn món**
 - Hiển thị các **món** chưa bị ẩn theo `sort_order`, mỗi món là một nút ghi tên và giá.
-- Chạm một lần vào món thì thêm 1 vào **giỏ đơn**. Món đã có trong giỏ hiện số lượng ngay trên nút.
+- Chạm một lần vào món thì thêm 1 vào **giỏ đơn** (vào dòng đơn không có ghi chú của món đó). Món đã có trong giỏ hiện số lượng ngay trên ô món, kèm nút **−** (vùng chạm ít nhất 48px): bấm thì bớt 1, như nút − của dòng đơn (FR-02).
+- Mỗi lần chạm, ô món phản hồi ngay: số lượng nảy lên và điện thoại rung rất ngắn (trên trình duyệt có hỗ trợ).
+- **Chạm giữ** ô món (khoảng 0,5 giây) thì mở bàn phím số để nhập số lượng của món đó (1–99, theo quy tắc FR-02). Nhập 0 hoặc để trống thì giữ số cũ; món chưa có trong giỏ thì nhập xong mới thêm.
 - Thực đơn được cập nhật realtime:
   - Món trong giỏ đổi giá thì dòng đơn cập nhật giá mới và được làm nổi bật khoảng 3 giây.
   - Món trong giỏ bị ẩn thì dòng đơn bị gạch, kèm "Món đã ngừng bán – bỏ khỏi đơn rồi gửi lại", và nút Xác nhận đơn bị khóa.
 - Bố cục (theo `docs/superpowers/specs/2026-10-04-thuc-don-giam-gia-design.md` §5):
-  - Điện thoại: lưới món, thanh giỏ đơn dính đáy (số món, Thành tiền và nút "Giỏ đơn"), bấm vào mở tấm giỏ đơn.
+  - Điện thoại: lưới món 2 cột, thanh giỏ đơn dính đáy (số món, Tạm tính và nút "Giỏ đơn"), bấm vào mở tấm giỏ đơn.
+  - Tấm giỏ đơn và phiếu đơn: dòng đơn rồi chỗ ngồi nằm trong vùng cuộn; Tạm tính, dải "Đang chọn" (FR-03b) và nút Xác nhận đơn luôn dính đáy, không phải cuộn mới thấy. Giảm giá nằm trong tấm thanh toán (FR-04c).
   - Màn rộng từ 768px: lưới món bên trái, phiếu đơn luôn hiện bên phải.
 
 **FR-02: Giỏ đơn**
-- Mỗi **dòng đơn** gồm tên món, đơn giá, nút **−**, ô số lượng nhập tay, nút **+**, và thành tiền dòng.
+- Mỗi **dòng đơn** gồm tên món, **ghi chú** (nếu có), đơn giá, nút **−**, ô số lượng nhập tay, nút **+**, và thành tiền dòng.
+- **Ghi chú:** chạm tên dòng đơn thì mở ô ghi chú, có các nút mẫu "Ít đá", "Không đá", "Ít ngọt" và ô nhập tay, tối đa 60 ký tự. Hai dòng đơn cùng món nhưng khác ghi chú là hai dòng riêng. Ghi chú được lưu trong dòng đơn và hiện ở Đơn vừa tạo, đơn chờ thanh toán, Lịch sử đơn hàng và CSV.
 - Số lượng mỗi dòng là số nguyên từ 1 đến 99. Bấm − khi số lượng là 1 thì xóa dòng. Ô số để trống hoặc nhập 0 thì khi rời ô trả về số cũ; nhập quá 99 thì về 99.
 - Nút "Xóa hết" dùng xác nhận hai bước: bấm lần đầu đổi thành "Chắc chắn xóa hết?" trong vài giây.
 - Tối đa 30 dòng đơn mỗi đơn.
 
 **FR-03: Giảm giá và thành tiền**
-- **Giảm giá** áp lên cả đơn, theo phần trăm nguyên từ 0 đến 100. Có nút 5%, 10%, 15%, 20% và ô nhập tay. Bấm lại nút đang chọn thì bỏ giảm giá. Nhân viên tự nhập, không cần lý do.
-- **Tạm tính** = tổng thành tiền các dòng đơn.
+- **Giảm giá** áp lên cả đơn, theo phần trăm nguyên từ 0 đến 100, và được chọn **trong tấm thanh toán**, ngay trước khi thu tiền (FR-04c). Có nút 5%, 10%, 15%, 20% và ô nhập tay. Bấm lại nút đang chọn thì bỏ giảm giá. Nhân viên tự nhập, không cần lý do.
+- **Tạm tính** = tổng thành tiền các dòng đơn (với đơn chờ thanh toán: các dòng đơn của mọi lượt gọi chưa hủy).
 - **Số tiền giảm** = tạm tính × phần trăm ÷ 100, **làm tròn xuống** tới bội số 1.000đ.
-- **Thành tiền** = tạm tính − số tiền giảm. Giỏ đơn hiện "Tạm tính", "Giảm N% −X đ" (khi có giảm giá) và "Thành tiền" cỡ lớn.
-- Số trên giỏ đơn chỉ để hiển thị; số được lưu là số server tính (FR-04).
+- **Thành tiền** = tạm tính − số tiền giảm. Giỏ đơn hiện "Tạm tính"; tấm thanh toán hiện "Tạm tính", "Giảm N% −X đ" (khi có giảm giá) và "Thành tiền" cỡ lớn.
+- Số trên màn hình chỉ để hiển thị; số được lưu là số server tính (FR-04, FR-04d).
 
 **FR-03b: Chọn chỗ ngồi**
 - Hiển thị các **chỗ ngồi** chưa bị ẩn, chia thành hai nhóm: **Ghế quầy** và **Bàn**.
@@ -150,6 +158,7 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - Trong nhóm Ghế quầy, nút bỏ tiền tố "Quầy " của tên ("Quầy 7" hiện "7"); tên khác hiện nguyên. Đơn hàng vẫn lưu tên đầy đủ, và trình đọc màn hình đọc tên đầy đủ.
 - **Bắt buộc chọn** một chỗ ngồi trước khi gửi. Bấm lại vào lựa chọn đang chọn thì bỏ chọn.
 - Nút Ghế quầy và Bàn cao ít nhất 56px, số dùng font hiển thị cỡ lớn; nút đang chọn có nền màu nhấn. Ngay trên nút Xác nhận đơn có dải "Đang chọn: <tên chỗ ngồi>" hoặc "Chưa chọn chỗ ngồi".
+- Chỗ ngồi đang có **đơn chờ thanh toán** có một chấm đánh dấu trên nút; khi đang chọn chỗ ngồi đó, dải "Đang chọn" ghi thêm "· đang chờ thanh toán X đ".
 
 **FR-04: Gửi đơn hàng**
 - Nút "Xác nhận đơn" bị khóa khi giỏ đơn trống, khi chưa chọn chỗ ngồi, khi chưa tải được thực đơn, khi giỏ có món đã ngừng bán, hoặc khi mất mạng. Lý do khóa hiện ngay trên nút.
@@ -174,7 +183,9 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 
 **FR-04c: Thanh toán**
 - Tấm thanh toán chiếm toàn màn hình trên điện thoại và là hộp thoại giữa màn trên màn rộng. Tấm luôn hiện chỗ ngồi đang chọn và Thành tiền cỡ lớn.
-- **Bước chọn:** "Khách trả bằng?" với hai nút **Tiền mặt** và **Chuyển khoản**. Mọi bước có nút "Quay lại": đóng tấm, giữ nguyên giỏ đơn, giảm giá và chỗ ngồi; chưa đơn nào được ghi.
+- Tấm thanh toán mở từ hai nơi: nút "Xác nhận đơn" của giỏ đơn, và nút "Thu tiền" của một đơn chờ thanh toán (FR-04d).
+- **Bước chọn:** Tạm tính, nút giảm giá (FR-03), Thành tiền cỡ lớn, rồi "Khách trả bằng?" với hai nút **Tiền mặt** (nút chính) và **Chuyển khoản**, nằm ở nửa dưới màn hình; nút "Quay lại" ở đầu tấm. Mọi bước có nút "Quay lại": đóng tấm, giữ nguyên giỏ đơn, giảm giá và chỗ ngồi; chưa đơn nào được ghi.
+- Khi mở từ giỏ đơn, dưới hai nút có thêm nút phụ **"Trả sau – ghi vào <tên chỗ ngồi>"** (hoặc "Ghi thêm vào <tên chỗ ngồi>" nếu chỗ ngồi đã có đơn chờ thanh toán): gửi giỏ đơn thành một **lượt gọi** của đơn chờ thanh toán (FR-04d). Lượt gọi không mang giảm giá, vì giảm giá chọn lúc thu tiền; khi đang chọn giảm giá, nút Trả sau ghi thêm "(giảm giá chọn lúc thu tiền)".
 - **Tiền mặt:** gửi đơn ngay (FR-04).
 - **Chuyển khoản:**
   - Hiện mã QR chuyển khoản của quán và Thành tiền, kèm nút "Chụp ảnh chuyển khoản". **Không có cách bỏ qua bước chụp ảnh.**
@@ -186,10 +197,28 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 - **Đang mở tấm mà điều kiện khóa của FR-04 xuất hiện** (mất mạng, giỏ có món đã ngừng bán): nút "Tiền mặt" và "Xác nhận đã thanh toán" bị khóa, lý do khóa hiện ngay trên nút; ảnh và `id` đơn được giữ, hết điều kiện khóa thì gửi tiếp được.
 - **Thực đơn vừa đổi** hoặc **đơn đã bị hủy** (FR-04): đóng tấm và báo như FR-04. Ảnh đã tải lên được giữ; lần mở tấm sau, chọn Chuyển khoản thì vào thẳng bước kiểm tra ảnh. Ảnh giữ lại bị bỏ khi gửi đơn thành công hoặc khi giỏ đơn trống (bấm "Xóa hết" hoặc bỏ từng món).
 
+**FR-04d: Trả sau và đơn chờ thanh toán**
+- Mỗi chỗ ngồi có **tối đa một** đơn chờ thanh toán. Đơn được tạo khi gửi lượt gọi đầu tiên bằng "Trả sau"; ngày kinh doanh của đơn tính theo thời điểm đó.
+- **Lượt gọi:** mỗi lần bấm Trả sau, server ghi các dòng đơn của giỏ đơn vào đơn chờ thanh toán, kiểm tra giá như FR-04 (lệch giá hoặc món đã ẩn thì từ chối cả lượt gọi). Đơn giá của từng dòng được chốt lúc gửi lượt gọi đó. Gửi lại cùng `id` lượt gọi thì không ghi trùng. Cả đơn tối đa 60 dòng đơn; vượt thì server từ chối và màn hình báo "Đơn chờ thanh toán đã đủ 60 dòng – thu tiền trước rồi gọi tiếp.".
+- Gửi lượt gọi thành công: rung ngắn, giỏ đơn trống, bỏ chọn chỗ ngồi, hiện "Đã ghi N món vào <tên chỗ ngồi>" kèm "Hoàn tác" trong 5 giây (hủy lượt gọi vừa gửi).
+- **Màn hình order** có nút "Chờ thanh toán" ở đầu màn, kèm số đơn đang chờ. Bấm thì mở danh sách đơn chờ thanh toán của cả quán (không chỉ của điện thoại này): tên chỗ ngồi, giờ lượt gọi đầu, số món, tạm tính. Danh sách tải lại khi mở và mỗi 15 giây (nhân viên không nhận Realtime trên bảng đơn hàng); số trên nút cũng tải lại sau mỗi lần gửi hoặc thu tiền.
+- **Chi tiết đơn chờ thanh toán:** các lượt gọi theo thứ tự giờ, mỗi lượt gồm giờ và các dòng đơn (kèm ghi chú); Tạm tính; nút "Thu tiền" (nút chính) và "Gọi thêm" (đóng tấm, chọn sẵn chỗ ngồi đó).
+- **Thu tiền:** mở tấm thanh toán (FR-04c) cho cả đơn; nhân viên chọn giảm giá và hình thức thanh toán như đơn trả ngay. Server tính tạm tính từ các dòng đơn đã lưu, rồi số tiền giảm và thành tiền theo FR-03, ghi hình thức thanh toán, ảnh chuyển khoản và thời điểm thu tiền, đổi trạng thái sang **đã thanh toán**. Thu tiền thành công thì hiện "Đã thu X đ – <tên chỗ ngồi>"; thu tiền không có nút Hoàn tác (chủ quán hủy được ở Lịch sử đơn hàng).
+- Hai điện thoại cùng thu tiền một đơn: server chỉ nhận lần đầu; lần sau nhận "Đơn này đã được thu tiền." và danh sách tải lại.
+- **Hủy:** nhân viên hủy được **một lượt gọi** trong cửa sổ hủy tính từ lúc gửi lượt gọi đó (nút "Hủy" trên lượt gọi). Mọi lượt gọi đều bị hủy thì đơn chờ thanh toán chuyển sang đã hủy. Chủ quán hủy được cả đơn chờ thanh toán bất cứ lúc nào.
+- Đơn chờ thanh toán **không** tính vào doanh thu, số món và số đơn cho tới khi được thu tiền.
+- **Gửi lại và thay đổi giữa chừng:**
+  - Gửi bị lỗi mạng thì chỉ gửi lại được bằng **đúng cách vừa chọn** (cùng `id`): sau lỗi khi trả ngay, nút Trả sau bị khóa; sau lỗi khi Trả sau, Tiền mặt và Chuyển khoản bị khóa, lý do trên nút là "Bấm Trả sau để gửi lại". Khóa này bỏ khi gửi thành công hoặc giỏ đơn trống.
+  - Gửi lại một lượt gọi đã bị hủy: làm như FR-04 (báo "Đơn này đã bị hủy – bấm Xác nhận đơn để tạo đơn mới.", giữ giỏ, lần sau dùng `id` mới).
+  - Thu tiền gửi kèm tạm tính đang hiển thị. Nếu đơn vừa có lượt gọi mới hoặc lượt gọi bị hủy (tạm tính trên server khác), hoặc chủ quán vừa hủy đơn, server từ chối; màn hình đóng tấm thanh toán, tải lại danh sách và báo "Đơn vừa có thay đổi – kiểm tra lại rồi thu tiền.".
+  - Đơn đã được thu (kể cả khi chính máy này bấm lại sau khi mất phản hồi): báo "Đơn này đã được thu tiền." và tải lại danh sách.
+  - Hủy một lượt gọi của đơn vừa được máy khác thu tiền: báo "Đơn này đã được thu tiền." và tải lại danh sách.
+
 **FR-04b: Đơn vừa tạo và hủy đơn**
 - Màn hình order liệt kê các đơn hàng **do chính điện thoại này tạo** trong ngày kinh doanh hiện tại. Mỗi điện thoại tự nhớ danh sách đơn của mình.
 - Khi chưa có đơn nào, mục "Đơn vừa tạo" vẫn hiện, kèm câu "Chưa có đơn nào.".
 - Mỗi đơn ghi giờ · chỗ ngồi · tóm tắt món (ví dụ "2 Classic, 1 Neat") · thành tiền, thêm "−N%" nếu có giảm giá.
+- Lượt gọi Trả sau do điện thoại này gửi cũng hiện trong danh sách, ghi "Trả sau" thay cho thành tiền, kèm tạm tính của lượt gọi; nút "Hủy" hủy lượt gọi đó (FR-04d).
 - Đơn chuyển khoản có nút icon máy ảnh cạnh thành tiền ("Xem ảnh chuyển khoản"); bấm thì xem ảnh toàn màn hình, có nút "Đóng".
 - Đơn còn trong **cửa sổ hủy** (5 phút kể từ lúc tạo) thì có nút "Hủy". Nút "Hoàn tác" cũng dùng chính chức năng hủy này.
 - **Quy tắc hủy (server kiểm tra):**
@@ -240,7 +269,10 @@ Quy mô thiết kế: 1 cơ sở, tối đa khoảng 5 điện thoại dùng cù
 Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** là tổng thành tiền, tức **sau giảm giá**. **Số món** là tổng số lượng các dòng đơn.
 
 **FR-06: Tổng quan, `/admin/dashboard`**
-- **Đồng hồ giờ mở cửa:** vẽ khoảng từ giờ mở cửa đến giờ đóng cửa (ví dụ 20:00–02:00, 6 tiếng), đánh dấu giờ hiện tại. Cả khoảng là một vệt mờ; phần đã trôi qua vẽ sáng đè lên, phần giờ chưa tới giữ vệt mờ. Sau giờ đóng cửa và trước giờ mở cửa kế tiếp, đồng hồ đầy và ghi "Đã đóng cửa".
+- **Thanh giờ mở cửa:** vẽ khoảng từ giờ mở cửa đến giờ đóng cửa (ví dụ 20:00–02:00, 6 tiếng), đánh dấu giờ hiện tại. Cả khoảng là một vệt mờ; phần đã trôi qua vẽ sáng đè lên, phần giờ chưa tới giữ vệt mờ. Trong giờ mở cửa, ghi "Còn H giờ M phút đến giờ đóng cửa". Sau giờ đóng cửa và trước giờ mở cửa kế tiếp, thanh đầy và ghi "Đã đóng cửa".
+- **Chờ thanh toán:** khi có đơn chờ thanh toán, hiện "N đơn chờ thanh toán · X đ" (X là tổng tạm tính); bấm thì mở Lịch sử đơn hàng lọc trạng thái Chờ thanh toán, khoảng ngày từ ngày kinh doanh của đơn chờ thanh toán cũ nhất tới hôm nay. Số này không cộng vào doanh thu.
+- **Món bán chạy:** theo kỳ đang chọn (ngày kinh doanh, tuần, tháng), xếp các món theo tổng số món đã bán (chỉ đơn đã thanh toán), hiện 5 món đầu, mỗi món có số món và thanh tỉ lệ so với món đầu bảng. Xếp theo tên món lưu trong dòng đơn. Không hiện doanh thu theo món.
+- **Số món theo giờ:** biểu đồ cột số món đã bán theo từng giờ, từ giờ mở cửa đến giờ đóng cửa, cộng dồn các ngày kinh doanh của kỳ đang chọn (chỉ đơn đã thanh toán; giờ tính theo lúc gửi đơn hoặc lượt gọi). Cột cao nhất được đánh dấu "Cao điểm".
 - **Ba kỳ:** ngày kinh doanh hiện tại, tuần này (thứ Hai đến Chủ nhật, theo ngày kinh doanh, tính đến hôm nay), tháng này (các ngày kinh doanh thuộc tháng dương lịch hiện tại, tính đến hôm nay).
 - **Mỗi kỳ có:** doanh thu, số món, số đơn (chỉ tính đơn đã thanh toán).
 - **So với kỳ trước, cùng đoạn:**
@@ -259,19 +291,20 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 **FR-06a: Thông báo đơn mới**
 - Khi nhân viên tạo đơn thành công, mọi trang chủ quán đang mở hiện thông báo "Đơn mới: <tên chỗ ngồi> · N món · 25.000đ" trong 5 giây (`role="status"`), không che thanh điều hướng. Bấm vào thông báo thì mở Lịch sử đơn hàng với đơn đó mở sẵn.
 - Cùng lúc, số liệu trên trang (Tổng quan, Lịch sử đơn hàng) được tải lại, không cần đợi chu kỳ 60 giây.
+- Đơn Trả sau mới mở (chưa thu tiền) và lúc thu tiền một đơn chờ thanh toán: chỉ tải lại số liệu, không hiện thông báo.
 - Dùng Supabase Realtime trên bảng đơn hàng; RLS vẫn áp dụng, chỉ chủ quán nhận được sự kiện. Số món và thành tiền lấy từ đơn trên server (đọc lại theo mã đơn), không tính ở trình duyệt.
 - Mất kết nối Realtime thì không có thông báo; Tổng quan vẫn tự tải lại mỗi 60 giây.
 
 **FR-07: Lịch sử đơn hàng, `/admin/history`**
-- **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số món, Giảm giá, Thành tiền, Thanh toán, Trạng thái.
+- **Cột:** Thời gian (giờ VN), Chỗ ngồi, Số món, Giảm giá, Thành tiền, Thanh toán, Trạng thái (Đã thanh toán, Chờ thanh toán, Đã hủy). Đơn chờ thanh toán hiện tạm tính thay cho thành tiền và để trống Thanh toán. Thời gian của đơn trả sau là giờ thu tiền (chưa thu thì là giờ lượt gọi đầu), như CSV. Có bộ lọc trạng thái.
   - Trên điện thoại, mỗi đơn hiện thành một dòng hai tầng (thời gian · chỗ ngồi và trạng thái; "N món" kèm "−N%" nếu có giảm giá, thành tiền, và hình thức thanh toán), đủ 7 trường trên. Từ tablet trở lên là bảng 7 cột.
-  - Bấm vào một đơn thì mở xuống các dòng đơn ("2 × Classic · 190.000đ · 380.000đ"), rồi Tạm tính, Giảm giá, Thành tiền, hình thức thanh toán, và ảnh chuyển khoản thu nhỏ (bấm vào để xem to; ảnh không tải được thì báo "Không tải được ảnh."). Bấm lần nữa thì đóng. Bấm nút Hủy không mở đơn.
+  - Bấm vào một đơn thì mở xuống các dòng đơn ("2 × Classic · 190.000đ · 380.000đ", ghi chú ở dòng dưới; đơn trả sau nhóm theo lượt gọi, kèm giờ; dòng của lượt gọi đã hủy không hiện, trừ khi cả đơn đã hủy), rồi Tạm tính, Giảm giá, Thành tiền, hình thức thanh toán, và ảnh chuyển khoản thu nhỏ (bấm vào để xem to; ảnh không tải được thì báo "Không tải được ảnh."). Bấm lần nữa thì đóng. Bấm nút Hủy không mở đơn.
   - Địa chỉ `?order=<mã đơn>` mở sẵn và cuộn tới đơn đó.
 - **Lọc:** theo khoảng **Từ ngày – Đến ngày**, tính theo ngày kinh doanh.
   - Mặc định là hôm nay.
   - Ngày không hợp lệ thì thay bằng hôm nay.
   - "Từ ngày" lớn hơn "Đến ngày" thì tự đảo lại.
-- **Đơn đã hủy:** vẫn hiện, có gạch ngang, nhưng không tính vào dòng tổng.
+- **Đơn đã hủy:** vẫn hiện, có gạch ngang, nhưng không tính vào dòng tổng. **Đơn chờ thanh toán** cũng không tính vào dòng tổng.
 - **Dòng tổng** của khoảng đang lọc: số đơn, số món, doanh thu, tổng số tiền đã giảm ("Đã giảm X đ"), và doanh thu tách theo hình thức thanh toán ("Tiền mặt X đ · Chuyển khoản Y đ").
 - **Phân trang:** 50 đơn mỗi trang.
 - **Lỗi khi tải** (đều kèm "Kiểm tra mạng rồi tải lại trang."):
@@ -282,7 +315,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 
 **FR-07a: Xuất CSV**
 - Xuất toàn bộ đơn trong khoảng đang lọc, mã hóa UTF-8 có BOM, xuống dòng bằng CRLF.
-- 9 cột: `Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Số lượng, Đơn giá, Thành tiền, Trạng thái, Thanh toán`. Cột Thanh toán ghi "Tiền mặt" hoặc "Chuyển khoản", lặp ở mọi hàng của đơn. Không xuất ảnh.
+- 10 cột: `Thời gian, Ngày kinh doanh, Chỗ ngồi, Món, Ghi chú, Số lượng, Đơn giá, Thành tiền, Trạng thái, Thanh toán`. Cột Thanh toán ghi "Tiền mặt" hoặc "Chuyển khoản", lặp ở mọi hàng của đơn; đơn chờ thanh toán để trống. Thời gian của đơn trả sau là thời điểm thu tiền (chưa thu thì là giờ lượt gọi đầu). Không xuất ảnh.
 - Mỗi dòng đơn là một hàng. Đơn có giảm giá có thêm một hàng: Món là `Giảm giá N%`, Số lượng và Đơn giá để trống, Thành tiền là số tiền giảm mang dấu âm. Cộng cột Thành tiền của các đơn đã thanh toán ra đúng doanh thu.
 - Ô văn bản bắt đầu bằng `= + - @` được thêm dấu `'` ở đầu, để Excel không hiểu nhầm là công thức.
 - Tên file: `don-hang_<từ>_<đến>.csv`.
@@ -302,8 +335,9 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | `menu_price_history` | `menu_item_id`, `price`, `effective_from`, `changed_by` (ghi bằng trigger khi thêm món hoặc đổi giá) |
 | `seats` | `name`, `kind` (`table` = Bàn, `counter` = Ghế quầy), `sort_order`, `is_archived` |
 | `app_roles` | `user_id`, `role` (`owner` hoặc `staff`). Chỉ có **một** tài khoản `staff`. |
-| `orders` | `id` (do client sinh), `item_count`, `subtotal_amount`, `discount_percent` (0–100), `discount_amount`, `total_amount`, `seat_id` (bắt buộc), `seat_name`, `status` (`paid`/`cancelled`), `created_by`, `created_at`, `business_date`, `cancelled_at`, `cancelled_by`, `payment_method` (`cash`/`transfer`), `transfer_photo_id` (public_id ảnh trên Cloudinary; bắt buộc khi `transfer`, trống khi `cash`) |
-| `order_lines` | `order_id`, `menu_item_id`, `item_name`, `unit_price`, `quantity` (1–99), `line_amount` (cột tự tính = `quantity × unit_price`), `sort_order` |
+| `orders` | `id` (do client sinh), `item_count`, `subtotal_amount`, `discount_percent` (0–100), `discount_amount`, `total_amount`, `seat_id` (bắt buộc), `seat_name`, `status` (`open`/`paid`/`cancelled`), `created_by`, `created_at`, `paid_at`, `business_date`, `cancelled_at`, `cancelled_by`, `payment_method` (`cash`/`transfer`; trống khi `open`), `transfer_photo_id` (public_id ảnh trên Cloudinary; bắt buộc khi `transfer`, trống khi `cash` hoặc `open`). Mỗi `seat_id` có tối đa một đơn `open` (unique index có điều kiện). Khi `open`, các cột tiền giữ tạm tính hiện tại (chưa giảm giá), server tính lại sau mỗi lượt gọi, lần hủy lượt gọi và lúc thu tiền. |
+| `order_rounds` | Lượt gọi: `id` (do client sinh), `order_id`, `created_by`, `created_at`, `cancelled_at`, `cancelled_by`. Đơn trả ngay có đúng một lượt gọi. |
+| `order_lines` | `order_id`, `round_id`, `menu_item_id`, `item_name`, `note` (tối đa 60 ký tự, có thể trống), `unit_price`, `quantity` (1–99), `line_amount` (cột tự tính = `quantity × unit_price`), `sort_order` |
 
 Đơn tạo trước v3.3 có `payment_method = 'cash'` vì khi đó app chưa ghi hình thức thanh toán.
 
@@ -316,7 +350,7 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | Mã | Yêu cầu |
 |---|---|
 | NFR-01 | Mỗi lần bấm nút trên `/order` có phản hồi trên giao diện dưới 200ms. Trong lúc gửi đơn, nút hiện trạng thái "Đang gửi…". |
-| NFR-02 | Mobile-first. Nút chính trên màn order cao ít nhất 56px; trên trang chủ quán ít nhất 48px. Mọi vùng chạm ít nhất 48px. Thành tiền hiển thị cỡ lớn. |
+| NFR-02 | Mobile-first. Nút chính trên màn order cao ít nhất 56px; trên trang chủ quán ít nhất 48px. Mọi vùng chạm ít nhất 48px. Thành tiền hiển thị cỡ lớn. Trang chủ quán có bố cục máy tính từ 1024px: thanh điều hướng bên trái, nội dung nhiều cột, hộp thoại giữa màn thay cho tấm trượt từ đáy. |
 | NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. `CLOUDINARY_API_SECRET` chỉ nằm ở server Vercel (không có tiền tố `NEXT_PUBLIC_`) và chỉ route ký upload đọc nó; route chỉ ký cho nhân viên hoặc chủ quán đang đăng nhập. Chữ ký upload kèm `overwrite=false`, nên không ghi đè được ảnh đã có. Kiểm tra quyền lỗi tạm thời thì route trả 503 và màn order báo "Chưa tải được ảnh – kiểm tra mạng rồi thử lại."; chỉ khi không có quyền mới trả 401 và đăng xuất. |
 | NFR-05 | Tiền là số nguyên. Server tính đơn giá, tạm tính, số tiền giảm và thành tiền. Không bao giờ xóa cứng đơn hàng, chỗ ngồi hoặc món. Ngoại lệ duy nhất: migration v3.0 xóa dữ liệu thử một lần trước khi dùng thật (R36). |
 | NFR-06 | Giao diện tiếng Việt, tiền định dạng `25.000đ`, giờ Việt Nam. |
@@ -396,3 +430,10 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | R41 (v3.4) | Khóa nút trong tấm thanh toán | Khi điều kiện khóa của FR-04 xuất hiện lúc tấm thanh toán đang mở, khóa nút gửi trong tấm và ghi lý do; không đóng tấm, giữ ảnh và mã đơn (NFR-01). |
 | R42 (v3.5) | Bỏ ảnh khi giỏ trống | Giỏ đơn trống vì bất cứ lý do gì thì bỏ ảnh chuyển khoản đang giữ, để ảnh của khách trước không gắn vào đơn của khách sau. |
 | R43 (v3.6) | Ký upload | Chữ ký kèm `overwrite=false`; lỗi tạm thời khi kiểm tra quyền trả 503 (thử lại được), không có quyền trả 401 (đăng xuất). |
+| R44 (v3.7) | Vùng ngón cái trên màn order | Sửa chạm thừa không cần mở giỏ (nút − trên hàng món). Nút gửi và chỗ ngồi đang chọn luôn thấy trong tấm giỏ; nút trả tiền ở nửa dưới tấm thanh toán, Tiền mặt là nút chính vì nó gửi đơn ngay. |
+| R45 (v3.8) | Trả sau | Quán bar hay để khách gọi nhiều lượt rồi trả một lần. Giữ cả hai cách: thu tiền ngay hoặc "Trả sau" ghi lượt gọi vào đơn chờ thanh toán của chỗ ngồi (tối đa một đơn mở mỗi chỗ ngồi). Giá chốt theo từng lượt gọi; giảm giá chọn lúc thu tiền cho cả đơn, nên giảm giá chuyển từ giỏ đơn sang tấm thanh toán. Doanh thu chỉ tính khi thu tiền. Nhân viên hủy từng lượt gọi trong 5 phút; chủ quán hủy cả đơn. Thay Q1 và câu "không có trạng thái chờ thanh toán" của R39. |
+| R46 (v3.8) | Ghi chú | Ghi chú tự do (≤ 60 ký tự) trên từng dòng đơn, có nút mẫu. Khác ghi chú là khác dòng. Không gửi tới máy in hay màn hình pha chế. |
+| R47 (v3.8) | Báo cáo theo món và theo giờ | Tổng quan có 5 món bán chạy (theo số món, không theo tiền, để không phải chia giảm giá cho từng món) và số món theo giờ; thanh giờ mở cửa ghi thời gian còn lại. Thay câu "Chưa có thống kê theo món" của R35. |
+| R48 (v3.8) | Nhập nhanh số lượng | Chạm giữ ô món mở bàn phím số, để đơn nhiều ly không cần chạm nhiều lần. Mỗi chạm có phản hồi số nảy và rung ngắn. |
+| R50 (v3.8) | Trả sau: gửi lại và thay đổi giữa chừng | Sau lỗi mạng chỉ gửi lại bằng đúng cách vừa chọn (trả ngay và Trả sau ghi vào hai nơi, không gộp được một `id`). Thu tiền kèm tạm tính đang thấy, lệch hoặc đơn đã bị hủy thì từ chối (khách không trả theo số cũ). Đơn đã thu thì báo đã thu, không phân biệt máy nào bấm. Lượt gọi gửi lại đã bị hủy thì làm như FR-04. Lịch sử và CSV ghi giờ thu tiền cho đơn trả sau; đơn đã hủy giữ mọi dòng đơn. Thu tiền chỉ tải lại số liệu trang chủ quán. |
+| R49 (v3.8) | Giao diện mới | Bỏ thế giới "Bao diêm"; giao diện tối, gọn, thẻ bo tròn, một màu nhấn cam, font Be Vietnam Pro, theo `design/design.pen`. Màn order lưới món 2 cột. Tấm trượt từ đáy cho hộp thoại trên điện thoại. Đăng xuất chủ quán nằm trong Cài đặt. Trang chủ quán có bố cục máy tính từ 1024px. |

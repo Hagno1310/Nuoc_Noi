@@ -9,8 +9,8 @@ paths:
 ## Nguồn chuẩn về giao diện
 
 - **Hoàn cảnh sử dụng:** `PRODUCT.md`. Người dùng ở trong **phòng tối**, bấm **một tay**, là **người trẻ rành điện thoại**. Mọi quyết định thiết kế phải đứng vững trong hoàn cảnh đó.
-- **Hệ thiết kế (màu, font, khoảng cách, bo góc):** `DESIGN.md`, cùng phần "Direction contract" trong surface brief của từng màn hình.
-  - Chưa có `DESIGN.md` thì chạy `/impeccable shape <màn hình>` để chốt hướng thiết kế trước khi dựng màn hình đó.
+- **Hệ thiết kế (màu, font, khoảng cách, bo góc):** `DESIGN.md`.
+- **Bản vẽ từng màn và từng trạng thái:** `design/design.pen` (đọc bằng công cụ pencil, không đọc thẳng file). Mỗi làn trên canvas là một luồng sử dụng. Khi dựng một màn, mở đúng khung của màn đó và làm theo.
 - **Code mẫu trong kế hoạch:** chỉ dùng phần **cấu trúc và hành vi**. Các class màu và kích thước Tailwind trong đó là giá trị tạm. Giá trị thật lấy từ các token trong `DESIGN.md`.
 
 ## Hoàn cảnh quyết định thiết kế
@@ -42,9 +42,9 @@ paths:
   - Icon là hình vẽ từ bộ icon, không dùng ký tự Unicode hay emoji.
 - **Trạng thái:** mọi điều khiển có đủ các trạng thái mặc định, nhấn, `focus-visible`, vô hiệu, đang xử lý và lỗi.
   - Danh sách và bảng có trạng thái đang tải (dùng skeleton) và trạng thái trống (có câu hướng dẫn việc cần làm).
-- **Xác nhận và nhập liệu:** làm ngay trên trang.
-  - Hành động phá hủy dùng xác nhận hai bước: bấm "Hủy" thì nút đổi thành "Chắc chắn hủy?" trong vài giây.
-  - Đổi tên dùng ô sửa ngay tại chỗ.
+- **Xác nhận và nhập liệu:**
+  - Hành động phá hủy dùng xác nhận hai bước: bấm "Hủy" thì nút đổi thành "Chắc chắn hủy?" trong vài giây. Riêng hủy đơn ở Lịch sử đơn hàng dùng tấm xác nhận "Hủy đơn này?".
+  - Sửa món, thêm món, sửa chỗ ngồi, ghi chú, nhập số lượng: **tấm trượt từ đáy** trên điện thoại, **hộp thoại giữa màn** từ 1024px.
   - `window.prompt`, `confirm` và `alert` không thuộc ngôn ngữ giao diện của app.
 - **Thông báo:**
   - Nằm ở vị trí không che nút hành động chính và bàn phím số lượng.

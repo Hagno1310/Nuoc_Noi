@@ -15,6 +15,7 @@ paths:
   Nếu không đạt thì `raise exception` với một mã lỗi có trong hợp đồng của kế hoạch (`FORBIDDEN`, …).
 - **Phân quyền thực thi:** mỗi RPC mới `revoke execute … from public, anon` rồi `grant execute … to authenticated`.
 - **Không bao giờ xóa cứng đơn hàng hay bàn.** Đơn hàng dùng `status = 'cancelled'`, bàn dùng `is_archived = true`.
+- **Đơn chờ thanh toán** (`status = 'open'`) không tính vào doanh thu, số món, số đơn; mỗi `seat_id` có tối đa một đơn `open`. Tiền của đơn chỉ được server tính lúc thu tiền (SRS FR-04d).
 - **Không sửa migration đã có.** Mọi thay đổi schema đi vào một migration mới, tên có timestamp lớn hơn migration cuối cùng.
 - **Mỗi RPC mới hoặc RPC bị sửa đều có test pgTAP** trong `supabase/tests/`. Test bao phủ đủ ba trường hợp:
   - Người được phép gọi.
