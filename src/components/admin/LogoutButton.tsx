@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 
-// Nút có viền + icon để không lẫn với các mục điều hướng; màu trung tính (không phải hành động chính hay phá hủy)
+// Nút viền trung tính, không phải hành động chính hay phá hủy
 export function LogoutButton() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -12,7 +12,7 @@ export function LogoutButton() {
     <button
       type="button"
       disabled={busy}
-      className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-edge px-4 text-sm font-medium transition-colors duration-150 hover:border-ink hover:bg-raised active:bg-ink active:text-bg disabled:opacity-50 lg:self-start"
+      className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl text-[15px] font-medium text-muted ring-[1.5px] ring-line hover:text-ink disabled:opacity-50"
       onClick={async () => {
         setBusy(true);
         await getBrowserSupabase().auth.signOut({ scope: "local" });

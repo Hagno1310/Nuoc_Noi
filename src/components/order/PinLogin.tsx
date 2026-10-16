@@ -31,18 +31,18 @@ export function PinLogin({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-center text-xl font-semibold">Nhập PIN quán</h1>
+      <h1 className="text-center text-[15px] font-medium text-muted">Nhập PIN quán</h1>
       <p aria-label="PIN đã nhập" className="flex justify-center gap-4">
         <span className="sr-only">Đã nhập {pin.length} trên 6 số</span>
         {Array.from({ length: 6 }, (_, i) => (
           <span
             key={i}
             aria-hidden="true"
-            className={`size-3.5 rounded-full border transition-colors duration-150 ${i < pin.length ? "border-ember bg-ember" : "border-edge"}`}
+            className={`size-3.5 rounded-full transition-colors duration-150 ${i < pin.length ? "bg-accent" : "bg-surface-2"}`}
           />
         ))}
       </p>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2.5">
         {KEYS.map((key, i) =>
           key ? (
             <button
@@ -50,7 +50,7 @@ export function PinLogin({
               type="button"
               aria-label={key === "⌫" ? "Xóa số" : key}
               onClick={() => press(key)}
-              className="flex min-h-16 items-center justify-center rounded-xl border border-edge text-2xl font-semibold tabular-nums transition-colors duration-150 active:border-ink active:bg-ink active:text-bg"
+              className="flex h-16 items-center justify-center rounded-[20px] bg-surface text-[26px] font-semibold active:bg-surface-2"
             >
               {key === "⌫" ? <Delete aria-hidden="true" /> : key}
             </button>
@@ -68,7 +68,7 @@ export function PinLogin({
         type="button"
         disabled={pin.length !== 6 || busy}
         onClick={() => void submit()}
-        className="min-h-16 w-full rounded-2xl bg-ember text-xl font-extrabold text-ember-ink disabled:bg-raised disabled:text-ink-muted"
+        className="h-16 w-full rounded-2xl bg-accent text-lg font-semibold text-accent-ink disabled:bg-surface-2 disabled:text-muted"
       >
         Vào
       </button>

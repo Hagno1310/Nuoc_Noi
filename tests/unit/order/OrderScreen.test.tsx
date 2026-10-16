@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { OrderScreen, type OrderScreenProps } from "@/components/order/OrderScreen";
-import { NetworkError, RpcError, type CreateOrderInput, type CreatedOrder, type StaffApi } from "@/lib/api";
+import { NetworkError, RpcError, type CreateOrderInput, type CreatedOrder, type OpenOrder, type StaffApi } from "@/lib/api";
 import { discountAmount, type MenuItem } from "@/lib/order/cart";
 import { UploadError } from "@/lib/order/transferPhoto";
 import { getMyOrderIds } from "@/lib/order/myOrders";
@@ -44,6 +44,17 @@ function setup(overrides: Partial<OrderScreenProps> = {}, apiOverrides: Partial<
       { id: "s1", name: "Quầy 1", kind: "counter" as const },
       { id: "t1", name: "Bàn 1", kind: "table" as const },
     ]),
+    addRound: vi.fn(async (i: Parameters<StaffApi["addRound"]>[0]) => ({
+      round_id: i.id, order_id: "open-1", seat_name: "Quầy 1", status: "open" as const, duplicate: false,
+      item_count: i.lines.reduce((s, l) => s + l.quantity, 0),
+      subtotal_amount: i.lines.reduce((s, l) => s + l.quantity * l.clientPrice, 0),
+    })),
+    checkoutOrder: vi.fn(async (i: Parameters<StaffApi["checkoutOrder"]>[0]) => ({
+      ...created({ id: i.orderId, seatId: "t1", discountPercent: i.discountPercent, lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000, note: "" }], payment: i.payment }),
+      seat_name: "Bàn 1",
+    })),
+    cancelRound: vi.fn(async () => {}),
+    listOpenOrders: vi.fn(async () => []),
     ...apiOverrides,
   };
   let n = 0;
@@ -62,9 +73,13 @@ function setup(overrides: Partial<OrderScreenProps> = {}, apiOverrides: Partial<
   return { api, props, user, ...utils };
 }
 
+const OPEN: OpenOrder = {
+  id: "open-1", seat_id: "t1", seat_name: "Bàn 1", created_at: NOW.toISOString(), item_count: 2, subtotal_amount: 380000,
+  rounds: [{ id: "r1", created_at: NOW.toISOString(), lines: [{ item_name: "Classic", unit_price: 190000, quantity: 2, line_amount: 380000, note: "Ít đá" }] }],
+};
 const row = (name: RegExp) => screen.getByRole("button", { name });
 async function openCart(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: "Giỏ đơn" }));
+  await user.click(screen.getByRole("button", { name: /Giỏ đơn/ }));
   return screen.getByRole("dialog", { name: "Giỏ đơn" });
 }
 
@@ -119,15 +134,15 @@ describe("OrderScreen", () => {
     await user.click(row(/^Classic/));
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
-    await user.click(within(cart).getByRole("button", { name: "10%" }));
-    expect(within(cart).getByTestId("total")).toHaveTextContent("342.000đ");
     await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await user.click(within(payDialog()).getByRole("button", { name: "10%" }));
+    expect(within(payDialog()).getByTestId("pay-total")).toHaveTextContent("342.000đ");
     await chooseCash(user);
     expect(api.createOrder).toHaveBeenCalledWith({
       id: "order-1",
       seatId: "s1",
       discountPercent: 10,
-      lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000 }],
+      lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000, note: "" }],
       payment: { method: "cash" },
     });
     expect(await screen.findByRole("status")).toHaveTextContent("Đã tạo đơn 2 món – 342.000đ");
@@ -177,14 +192,14 @@ describe("OrderScreen", () => {
     await user.click(row(/^Classic/));
     const cart = await openCart(user);
     await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
-    const pct = within(cart).getByLabelText("Giảm giá (%)");
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    const pct = within(payDialog()).getByLabelText("Giảm giá (%)");
     await user.type(pct, "120");
     fireEvent.blur(pct);
-    expect(within(cart).queryByText(/^Giảm \d+%/)).toBeNull();
+    expect(within(payDialog()).queryByText(/^Giảm \d+%/)).toBeNull();
     await user.clear(pct);
     await user.type(pct, "7");
     fireEvent.blur(pct);
-    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
     await chooseCash(user);
     expect(api.createOrder).toHaveBeenCalledWith(expect.objectContaining({ discountPercent: 7 }));
   });
@@ -269,7 +284,7 @@ describe("OrderScreen", () => {
     const cart = await openCart(user);
     expect(within(cart).getByText("Món đã ngừng bán – bỏ khỏi đơn rồi gửi lại")).toBeInTheDocument();
     expect(within(cart).getByRole("button", { name: "Xác nhận đơn" })).toBeDisabled();
-    expect(within(cart).getAllByText("Bỏ món đã ngừng bán khỏi đơn").length).toBeGreaterThan(0);
+    expect(within(cart).getAllByText("Bỏ món đã ngừng bán để gửi").length).toBeGreaterThan(0);
   });
 
   it("Hoàn tác gọi cancelOrder", async () => {
@@ -306,14 +321,14 @@ describe("OrderScreen", () => {
     expect(vibrate).toHaveBeenCalledWith(30);
   });
 
-  it("Đơn vừa tạo: tóm tắt món, nút Hủy chỉ trong cửa sổ 5 phút, đơn hủy có dấu HỦY", async () => {
+  it("Đơn vừa tạo: tóm tắt món, nút Hủy chỉ trong cửa sổ 5 phút, đơn hủy ghi Đã hủy", async () => {
     setup(
       {},
       {
         listOrdersByIds: vi.fn(async () => [
-          { id: "a", item_count: 3, subtotal_amount: 480000, discount_percent: 10, discount_amount: 48000, total_amount: 432000, seat_name: "Bàn 1", status: "paid" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: new Date(NOW.getTime() - 60_000).toISOString(), lines: [{ item_name: "Classic", unit_price: 190000, quantity: 2, line_amount: 380000 }, { item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
-          { id: "b", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "paid" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: new Date(NOW.getTime() - 10 * 60_000).toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
-          { id: "c", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", status: "cancelled" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: NOW.toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000 }] },
+          { id: "a", item_count: 3, subtotal_amount: 480000, discount_percent: 10, discount_amount: 48000, total_amount: 432000, seat_name: "Bàn 1", kind: "order" as const, status: "paid" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: new Date(NOW.getTime() - 60_000).toISOString(), lines: [{ item_name: "Classic", unit_price: 190000, quantity: 2, line_amount: 380000, note: "" }, { item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000, note: "" }] },
+          { id: "b", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", kind: "order" as const, status: "paid" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: new Date(NOW.getTime() - 10 * 60_000).toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000, note: "" }] },
+          { id: "c", item_count: 1, subtotal_amount: 100000, discount_percent: 0, discount_amount: 0, total_amount: 100000, seat_name: "Quầy 1", kind: "order" as const, status: "cancelled" as const, payment_method: "cash" as const, transfer_photo_id: null, created_at: NOW.toISOString(), lines: [{ item_name: "Neat", unit_price: 100000, quantity: 1, line_amount: 100000, note: "" }] },
         ]),
       },
     );
@@ -321,7 +336,7 @@ describe("OrderScreen", () => {
     expect(await within(list).findByText("2 Classic, 1 Neat")).toBeInTheDocument();
     expect(within(list).getByText("−10%")).toBeInTheDocument();
     expect(within(list).getAllByRole("button", { name: "Hủy" })).toHaveLength(1);
-    expect(within(list).getByText("HỦY")).toBeInTheDocument();
+    expect(within(list).getByText("Đã hủy")).toBeInTheDocument();
   });
 
   it("tải lại chỗ ngồi khi có mạng trở lại", async () => {
@@ -546,7 +561,103 @@ describe("OrderScreen", () => {
     await waitFor(() => expect(confirm).toBeEnabled());
     rerender(<OrderScreen {...props} menu={MENU.map((m) => (m.id === "m1" ? { ...m, is_archived: true } : m))} />);
     expect(confirm).toBeDisabled();
-    expect(within(pay).getByText("Bỏ món đã ngừng bán khỏi đơn")).toBeInTheDocument();
+    expect(within(pay).getByText("Bỏ món đã ngừng bán để gửi")).toBeInTheDocument();
     expect(within(pay).getByRole("img", { name: "Ảnh chuyển khoản vừa chụp" })).toBeInTheDocument();
+  });
+
+  it("chạm giữ ô món: nhập số lượng bằng bàn phím", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { user } = setup();
+    fireEvent.pointerDown(row(/^Classic/));
+    act(() => void vi.advanceTimersByTime(600));
+    fireEvent.pointerUp(row(/^Classic/));
+    const pad = screen.getByRole("dialog", { name: "Nhập số lượng" });
+    await user.click(within(pad).getByRole("button", { name: "1" }));
+    await user.click(within(pad).getByRole("button", { name: "2" }));
+    await user.click(within(pad).getByRole("button", { name: "Xong" }));
+    vi.useRealTimers();
+    expect(row(/^Classic/)).toHaveAccessibleName(/đang có 12/);
+  });
+
+  it("ghi chú: cùng món khác ghi chú là hai dòng, gửi kèm ghi chú", async () => {
+    const { api, user } = setup();
+    await user.click(row(/^Classic/));
+    const cart = await openCart(user);
+    await user.click(within(cart).getByRole("button", { name: "Ghi chú cho Classic" }));
+    const note = screen.getByRole("dialog", { name: "Ghi chú" });
+    await user.click(within(note).getByRole("button", { name: "Ít đá" }));
+    await user.click(within(note).getByRole("button", { name: "Lưu ghi chú" }));
+    expect(within(cart).getByText("Ít đá")).toBeInTheDocument();
+    await user.click(row(/^Classic/));
+    await user.click(await within(cart).findByRole("button", { name: "Quầy 1" }));
+    await user.click(within(cart).getByRole("button", { name: "Xác nhận đơn" }));
+    await chooseCash(user);
+    expect(api.createOrder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lines: [
+          { menuItemId: "m1", quantity: 1, clientPrice: 190000, note: "Ít đá" },
+          { menuItemId: "m1", quantity: 1, clientPrice: 190000, note: "" },
+        ],
+      }),
+    );
+  });
+
+  it("Trả sau: gửi lượt gọi, Hoàn tác hủy lượt gọi", async () => {
+    const { api, user } = setup();
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: /Trả sau – ghi vào Quầy 1/ }));
+    expect(api.addRound).toHaveBeenCalledWith({
+      id: "order-1",
+      seatId: "s1",
+      lines: [{ menuItemId: "m1", quantity: 1, clientPrice: 190000, note: "" }],
+    });
+    expect(api.createOrder).not.toHaveBeenCalled();
+    expect(await screen.findByRole("status")).toHaveTextContent("Đã ghi 1 món vào Quầy 1");
+    await user.click(screen.getByRole("button", { name: "Hoàn tác" }));
+    expect(api.cancelRound).toHaveBeenCalledWith("order-1");
+    expect(getMyOrderIds()).toContain("order-1");
+  });
+
+  it("Chờ thanh toán: xem lượt gọi, thu tiền có giảm giá, không có Hoàn tác", async () => {
+    const { api, user } = setup({}, { listOpenOrders: vi.fn(async () => [OPEN]) });
+    await user.click(await screen.findByRole("button", { name: /Chờ thanh toán\s*1/ }));
+    await user.click(within(screen.getByRole("dialog", { name: "Chờ thanh toán" })).getByRole("button", { name: /Bàn 1/ }));
+    const detail = screen.getByRole("dialog", { name: "Đơn chờ thanh toán" });
+    expect(within(detail).getByText("Ít đá")).toBeInTheDocument();
+    await user.click(within(detail).getByRole("button", { name: "Thu tiền" }));
+    expect(within(payDialog()).queryByRole("button", { name: /Trả sau/ })).toBeNull();
+    await user.click(within(payDialog()).getByRole("button", { name: "10%" }));
+    await chooseCash(user);
+    expect(api.checkoutOrder).toHaveBeenCalledWith({ orderId: "open-1", expectedSubtotal: 380000, discountPercent: 10, payment: { method: "cash" } });
+    expect(await screen.findByRole("status")).toHaveTextContent("Đã thu 342.000đ – Bàn 1");
+    expect(screen.queryByRole("button", { name: "Hoàn tác" })).toBeNull();
+  });
+
+  it("thu tiền một đơn máy khác vừa thu: báo và tải lại danh sách", async () => {
+    const listOpenOrders = vi.fn(async () => [OPEN]);
+    const { user } = setup({}, { listOpenOrders, checkoutOrder: vi.fn().mockRejectedValue(new RpcError("ORDER_NOT_OPEN", "paid")) });
+    await user.click(await screen.findByRole("button", { name: /Chờ thanh toán\s*1/ }));
+    await user.click(within(screen.getByRole("dialog", { name: "Chờ thanh toán" })).getByRole("button", { name: /Bàn 1/ }));
+    await user.click(screen.getByRole("button", { name: "Thu tiền" }));
+    await chooseCash(user);
+    expect(await screen.findByText("Đơn này đã được thu tiền.")).toBeInTheDocument();
+    expect(listOpenOrders.mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it("Trả sau lỗi mạng thì chỉ gửi lại bằng Trả sau; server từ chối hẳn thì không khóa", async () => {
+    const addRound = vi
+      .fn()
+      .mockRejectedValueOnce(new NetworkError())
+      .mockRejectedValueOnce(new RpcError("LINE_LIMIT"));
+    const { user } = setup({}, { addRound });
+    const { pay } = await openPayment(user);
+    await user.click(within(pay).getByRole("button", { name: /Trả sau/ }));
+    expect(await within(pay).findByText("Bấm Trả sau để gửi lại")).toBeInTheDocument();
+    expect(within(pay).getByRole("button", { name: "Tiền mặt" })).toBeDisabled();
+    expect(within(pay).getByRole("button", { name: /Chuyển khoản/ })).toBeDisabled();
+    await user.click(within(pay).getByRole("button", { name: /Trả sau/ }));
+    expect(addRound.mock.calls.map((c) => c[0].id)).toEqual(["order-1", "order-1"]);
+    expect(await within(pay).findByText(/đã đủ 60 dòng/)).toBeInTheDocument();
+    expect(within(pay).getByRole("button", { name: "Tiền mặt" })).toBeEnabled();
   });
 });

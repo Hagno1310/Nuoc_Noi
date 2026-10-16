@@ -18,3 +18,21 @@ export function openWindow(
   if (elapsed >= openHours) return { fraction: 1, closed: true };
   return { fraction: elapsed / openHours, closed: false };
 }
+
+// Số phút còn lại tới giờ đóng cửa; null khi đã đóng cửa (SRS FR-06 v3.8)
+export function minutesToClose(now: Date, startHour: number, endHour: number): number | null {
+  const openHours = (endHour - startHour + 24) % 24;
+  const elapsed = elapsedHours(now, startHour);
+  return elapsed >= openHours ? null : Math.max(1, Math.round((openHours - elapsed) * 60));
+}
+
+export type PeriodKind = "day" | "week" | "month";
+
+// Khoảng ngày kinh doanh của kỳ chứa businessDate (yyyy-mm-dd): ngày, tuần (từ thứ Hai), tháng (từ ngày 1), tính đến hôm đó
+export function periodRange(businessDate: string, kind: PeriodKind): [string, string] {
+  if (kind === "day") return [businessDate, businessDate];
+  if (kind === "month") return [`${businessDate.slice(0, 8)}01`, businessDate];
+  const d = new Date(`${businessDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return [d.toISOString().slice(0, 10), businessDate];
+}

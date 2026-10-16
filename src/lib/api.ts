@@ -1,7 +1,7 @@
 import type { MenuChange } from "@/lib/order/cart";
 
 // SRS FR-04: dữ liệu gửi server. Server quyết định mọi số tiền; clientPrice chỉ để server phát hiện thực đơn đã đổi.
-export type OrderLineInput = { menuItemId: string; quantity: number; clientPrice: number };
+export type OrderLineInput = { menuItemId: string; quantity: number; clientPrice: number; note: string };
 // SRS v3.3 FR-04c: chuyển khoản luôn kèm public_id ảnh đã tải lên
 export type Payment = { method: "cash" } | { method: "transfer"; photoId: string };
 export type PaymentMethod = Payment["method"];
@@ -23,22 +23,44 @@ export type CreatedOrder = {
   created_at: string;
   business_date: string;
   duplicate: boolean;
-  status: "paid" | "cancelled";
-  payment_method: PaymentMethod;
+  status: OrderStatus;
+  payment_method: PaymentMethod | null;
   transfer_photo_id: string | null;
 };
-export type OrderLine = { item_name: string; unit_price: number; quantity: number; line_amount: number };
+export type OrderStatus = "open" | "paid" | "cancelled";
+export type OrderLine = { item_name: string; unit_price: number; quantity: number; line_amount: number; note: string };
+// SRS FR-04d: kết quả gửi một lượt gọi Trả sau
+export type CreatedRound = {
+  round_id: string;
+  order_id: string;
+  seat_name: string;
+  item_count: number;
+  subtotal_amount: number;
+  status: OrderStatus;
+  duplicate: boolean;
+};
+export type OpenOrder = {
+  id: string;
+  seat_id: string;
+  seat_name: string;
+  created_at: string;
+  item_count: number;
+  subtotal_amount: number;
+  rounds: { id: string; created_at: string; lines: OrderLine[] }[];
+};
+// kind "round": lượt gọi Trả sau do máy này gửi (FR-04b); total_amount là tạm tính của lượt gọi
 export type MyOrder = {
   id: string;
+  kind: "order" | "round";
   item_count: number;
   subtotal_amount: number;
   discount_percent: number;
   discount_amount: number;
   total_amount: number;
   seat_name: string;
-  status: "paid" | "cancelled";
+  status: OrderStatus;
   created_at: string;
-  payment_method: PaymentMethod;
+  payment_method: PaymentMethod | null;
   transfer_photo_id: string | null;
   lines: OrderLine[] | null;
 };
@@ -48,6 +70,11 @@ export interface StaffApi {
   cancelOrder(orderId: string): Promise<void>;
   listOrdersByIds(ids: string[]): Promise<MyOrder[]>;
   listActiveSeats(): Promise<ActiveSeat[]>;
+  addRound(input: { id: string; seatId: string; lines: OrderLineInput[] }): Promise<CreatedRound>;
+  // expectedSubtotal: tạm tính đang hiển thị; server từ chối (ORDER_CHANGED) nếu đơn vừa đổi
+  checkoutOrder(input: { orderId: string; expectedSubtotal: number; discountPercent: number; payment: Payment }): Promise<CreatedOrder>;
+  cancelRound(roundId: string): Promise<void>;
+  listOpenOrders(): Promise<OpenOrder[]>;
 }
 
 export type RpcClient = {
@@ -103,6 +130,10 @@ export function menuFromError(e: unknown): MenuChange[] | null {
   }
 }
 
+const linesArg = (lines: OrderLineInput[]) =>
+  lines.map((l) => ({ menu_item_id: l.menuItemId, quantity: l.quantity, client_price: l.clientPrice, note: l.note }));
+const photoArg = (p: Payment) => (p.method === "transfer" ? p.photoId : null);
+
 export function createStaffApi(getClient: () => RpcClient): StaffApi {
   return {
     createOrder: (input) =>
@@ -110,18 +141,28 @@ export function createStaffApi(getClient: () => RpcClient): StaffApi {
         p_id: input.id,
         p_seat_id: input.seatId,
         p_discount_percent: input.discountPercent,
-        p_lines: input.lines.map((l) => ({
-          menu_item_id: l.menuItemId,
-          quantity: l.quantity,
-          client_price: l.clientPrice,
-        })),
+        p_lines: linesArg(input.lines),
         p_payment_method: input.payment.method,
-        p_transfer_photo_id: input.payment.method === "transfer" ? input.payment.photoId : null,
+        p_transfer_photo_id: photoArg(input.payment),
       }),
     cancelOrder: async (orderId) => {
       await call(getClient(), "cancel_order", { p_order_id: orderId });
     },
     listOrdersByIds: async (ids) => (ids.length === 0 ? [] : call(getClient(), "list_orders_by_ids", { p_ids: ids })),
     listActiveSeats: () => call(getClient(), "list_active_seats"),
+    addRound: (input) =>
+      call(getClient(), "add_round", { p_round_id: input.id, p_seat_id: input.seatId, p_lines: linesArg(input.lines) }),
+    checkoutOrder: (input) =>
+      call(getClient(), "checkout_order", {
+        p_order_id: input.orderId,
+        p_expected_subtotal: input.expectedSubtotal,
+        p_discount_percent: input.discountPercent,
+        p_payment_method: input.payment.method,
+        p_transfer_photo_id: photoArg(input.payment),
+      }),
+    cancelRound: async (roundId) => {
+      await call(getClient(), "cancel_round", { p_round_id: roundId });
+    },
+    listOpenOrders: () => call(getClient(), "list_open_orders"),
   };
 }

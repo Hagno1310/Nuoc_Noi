@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 
-// Một họ chữ duy nhất (surface brief): Archivo biến thiên, trục wdth cho chữ biển hẹp, đủ dấu tiếng Việt
-const archivo = Archivo({
-  variable: "--font-archivo",
+// DESIGN.md: một họ chữ, đủ dấu tiếng Việt
+const font = Be_Vietnam_Pro({
+  variable: "--font-be-vietnam",
   subsets: ["latin", "vietnamese"],
-  axes: ["wdth"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1a1e15",
+  themeColor: "#111310",
   width: "device-width",
   initialScale: 1,
 };
@@ -37,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`${archivo.variable} antialiased`}>
+      <body className={`${font.variable} antialiased`}>
         {children}
       </body>
     </html>

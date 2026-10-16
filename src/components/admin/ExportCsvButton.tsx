@@ -1,7 +1,8 @@
 "use client";
+import { Download } from "lucide-react";
 import { useState } from "react";
 import { ownerErrorText } from "@/lib/admin/errors";
-import { csvFileName, ordersToCsv, type CsvOrder } from "@/lib/csv";
+import { csvFileName, LINES_SELECT, ordersToCsv, type CsvOrder } from "@/lib/csv";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 
 const BATCH = 1000;
@@ -19,9 +20,7 @@ export function ExportCsvButton({ from, to }: { from: string; to: string }) {
     for (let start = 0; ; start += BATCH) {
       const { data, error } = await supabase
         .from("orders")
-        .select(
-          "created_at, business_date, seat_name, discount_percent, discount_amount, status, payment_method, order_lines(item_name, unit_price, quantity, line_amount, sort_order)",
-        )
+        .select(`created_at, paid_at, business_date, seat_name, discount_percent, discount_amount, status, payment_method, ${LINES_SELECT}`)
         .gte("business_date", from)
         .lte("business_date", to)
         .order("created_at")
@@ -32,7 +31,7 @@ export function ExportCsvButton({ from, to }: { from: string; to: string }) {
         setError(ownerErrorText(error));
         return setBusy(false);
       }
-      rows.push(...(data as CsvOrder[]));
+      rows.push(...(data as unknown as CsvOrder[]));
       if (data.length < BATCH) break;
     }
     const url = URL.createObjectURL(
@@ -52,8 +51,9 @@ export function ExportCsvButton({ from, to }: { from: string; to: string }) {
         type="button"
         disabled={busy}
         onClick={() => void exportCsv()}
-        className="min-h-12 rounded-lg border border-edge px-4 font-bold disabled:opacity-50"
+        className="flex h-12 items-center gap-2 rounded-[14px] bg-surface pr-4.5 pl-3.5 text-sm font-semibold disabled:opacity-50"
       >
+        <Download aria-hidden="true" size={18} />
         {busy ? "Đang xuất…" : "Xuất CSV"}
       </button>
       {error && (

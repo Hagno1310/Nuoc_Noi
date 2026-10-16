@@ -53,8 +53,8 @@ export function useDragSort(count: number, onMove: (from: number, to: number) =>
   const dropMark = (index: number) =>
     drag && drag.to === index && drag.to !== drag.from
       ? drag.to < drag.from
-        ? "border-t-2 border-t-ember"
-        : "border-b-2 border-b-ember"
+        ? "border-t-2 border-t-accent"
+        : "border-b-2 border-b-accent"
       : "";
 
   return { drag, handleProps, rowStyle, dropMark };

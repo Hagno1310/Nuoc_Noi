@@ -25,14 +25,14 @@ export function OwnerCancelButton({ orderId }: { orderId: string }) {
   }
 
   return (
-    <span className="inline-flex flex-col items-end gap-1">
+    <span className="inline-flex flex-col items-start gap-1">
       <button
         type="button"
         disabled={busy}
         onClick={() => void click()}
-        className={`min-h-12 rounded-md border px-3 text-sm font-semibold whitespace-nowrap disabled:opacity-50 ${step.armed ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+        className={`h-12 rounded-xl px-3.5 text-[13px] font-semibold whitespace-nowrap disabled:opacity-50 ${step.armed ? "bg-danger text-accent-ink" : "bg-danger-soft text-danger"}`}
       >
-        {busy ? "Đang hủy…" : step.armed ? "Chắc chắn hủy?" : "Hủy"}
+        {busy ? "Đang hủy…" : step.armed ? "Chắc chắn hủy?" : "Hủy đơn"}
       </button>
       {error && (
         <span role="alert" className="text-xs text-danger">

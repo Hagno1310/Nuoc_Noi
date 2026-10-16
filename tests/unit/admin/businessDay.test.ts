@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { elapsedHours, openWindow } from "@/lib/admin/businessDay";
+import { elapsedHours, minutesToClose, openWindow, periodRange } from "@/lib/admin/businessDay";
 
 // Giờ VN = UTC+7
 const vn = (iso: string) => new Date(`${iso}+07:00`);
@@ -50,5 +50,19 @@ describe("openWindow", () => {
       fraction: 0.5,
       closed: false,
     });
+  });
+});
+
+describe("minutesToClose, periodRange", () => {
+  it("đếm phút còn lại tới giờ đóng cửa; đã đóng thì null", () => {
+    expect(minutesToClose(new Date("2026-10-17T14:42:00Z"), 20, 2)).toBe(258); // 21:42 VN → 02:00
+    expect(minutesToClose(new Date("2026-10-17T20:30:00Z"), 20, 2)).toBeNull(); // 03:30 VN
+  });
+  it("tuần bắt đầu thứ Hai, tháng từ ngày 1", () => {
+    expect(periodRange("2026-10-17", "week")).toEqual(["2026-10-12", "2026-10-17"]); // thứ Bảy
+    expect(periodRange("2026-10-12", "week")).toEqual(["2026-10-12", "2026-10-12"]);
+    expect(periodRange("2026-10-18", "week")).toEqual(["2026-10-12", "2026-10-18"]); // Chủ nhật
+    expect(periodRange("2026-10-17", "month")).toEqual(["2026-10-01", "2026-10-17"]);
+    expect(periodRange("2026-10-17", "day")).toEqual(["2026-10-17", "2026-10-17"]);
   });
 });

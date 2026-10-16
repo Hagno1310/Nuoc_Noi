@@ -38,10 +38,10 @@ export function PinForm({
     set(v);
   };
   const field =
-    "mt-1 min-h-12 w-40 rounded-lg border border-edge bg-transparent p-3 text-xlst";
+    "mt-1.5 h-13 w-40 rounded-[14px] bg-surface-2 px-3.5 text-lg tracking-widest ring-accent focus:ring-[1.5px] focus:outline-none";
   return (
     <form onSubmit={submit} className="space-y-2">
-      <p className="text-sm text-ink-muted">
+      <p className="text-sm text-muted">
         Đổi PIN quán sẽ đăng xuất ngay mọi điện thoại của nhân viên.
       </p>
       <div className="flex flex-wrap gap-4">
@@ -83,7 +83,7 @@ export function PinForm({
       <button
         type="submit"
         disabled={busy}
-        className={`min-h-12 rounded-lg border px-6 font-bold disabled:opacity-50 ${step.armed ? "border-danger bg-danger text-ember-ink" : "border-edge"}`}
+        className={`h-12 rounded-[14px] px-5 font-semibold disabled:opacity-50 ${step.armed ? "bg-danger text-accent-ink" : "bg-danger-soft text-danger"}`}
       >
         {busy
           ? "Đang đổi…"

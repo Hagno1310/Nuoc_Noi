@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { InlineEdit } from "@/components/admin/InlineEdit";
 import { EditDialog } from "@/components/admin/EditDialog";
-import { SectionTitle } from "@/components/admin/SectionTitle";
 import { ownerErrorText } from "@/lib/admin/errors";
 import { menuNameError, nextSortOrder, normalizeMenuName } from "@/lib/admin/menu";
 import { moveItem, renumber } from "@/lib/admin/reorder";
@@ -129,28 +128,25 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
     void run([() => supabase.from("menu_items").update({ is_archived: false }).eq("id", item.id)]).then(setError);
   }
 
-  const outline =
-    "flex min-h-12 min-w-12 items-center justify-center rounded-md border border-edge px-3 text-sm transition-[background-color,border-color,transform] duration-150 hover:border-ink active:scale-[0.98] disabled:opacity-40";
-  const field =
-    "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink transition-colors duration-150 placeholder:text-ink-muted focus:border-ember";
+  const outline = "flex h-12 min-w-12 items-center justify-center rounded-[14px] bg-surface-2 px-3.5 text-sm font-semibold disabled:opacity-40";
+  const field = "h-13 rounded-[14px] bg-surface-2 px-3.5 text-base text-ink ring-accent placeholder:text-muted focus:ring-[1.5px] focus:outline-none";
   return (
-    <div className="space-y-6">
-      <SectionTitle>Món đang bán</SectionTitle>
+    <div className="space-y-4">
       {active.length === 0 ? (
-        <p className="text-sm text-ink-muted">Chưa có món nào đang bán. Thêm món ở ô bên dưới.</p>
+        <p className="text-sm text-muted">Chưa có món nào đang bán. Thêm món ở ô bên dưới.</p>
       ) : (
-        <ul className="-mt-4 divide-y divide-line border-b border-line">
+        <ul className="divide-y divide-line rounded-3xl bg-surface px-2 py-1">
           {active.map((item, i) => (
             <li
               key={item.id}
               style={rowStyle(i)}
-              className={`flex items-center gap-1 transition-colors duration-150 ${drag?.from === i ? "relative z-10 bg-raised" : ""} ${dropMark(i)}`}
+              className={`flex min-h-14 items-center gap-1 rounded-xl transition-colors duration-150 ${drag?.from === i ? "relative z-10 bg-surface-2" : ""} ${dropMark(i)}`}
             >
               <button
                 type="button"
                 aria-label={`Kéo để đổi thứ tự ${item.name}`}
                 {...handleProps(i)}
-                className="flex min-h-12 w-8 shrink-0 cursor-grab items-center justify-center text-ink-muted transition-colors duration-150 hover:text-ink active:cursor-grabbing disabled:opacity-40"
+                className="flex min-h-12 w-8 shrink-0 cursor-grab items-center justify-center text-muted transition-colors duration-150 hover:text-ink active:cursor-grabbing disabled:opacity-40"
               >
                 <GripVertical aria-hidden="true" size={18} />
               </button>
@@ -159,7 +155,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                 buttonLabel={`Sửa tên ${item.name}`}
                 inputLabel={`Tên mới cho ${item.name}`}
                 onSave={(v) => rename(item, v)}
-                className="min-w-0 flex-1 break-words font-display text-xl"
+                className="min-w-0 flex-1 font-semibold break-words"
               >
                 {item.name}
               </InlineEdit>
@@ -169,7 +165,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
                 inputLabel={`Giá mới cho ${item.name}`}
                 onSave={(v) => reprice(item, v)}
                 numeric
-                className="w-32 shrink-0 text-right font-semibold"
+                className="w-32 shrink-0 text-right text-[15px]"
               >
                 {formatVnd(item.price)}
               </InlineEdit>
@@ -192,17 +188,17 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
       )}
 
       <form
-        className="flex flex-wrap items-end gap-2"
+        className="flex flex-wrap items-end gap-2 rounded-3xl bg-surface p-4"
         onSubmit={(e) => {
           e.preventDefault();
           void add();
         }}
       >
-        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-ink-muted">
+        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-muted">
           Tên món
           <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Highball" className={field} />
         </label>
-        <label className="flex w-36 flex-col gap-1 text-sm text-ink-muted">
+        <label className="flex w-36 flex-col gap-1 text-sm text-muted">
           Giá
           <input
             value={newPrice}
@@ -219,17 +215,17 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
 
       {archived.length > 0 && (
         <details>
-          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-ink-muted transition-colors duration-150 hover:text-ink">
+          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-muted transition-colors duration-150 hover:text-ink">
             Món đã ẩn ({archived.length})
           </summary>
           <ul className="fade-in">
             {archived.map((item) => (
               <li key={item.id} className="flex items-center gap-3 py-1">
-                <span className="flex flex-1 items-center gap-2 text-ink-muted">
+                <span className="flex flex-1 items-center gap-2 text-muted">
                   {item.name}
-                  <span className="rounded-sm border border-line px-1 text-xs font-semibold">ẨN</span>
+                  <span className="rounded-md bg-surface-2 px-1.5 text-[11px] font-semibold">ẨN</span>
                 </span>
-                <span className="text-sm tabular-nums text-ink-muted">{formatVnd(item.price)}</span>
+                <span className="text-sm tabular-nums text-muted">{formatVnd(item.price)}</span>
                 <button
                   type="button"
                   className={outline}
@@ -285,11 +281,11 @@ function EditMenuItem({
         else close();
       }}
     >
-      <label className="flex flex-col gap-1 text-sm text-ink-muted">
+      <label className="flex flex-col gap-1 text-sm text-muted">
         Tên món
         <input autoFocus value={name} onChange={(e) => setName(e.target.value)} className={field} />
       </label>
-      <label className="flex flex-col gap-1 text-sm text-ink-muted">
+      <label className="flex flex-col gap-1 text-sm text-muted">
         Giá
         <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" className={`${field} tabular-nums`} />
       </label>
@@ -303,21 +299,21 @@ function EditMenuItem({
           type="button"
           disabled={locked}
           onClick={onHide}
-          className={`min-h-12 rounded-lg border px-3 text-sm font-semibold transition-colors duration-150 disabled:opacity-40 ${hideArmed ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+          className={`h-13 rounded-[14px] px-4 text-sm font-semibold disabled:opacity-40 ${hideArmed ? "bg-danger text-accent-ink" : "bg-danger-soft text-danger"}`}
         >
           {hideArmed ? "Chắc chắn ẩn?" : "Ẩn món"}
         </button>
         <button
           type="button"
           onClick={close}
-          className="ml-auto min-h-12 rounded-lg border border-edge px-4 text-sm transition-colors duration-150 hover:border-ink"
+          className="ml-auto h-13 rounded-[14px] bg-surface-2 px-4.5 text-sm font-semibold"
         >
           Hủy
         </button>
         <button
           type="submit"
           disabled={locked}
-          className="min-h-12 rounded-lg bg-ember px-5 font-semibold text-ember-ink transition-[transform,opacity] duration-150 active:scale-[0.98] disabled:opacity-40"
+          className="h-13 rounded-[14px] bg-accent px-5.5 font-semibold text-accent-ink disabled:opacity-40"
         >
           Lưu
         </button>

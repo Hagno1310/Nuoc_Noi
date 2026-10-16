@@ -14,14 +14,14 @@ describe("createStaffApi", () => {
       id: "o1",
       seatId: "s1",
       discountPercent: 10,
-      lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000 }],
+      lines: [{ menuItemId: "m1", quantity: 2, clientPrice: 190000, note: "" }],
     };
     await api.createOrder({ ...base, payment: { method: "cash" } });
     expect(rpc).toHaveBeenLastCalledWith("create_order", {
       p_id: "o1",
       p_seat_id: "s1",
       p_discount_percent: 10,
-      p_lines: [{ menu_item_id: "m1", quantity: 2, client_price: 190000 }],
+      p_lines: [{ menu_item_id: "m1", quantity: 2, client_price: 190000, note: "" }],
       p_payment_method: "cash",
       p_transfer_photo_id: null,
     });

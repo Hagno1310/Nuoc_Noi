@@ -1,58 +1,107 @@
 "use client";
+import { Minus } from "lucide-react";
+import { useRef } from "react";
+import { buzz } from "@/lib/haptics";
 import { formatVnd } from "@/lib/money";
-import type { CartLine, MenuItem } from "@/lib/order/cart";
+import { lineKey, type CartLine, type MenuItem } from "@/lib/order/cart";
 
-// SRS FR-01: bảng giá in đậm như mặt bao diêm. Chạm một hàng là +1; món trong giỏ hiện số lượng mực cam ở đầu hàng.
+const HOLD_MS = 500;
+
+// SRS FR-01: lưới món 2 cột. Chạm là +1 (số nảy, rung nhẹ); chạm giữ mở bàn phím số; món trong giỏ có badge và nút −.
 export function MenuBoard({
   menu,
   failed,
   cart,
   onAdd,
+  onHold,
+  onRemoveOne,
 }: {
   menu: MenuItem[] | null;
   failed: boolean;
   cart: CartLine[];
   onAdd: (item: MenuItem) => void;
+  onHold: (item: MenuItem) => void;
+  onRemoveOne: (key: string) => void;
 }) {
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const held = useRef(false);
+
   if (menu === null) {
     if (failed)
       return (
-        <p role="alert" className="rounded-lg border border-danger/60 px-3 py-2 text-danger">
+        <p role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-danger">
           Không tải được thực đơn. Kiểm tra mạng rồi tải lại trang.
         </p>
       );
     return (
-      <div aria-busy="true" aria-label="Đang tải thực đơn" className="divide-y divide-line border-y border-line">
+      <div aria-busy="true" aria-label="Đang tải thực đơn" className="grid grid-cols-2 gap-2.5 md:grid-cols-3">
         {Array.from({ length: 8 }, (_, i) => (
-          <div key={i} className="flex min-h-14 items-center">
-            <span className="h-5 w-32 rounded bg-raised motion-safe:animate-pulse" />
-          </div>
+          <div key={i} className="h-29 rounded-[18px] bg-surface motion-safe:animate-pulse" />
         ))}
       </div>
     );
   }
   const items = menu.filter((m) => !m.is_archived);
   if (items.length === 0)
-    return <p className="py-6 text-ink-muted">Chưa có món nào đang bán – nhờ chủ quán thêm ở trang Thực đơn.</p>;
-  const qty = new Map(cart.map((l) => [l.menuItemId, l.quantity]));
+    return <p className="py-6 text-muted">Chưa có món nào đang bán – nhờ chủ quán thêm ở trang Thực đơn.</p>;
+  // Số trên ô là dòng không ghi chú; dòng có ghi chú sửa trong giỏ đơn
+  const qty = new Map(cart.filter((l) => !l.note).map((l) => [l.menuItemId, l.quantity]));
+  const stop = () => clearTimeout(timer.current);
+
   return (
-    <div role="group" aria-label="Thực đơn" className="divide-y divide-line border-y border-line">
+    <div role="group" aria-label="Thực đơn" className="grid grid-cols-2 gap-2.5 md:grid-cols-3">
       {items.map((m) => {
         const n = qty.get(m.id) ?? 0;
         return (
-          <button
+          <div
             key={m.id}
-            type="button"
-            onClick={() => onAdd(m)}
-            aria-label={n > 0 ? `${m.name}, ${formatVnd(m.price)}, đang có ${n} trong giỏ` : `${m.name}, ${formatVnd(m.price)}`}
-            className="flex min-h-14 w-full items-center gap-3 px-1 text-left transition-colors duration-150 active:bg-ink active:text-bg"
+            className={`relative h-29 rounded-[18px] transition-colors duration-150 ${n ? "bg-accent-soft ring-[1.5px] ring-accent" : "bg-surface"}`}
           >
-            <span aria-hidden="true" className="w-7 shrink-0 font-display text-xl text-ember tabular-nums">
-              {n > 0 ? n : ""}
-            </span>
-            <span className="min-w-0 flex-1 truncate font-display text-xl">{m.name}</span>
-            <span className="shrink-0 font-semibold tabular-nums">{formatVnd(m.price)}</span>
-          </button>
+            <button
+              type="button"
+              aria-label={n > 0 ? `${m.name}, ${formatVnd(m.price)}, đang có ${n} trong giỏ` : `${m.name}, ${formatVnd(m.price)}`}
+              onPointerDown={() => {
+                held.current = false;
+                timer.current = setTimeout(() => {
+                  held.current = true;
+                  buzz(15);
+                  onHold(m);
+                }, HOLD_MS);
+              }}
+              onPointerUp={stop}
+              onPointerLeave={stop}
+              onPointerCancel={stop}
+              onContextMenu={(e) => e.preventDefault()}
+              onClick={() => {
+                if (held.current) return void (held.current = false);
+                buzz(10);
+                onAdd(m);
+              }}
+              className="flex size-full flex-col justify-between rounded-[18px] p-3.5 pr-12 text-left select-none [-webkit-touch-callout:none]"
+            >
+              <span className="line-clamp-2 text-[17px] leading-tight font-semibold">{m.name}</span>
+              <span className={`text-sm font-medium ${n ? "text-ink" : "text-muted"}`}>{formatVnd(m.price)}</span>
+            </button>
+            {n > 0 && (
+              <>
+                <span
+                  key={n}
+                  aria-hidden="true"
+                  className="pop pointer-events-none absolute top-3 right-3 grid size-7.5 place-items-center rounded-full bg-accent text-[15px] font-bold text-accent-ink"
+                >
+                  {n}
+                </span>
+                <button
+                  type="button"
+                  aria-label={`Bớt 1 ${m.name}`}
+                  onClick={() => onRemoveOne(lineKey({ menuItemId: m.id, note: "" }))}
+                  className="fade-in absolute right-2.5 bottom-2.5 grid size-12 place-items-center rounded-[14px] bg-surface-2"
+                >
+                  <Minus aria-hidden="true" size={20} />
+                </button>
+              </>
+            )}
+          </div>
         );
       })}
     </div>

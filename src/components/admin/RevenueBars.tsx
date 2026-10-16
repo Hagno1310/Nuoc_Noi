@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { formatVnd } from "@/lib/money";
 import type { DayPoint } from "@/lib/admin/stats";
 
-// Cột đôi doanh thu theo ngày: kỳ này tô mực cam, kỳ trước chỉ viền (cùng độ sáng nên phân biệt bằng tô/viền), SRS FR-06.
+// Cột đôi doanh thu theo ngày: kỳ này cam, kỳ trước nền surface-2 (khác hẳn độ sáng), SRS FR-06.
 // Một trục, cột neo đáy, bo 4px đầu cột, khe 2px giữa hai cột; chú giải + tooltip + bảng cho trình đọc màn hình (dataviz).
 const H = 180;
 const PAD_TOP = 12;
@@ -62,21 +62,21 @@ export function RevenueBars({
   const hovered = active === null ? null : points[active];
 
   return (
-    <figure className="space-y-3">
+    <figure className="space-y-4 rounded-3xl bg-surface p-5 lg:p-6">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-display text-xl">{title}</span>
-        <span className="flex gap-4 text-xs text-ink-muted">
+        <span className="text-base font-bold">{title}</span>
+        <span className="flex gap-4 text-xs text-muted">
           <span className="inline-flex items-center gap-1.5">
             <span
               aria-hidden="true"
-              className="size-2.5 rounded-sm bg-chart-current"
+              className="size-2.5 rounded-sm bg-accent"
             />
             {currentLabel}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span
               aria-hidden="true"
-              className="size-2.5 rounded-sm border border-chart-previous"
+              className="size-2.5 rounded-sm bg-surface-2"
             />
             {previousLabel}
           </span>
@@ -108,13 +108,13 @@ export function RevenueBars({
                   x={GUTTER - 6}
                   y={H - (H - PAD_TOP) * t + 4}
                   textAnchor="end"
-                  className="fill-current text-xs tabular-nums text-ink-muted"
+                  className="fill-current text-xs tabular-nums text-muted"
                 >
                   {formatVnd(max * t)}
                 </text>
               </g>
             ))}
-            <line x1={GUTTER} x2={width} y1={H} y2={H} stroke="var(--edge)" />
+            <line x1={GUTTER} x2={width} y1={H} y2={H} stroke="var(--line)" />
             {points.map((p, i) => {
               const x0 = GUTTER + i * slot + groupPad;
               return (
@@ -122,15 +122,13 @@ export function RevenueBars({
                   {p.previous_revenue !== null && (
                     <path
                       d={bar(x0 + barW + gap, barW, p.previous_revenue, max)}
-                      fill="none"
-                      stroke="var(--chart-previous)"
-                      strokeWidth="1"
+                      fill="var(--surface-2)"
                     />
                   )}
                   {p.revenue !== null && (
                     <path
                       d={bar(x0, barW, p.revenue, max)}
-                      fill="var(--chart-current)"
+                      fill="var(--accent)"
                     />
                   )}
                   {ticks.includes(i) && (
@@ -138,7 +136,7 @@ export function RevenueBars({
                       x={GUTTER + i * slot + slot / 2}
                       y={H + 14}
                       textAnchor="middle"
-                      className="fill-current text-xs tabular-nums text-ink-muted"
+                      className="fill-current text-xs tabular-nums text-muted"
                     >
                       {p.label}
                     </text>
@@ -161,7 +159,7 @@ export function RevenueBars({
         {hovered && width > 0 && active !== null && (
           <div
             role="status"
-            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-edge bg-raised px-3 py-2 text-xs"
+            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs"
             style={{
               left: Math.min(
                 Math.max(0, GUTTER + active * slot - 60),
@@ -176,7 +174,7 @@ export function RevenueBars({
                 ? "chưa tới"
                 : formatVnd(hovered.revenue)}
             </p>
-            <p className="tabular-nums text-ink-muted">
+            <p className="tabular-nums text-muted">
               {previousLabel}:{" "}
               {hovered.previous_revenue === null
                 ? "—"

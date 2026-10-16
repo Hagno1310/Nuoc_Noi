@@ -29,12 +29,15 @@ export function NewOrderNotice() {
           // Cột generated (total_amount) có thể không có trong payload Realtime: đọc lại dòng đơn
           const { data } = await client
             .from("orders")
-            .select("id, item_count, total_amount, seat_name")
+            .select("id, item_count, total_amount, seat_name, status")
             .eq("id", (payload.new as { id: string }).id)
             .single();
-          if (data) setOrder(data);
+          // ponytail: đơn Trả sau mới mở (chưa thu tiền) chỉ tải lại số liệu, không báo "Đơn mới"
+          if (data?.status === "paid") setOrder(data);
         },
       )
+      // Thu tiền một đơn chờ thanh toán là UPDATE: chỉ tải lại số liệu
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, () => router.refresh())
       .subscribe();
     return () => {
       void client.removeChannel(channel);
@@ -56,7 +59,7 @@ export function NewOrderNotice() {
         <Link
           key={order.id}
           href={`/admin/history?order=${order.id}`}
-          className="toast-in pointer-events-auto flex min-h-12 items-center rounded-lg border border-edge bg-raised px-4 py-3 font-medium tabular-nums"
+          className="rise pointer-events-auto flex min-h-15 items-center gap-2.5 rounded-[18px] border border-line bg-surface-2 py-3 pr-4 pl-3.5 text-sm font-semibold shadow-[0_8px_24px_rgb(0_0_0/0.5)]"
         >
           Đơn mới: {order.seat_name} · {order.item_count} món · {formatVnd(order.total_amount)}
         </Link>

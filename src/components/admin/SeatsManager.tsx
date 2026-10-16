@@ -30,9 +30,9 @@ const KIND_LABEL: Record<SeatKind, string> = {
 type Result = PromiseLike<{ error: { message: string; code?: string } | null }>;
 
 const FIELD =
-  "min-h-12 rounded-lg border border-edge bg-transparent p-2 text-base text-ink transition-colors duration-150 placeholder:text-ink-muted focus:border-ember";
+  "h-13 rounded-[14px] bg-surface-2 px-3.5 text-base text-ink ring-accent placeholder:text-muted focus:ring-[1.5px] focus:outline-none";
 const OUTLINE =
-  "flex min-h-12 min-w-12 items-center justify-center rounded-md border border-edge px-3 text-sm transition-[background-color,border-color,transform] duration-150 hover:border-ink active:scale-[0.98] disabled:opacity-40";
+  "flex h-12 min-w-12 items-center justify-center rounded-[14px] bg-surface-2 px-3.5 text-sm font-semibold disabled:opacity-40";
 
 // SRS FR-05c: thêm, đổi tên, sắp xếp trong từng loại, ẩn và hiện lại chỗ ngồi.
 // Thao tác như Thực đơn: chạm tên để sửa tại chỗ, kéo tay cầm ⋮⋮ để đổi thứ tự, nút ⋯ mở hộp thoại.
@@ -129,14 +129,14 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
           void add();
         }}
       >
-        <label className="flex flex-col gap-1 text-sm text-ink-muted">
+        <label className="flex flex-col gap-1 text-sm text-muted">
           Loại
           <select value={newKind} onChange={(e) => setNewKind(e.target.value as SeatKind)} className={FIELD}>
             <option value="counter">Ghế quầy</option>
             <option value="table">Bàn</option>
           </select>
         </label>
-        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-ink-muted">
+        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-muted">
           Tên chỗ ngồi
           <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Quầy 13" className={FIELD} />
         </label>
@@ -146,16 +146,16 @@ export function SeatsManager({ seats }: { seats: OwnerSeat[] }) {
       </form>
       {archived.length > 0 && (
         <details>
-          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-ink-muted transition-colors duration-150 hover:text-ink">
+          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-muted transition-colors duration-150 hover:text-ink">
             Chỗ ngồi đã ẩn ({archived.length})
           </summary>
           <ul className="fade-in">
             {archived.map((s) => (
               <li key={s.id} className="flex items-center gap-2 py-1">
-                <span className="flex flex-1 items-center gap-2 text-ink-muted">
+                <span className="flex flex-1 items-center gap-2 text-muted">
                   {s.name}
                   <span className="text-sm">{KIND_LABEL[s.kind]}</span>
-                  <span className="rounded-sm border border-line px-1 text-xs font-semibold">ẨN</span>
+                  <span className="rounded-md bg-surface-2 px-1.5 text-[11px] font-semibold">ẨN</span>
                 </span>
                 <button type="button" className={OUTLINE} disabled={locked} onClick={() => restore(s)}>
                   Hiện lại
@@ -195,24 +195,24 @@ function SeatList({
   const { handleProps, rowStyle, dropMark, drag } = useDragSort(list.length, (f, t) => onMove(list, f, t), locked);
   return (
     <div>
-      <h3 className="text-sm font-medium text-ink-muted">
+      <h3 className="text-sm font-medium text-muted">
         {KIND_LABEL[kind]} ({list.length})
       </h3>
       {list.length === 0 && (
-        <p className="py-2 text-sm text-ink-muted">Chưa có {KIND_LABEL[kind].toLowerCase()} nào. Thêm ở ô bên dưới.</p>
+        <p className="py-2 text-sm text-muted">Chưa có {KIND_LABEL[kind].toLowerCase()} nào. Thêm ở ô bên dưới.</p>
       )}
-      <ul className="divide-y divide-line">
+      <ul className="divide-y divide-line rounded-2xl bg-surface-2/60 px-1">
         {list.map((s, i) => (
           <li
             key={s.id}
             style={rowStyle(i)}
-            className={`flex items-center gap-1 transition-colors duration-150 ${drag?.from === i ? "relative z-10 bg-raised" : ""} ${dropMark(i)}`}
+            className={`flex min-h-12 items-center gap-1 rounded-xl transition-colors duration-150 ${drag?.from === i ? "relative z-10 bg-surface-2" : ""} ${dropMark(i)}`}
           >
             <button
               type="button"
               aria-label={`Kéo để đổi thứ tự ${s.name}`}
               {...handleProps(i)}
-              className="flex min-h-12 w-8 shrink-0 cursor-grab items-center justify-center text-ink-muted transition-colors duration-150 hover:text-ink active:cursor-grabbing disabled:opacity-40"
+              className="flex min-h-12 w-8 shrink-0 cursor-grab items-center justify-center text-muted transition-colors duration-150 hover:text-ink active:cursor-grabbing disabled:opacity-40"
             >
               <GripVertical aria-hidden="true" size={18} />
             </button>
@@ -272,7 +272,7 @@ function EditSeat({
         else close();
       }}
     >
-      <label className="flex flex-col gap-1 text-sm text-ink-muted">
+      <label className="flex flex-col gap-1 text-sm text-muted">
         Tên chỗ ngồi
         <input autoFocus value={name} onChange={(e) => setName(e.target.value)} className={FIELD} />
       </label>
@@ -286,21 +286,21 @@ function EditSeat({
           type="button"
           disabled={locked}
           onClick={onHide}
-          className={`min-h-12 rounded-lg border px-3 text-sm font-semibold transition-colors duration-150 disabled:opacity-40 ${hideArmed ? "border-danger bg-danger text-ember-ink" : "border-danger/70 text-danger"}`}
+          className={`h-13 rounded-[14px] px-4 text-sm font-semibold disabled:opacity-40 ${hideArmed ? "bg-danger text-accent-ink" : "bg-danger-soft text-danger"}`}
         >
           {hideArmed ? "Chắc chắn ẩn?" : "Ẩn chỗ ngồi"}
         </button>
         <button
           type="button"
           onClick={close}
-          className="ml-auto min-h-12 rounded-lg border border-edge px-4 text-sm transition-colors duration-150 hover:border-ink"
+          className="ml-auto h-13 rounded-[14px] bg-surface-2 px-4.5 text-sm font-semibold"
         >
           Hủy
         </button>
         <button
           type="submit"
           disabled={locked}
-          className="min-h-12 rounded-lg bg-ember px-5 font-semibold text-ember-ink transition-[transform,opacity] duration-150 active:scale-[0.98] disabled:opacity-40"
+          className="h-13 rounded-[14px] bg-accent px-5.5 font-semibold text-accent-ink disabled:opacity-40"
         >
           Lưu
         </button>

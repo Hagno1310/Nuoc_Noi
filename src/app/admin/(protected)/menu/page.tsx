@@ -1,5 +1,5 @@
 import { MenuManager, type OwnerMenuItem } from "@/components/admin/MenuManager";
-import { SectionTitle } from "@/components/admin/SectionTitle";
+import { PageTitle, SectionTitle } from "@/components/admin/SectionTitle";
 import { PriceHistory, type PriceRow } from "@/components/admin/PriceHistory";
 import { createServerSupabase } from "@/lib/supabase/server";
 
@@ -34,15 +34,15 @@ export default async function MenuPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <h1 className="font-display text-3xl">Thực đơn</h1>
-      {/* Laptop: danh sách món bên trái, lịch sử đổi giá bên phải. Điện thoại: lịch sử xuống cuối */}
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-start lg:gap-16">
-        <section className="space-y-4">
+    <div>
+      <PageTitle title="Thực đơn" sub={`${items.filter((i) => !i.is_archived).length} món đang bán`} />
+      {/* Máy tính: danh sách món bên trái, lịch sử đổi giá bên phải (460px). Điện thoại: lịch sử xuống cuối */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-start lg:gap-5">
+        <section>
           <MenuManager items={items as OwnerMenuItem[]} />
         </section>
-        <section className="space-y-4">
-          <SectionTitle>Lịch sử đổi giá</SectionTitle>
+        <section>
+          <SectionTitle action={<span className="text-xs text-muted">20 lần gần nhất</span>}>Lịch sử đổi giá</SectionTitle>
           <PriceHistory
             rows={(history ?? []) as PriceRow[]}
             failed={historyError !== null}

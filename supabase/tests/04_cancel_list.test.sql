@@ -18,8 +18,10 @@ insert into public.orders (id, item_count, subtotal_amount, total_amount, seat_i
   ('00000000-0000-0000-0000-0000000000d2', 2, 50000, 50000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000b1', now() - interval '6 minutes', public.current_business_date()),
   ('00000000-0000-0000-0000-0000000000d3', 3, 75000, 75000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a1', now() - interval '1 minute', public.current_business_date()),
   ('00000000-0000-0000-0000-0000000000d4', 4, 100000, 100000, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000b1', now() - interval '1 day', public.current_business_date() - 1);
-insert into public.order_lines (order_id, menu_item_id, item_name, unit_price, quantity, sort_order) values
-  ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000e1', 'Thử A', 25000, 1, 1);
+insert into public.order_rounds (id, order_id, created_by) values
+  ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000b1');
+insert into public.order_lines (order_id, round_id, menu_item_id, item_name, unit_price, quantity, sort_order) values
+  ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000e1', 'Thử A', 25000, 1, 1);
 
 -- Chưa đăng nhập
 select set_config('request.jwt.claims', '{}', true);
@@ -35,7 +37,7 @@ select is((select id from public.list_orders_by_ids(array[
   '00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000d2']::uuid[]) limit 1),
   '00000000-0000-0000-0000-0000000000d1'::uuid, 'mới nhất ở trên');
 select is((select lines from public.list_orders_by_ids(array['00000000-0000-0000-0000-0000000000d1']::uuid[])),
-  '[{"item_name": "Thử A", "unit_price": 25000, "quantity": 1, "line_amount": 25000}]'::jsonb, 'trả kèm dòng đơn');
+  '[{"item_name": "Thử A", "unit_price": 25000, "quantity": 1, "line_amount": 25000, "note": ""}]'::jsonb, 'trả kèm dòng đơn');
 
 select lives_ok($$select public.cancel_order('00000000-0000-0000-0000-0000000000d3')$$, 'nhân viên hủy được đơn của người khác trong 5 phút');
 select is((select status || '/' || cancelled_by from public.orders where id = '00000000-0000-0000-0000-0000000000d3'),

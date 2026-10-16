@@ -46,7 +46,7 @@ export function InlineEdit({
         type="button"
         aria-label={buttonLabel}
         onClick={() => setDraft(value)}
-        className={`min-h-12 rounded-md text-left transition-colors duration-150 hover:text-ember focus-visible:text-ember ${className}`}
+        className={`min-h-12 rounded-md text-left transition-colors duration-150 hover:text-accent focus-visible:text-accent ${className}`}
       >
         {children}
       </button>
@@ -70,7 +70,7 @@ export function InlineEdit({
         }}
         aria-invalid={error !== null}
         aria-describedby={error ? errorId : undefined}
-        className={`min-h-12 w-full rounded-lg border border-edge bg-transparent px-2 text-ink tabular-nums transition-colors duration-150 focus:border-ember ${className}`}
+        className={`h-12 w-full rounded-xl bg-surface-2 px-3 text-ink ring-[1.5px] ring-accent focus:outline-none ${className}`}
       />
       {error && (
         <span id={errorId} role="alert" className="text-sm font-normal text-danger">

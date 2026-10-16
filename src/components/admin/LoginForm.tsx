@@ -20,7 +20,7 @@ export function LoginForm({
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <h1 className="font-display text-3xl">
+      <h1 className="text-[28px] font-bold">
         Đăng nhập chủ quán
       </h1>
       <label className="block">
@@ -31,7 +31,7 @@ export function LoginForm({
           autoComplete="username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 min-h-12 w-full rounded-lg border border-edge bg-transparent p-3"
+          className="mt-1.5 h-14 w-full rounded-2xl bg-surface px-4 ring-accent focus:ring-[1.5px] focus:outline-none"
         />
       </label>
       <label className="block">
@@ -42,7 +42,7 @@ export function LoginForm({
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 min-h-12 w-full rounded-lg border border-edge bg-transparent p-3"
+          className="mt-1.5 h-14 w-full rounded-2xl bg-surface px-4 ring-accent focus:ring-[1.5px] focus:outline-none"
         />
       </label>
       {error && (
@@ -53,7 +53,7 @@ export function LoginForm({
       <button
         type="submit"
         disabled={busy}
-        className="min-h-14 w-full rounded-lg bg-ember font-bold text-ember-ink disabled:opacity-50"
+        className="h-14 w-full rounded-2xl bg-accent font-semibold text-accent-ink disabled:opacity-50"
       >
         {busy ? "Đang đăng nhập…" : "Đăng nhập"}
       </button>

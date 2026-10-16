@@ -6,35 +6,55 @@ export type CartLine = {
   name: string;
   price: number;
   quantity: number;
+  note: string; // ghi chú dòng đơn (FR-02); cùng món khác ghi chú là hai dòng
   archived: boolean; // món đã ngừng bán: dòng gạch, khóa Xác nhận
   priceChanged: boolean; // giá vừa đổi: nổi bật khoảng 3 giây
 };
 
 export const MAX_QUANTITY = 99;
 export const MAX_LINES = 30;
+export const MAX_NOTE = 60;
+
+// Khóa của dòng đơn: món + ghi chú. Dòng không ghi chú dùng thẳng id món.
+export const lineKey = (l: Pick<CartLine, "menuItemId" | "note">) => (l.note ? `${l.menuItemId}|${l.note}` : l.menuItemId);
 
 export function setQuantity(cart: CartLine[], id: string, quantity: number): CartLine[] {
   if (!Number.isInteger(quantity) || quantity < 1) return cart;
   const q = Math.min(quantity, MAX_QUANTITY);
-  return cart.map((l) => (l.menuItemId === id ? { ...l, quantity: q } : l));
+  return cart.map((l) => (lineKey(l) === id ? { ...l, quantity: q } : l));
 }
 
 export function addItem(cart: CartLine[], item: MenuItem): CartLine[] {
-  const line = cart.find((l) => l.menuItemId === item.id);
-  if (line) return setQuantity(cart, item.id, line.quantity + 1);
-  if (cart.length >= MAX_LINES) return cart;
-  return [
-    ...cart,
-    { menuItemId: item.id, name: item.name, price: item.price, quantity: 1, archived: false, priceChanged: false },
-  ];
+  const line = cart.find((l) => lineKey(l) === item.id);
+  return setItemQuantity(cart, item, (line?.quantity ?? 0) + 1);
+}
+
+// Chạm giữ ô món: đặt số lượng cho dòng không ghi chú của món đó (FR-01)
+export function setItemQuantity(cart: CartLine[], item: MenuItem, quantity: number): CartLine[] {
+  if (cart.some((l) => lineKey(l) === item.id)) return setQuantity(cart, item.id, quantity);
+  if (cart.length >= MAX_LINES || !Number.isInteger(quantity) || quantity < 1) return cart;
+  const line = { menuItemId: item.id, name: item.name, price: item.price, quantity: 1, note: "", archived: false, priceChanged: false };
+  return setQuantity([...cart, line], item.id, quantity);
+}
+
+// Đổi ghi chú; trùng ghi chú với dòng khác của cùng món thì gộp số lượng
+export function setNote(cart: CartLine[], key: string, raw: string): CartLine[] {
+  const note = raw.trim().slice(0, MAX_NOTE);
+  const line = cart.find((l) => lineKey(l) === key);
+  if (!line || line.note === note) return cart;
+  const target = cart.find((l) => l.menuItemId === line.menuItemId && l.note === note);
+  if (!target) return cart.map((l) => (l === line ? { ...l, note } : l));
+  return cart
+    .filter((l) => l !== line)
+    .map((l) => (l === target ? { ...l, quantity: Math.min(l.quantity + line.quantity, MAX_QUANTITY) } : l));
 }
 
 export function removeLine(cart: CartLine[], id: string): CartLine[] {
-  return cart.filter((l) => l.menuItemId !== id);
+  return cart.filter((l) => lineKey(l) !== id);
 }
 
 export function decrement(cart: CartLine[], id: string): CartLine[] {
-  const line = cart.find((l) => l.menuItemId === id);
+  const line = cart.find((l) => lineKey(l) === id);
   if (!line) return cart;
   return line.quantity <= 1 ? removeLine(cart, id) : setQuantity(cart, id, line.quantity - 1);
 }
@@ -81,5 +101,5 @@ export function summarize(lines: { item_name: string; quantity: number }[] | nul
 }
 
 export function toPayload(cart: CartLine[]) {
-  return cart.map((l) => ({ menuItemId: l.menuItemId, quantity: l.quantity, clientPrice: l.price }));
+  return cart.map((l) => ({ menuItemId: l.menuItemId, quantity: l.quantity, clientPrice: l.price, note: l.note }));
 }

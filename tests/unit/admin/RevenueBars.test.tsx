@@ -15,7 +15,7 @@ beforeAll(() => {
 });
 
 describe("RevenueBars", () => {
-  it("kỳ này tô mực cam, kỳ trước chỉ viền (cùng độ sáng nên không phân biệt chỉ bằng màu)", () => {
+  it("kỳ này tô cam, kỳ trước tô nền surface-2 (khác hẳn độ sáng)", () => {
     const { container } = render(
       <RevenueBars
         title="Doanh thu tuần"
@@ -26,10 +26,10 @@ describe("RevenueBars", () => {
       />,
     );
     const paths = [...container.querySelectorAll("path")];
-    const current = paths.find((p) => p.getAttribute("fill") === "var(--chart-current)");
-    const previous = paths.find((p) => p.getAttribute("stroke") === "var(--chart-previous)");
+    const current = paths.find((p) => p.getAttribute("fill") === "var(--accent)");
+    const previous = paths.find((p) => p.getAttribute("fill") === "var(--surface-2)");
     expect(current).toBeTruthy();
-    expect(previous?.getAttribute("fill")).toBe("none");
+    expect(previous).toBeTruthy();
     expect(container.querySelector(".bar-rise")).toBeNull();
   });
 });

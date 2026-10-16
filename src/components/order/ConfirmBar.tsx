@@ -1,10 +1,12 @@
 "use client";
-import Image from "next/image";
+import { CircleCheck } from "lucide-react";
 import { useEffect } from "react";
 
-export type Feedback = { orderId: string; text: string };
+// kind "round": Hoàn tác hủy lượt gọi Trả sau vừa gửi (FR-04d)
+// kind "paid": vừa thu tiền một đơn chờ thanh toán, không có Hoàn tác
+export type Feedback = { id: string; kind: "order" | "round" | "paid"; text: string };
 
-// Nút Xác nhận đơn (mực cam, 64px) hoặc thanh phản hồi sau khi gửi (motif điếu thuốc + Hoàn tác 5 giây), SRS FR-04.
+// Nút Xác nhận đơn, hoặc thanh phản hồi sau khi gửi kèm Hoàn tác 5 giây (SRS FR-04)
 export function ConfirmBar({
   canSubmit,
   blockReason,
@@ -23,7 +25,7 @@ export function ConfirmBar({
   cancelBusy: boolean;
   undoing: boolean;
   onSubmit: () => void;
-  onUndo: (orderId: string) => void;
+  onUndo: (fb: Feedback) => void;
   onFeedbackEnd: () => void;
 }) {
   useEffect(() => {
@@ -34,35 +36,30 @@ export function ConfirmBar({
 
   if (feedback)
     return (
-      <div className="fade-in flex min-h-16 items-center justify-between gap-3 rounded-2xl border border-ember/60 bg-raised pr-2 pl-4">
-        <span className="flex items-center gap-3">
-          <Image src="/brand/motif-cigarette.png" alt="" width={46} height={20} className="shrink-0" />
-          <span role="status" className="font-semibold text-balance">
-            {feedback.text}
-          </span>
+      <div className="rise flex h-15 items-center gap-2.5 rounded-[18px] bg-surface-2 pr-1.5 pl-4">
+        <CircleCheck aria-hidden="true" size={20} className="shrink-0 text-ok" />
+        <span role="status" className="min-w-0 flex-1 text-sm font-semibold">
+          {feedback.text}
         </span>
-        <button
+        {feedback.kind !== "paid" && <button
           type="button"
           disabled={cancelBusy}
-          onClick={() => onUndo(feedback.orderId)}
-          className="min-h-12 shrink-0 rounded-xl border border-edge px-4 font-semibold transition-colors duration-150 active:bg-ink active:text-bg disabled:opacity-50"
+          onClick={() => onUndo(feedback)}
+          className="h-12 shrink-0 rounded-[14px] bg-accent px-4 text-sm font-semibold text-accent-ink disabled:opacity-50"
         >
           {undoing ? "Đang hủy…" : "Hoàn tác"}
-        </button>
+        </button>}
       </div>
     );
   return (
-    <div className="space-y-1.5">
-      {!canSubmit && !sending && blockReason && <p className="text-center text-sm text-ink-muted">{blockReason}</p>}
-      <button
-        type="button"
-        aria-label="Xác nhận đơn"
-        disabled={!canSubmit || sending}
-        onClick={onSubmit}
-        className="min-h-16 w-full rounded-2xl bg-ember font-display text-2xl text-ember-ink transition-[transform,background-color] duration-150 active:scale-[0.98] disabled:bg-raised disabled:text-ink-muted"
-      >
-        {sending ? "Đang gửi…" : "Xác nhận đơn"}
-      </button>
-    </div>
+    <button
+      type="button"
+      aria-label="Xác nhận đơn"
+      disabled={!canSubmit || sending}
+      onClick={onSubmit}
+      className="h-16 w-full rounded-2xl bg-accent text-lg font-semibold text-accent-ink disabled:bg-surface-2 disabled:text-muted"
+    >
+      {sending ? "Đang gửi…" : canSubmit ? "Xác nhận đơn" : blockReason}
+    </button>
   );
 }

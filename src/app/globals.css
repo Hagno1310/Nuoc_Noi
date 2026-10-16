@@ -1,47 +1,44 @@
 @import "tailwindcss";
 
-/* Bao diêm quán bar (surface brief, seed 73f06246): bìa đen mờ phẳng, chữ kem, đúng một màu mực cam.
-   Chỉ có nền tối, vì quán là phòng tối (PRODUCT.md). Màu theo vai trò; component chỉ dùng token.
-   Trung tính khóa đúng 5 bậc: bg, raised/surface, line, edge/ink-muted, ink. */
+/* DESIGN.md: nền tối (quán là phòng tối), ba bậc nền, một màu nhấn. Component chỉ dùng token. */
 :root {
   color-scheme: dark;
-  --bg: #1a1e15; /* bìa ô liu tối */
-  --surface: #232819; /* sidebar, dòng tổng: cùng bậc với raised */
-  --raised: #232819;
-  --line: #4a5238; /* đường kẻ 1px, hệ đường kẻ duy nhất */
-  --edge: #a9b08f; /* viền điều khiển, 7.5:1 trên nền */
-  --ink: #e6d8b4; /* chữ kem, 12:1 */
-  --ink-muted: #a9b08f; /* chữ phụ, 7.5:1 trên nền, 6.6:1 trên raised */
-  --ember: #e8572c; /* mực in cam: hành động chính, lựa chọn đang có hiệu lực, focus, một tấm in đảo màu mỗi màn */
-  --ember-ink: #1a1e15; /* chữ trên mực cam, 4.7:1 (chữ kem trên cam chỉ 2.9:1) */
-  --ok: #8fbf7a;
-  --warn: #e8b04a;
-  --danger: #ef6f7a;
-  /* Biểu đồ: kỳ này tô mực cam, kỳ trước chỉ viền xám. Cam và xám gần cùng độ sáng (1.01:1),
-     nên phân biệt bằng tô và viền, không chỉ bằng màu */
-  --chart-current: var(--ember);
-  --chart-previous: var(--edge);
+  --bg: #111310;
+  --surface: #1b1e19;
+  --surface-2: #262a23;
+  --line: #2d3129;
+  --muted: #949a88;
+  --ink: #f3eee2;
+  --accent: #f26a3d;
+  --accent-ink: #1a0f0a;
+  --accent-soft: #3a2219;
+  --ok: #8fcf88;
+  --ok-soft: #20301e;
+  --warn: #f0b64e;
+  --warn-soft: #3a2f19;
+  --danger: #f27b84;
+  --danger-soft: #3a1e21;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
-  --color-raised: var(--raised);
+  --color-surface-2: var(--surface-2);
   --color-line: var(--line);
-  --color-edge: var(--edge);
+  --color-muted: var(--muted);
   --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-ember: var(--ember);
-  --color-ember-ink: var(--ember-ink);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
   --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
   --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
   --color-danger: var(--danger);
-  --color-chart-current: var(--chart-current);
-  --color-chart-previous: var(--chart-previous);
-  --font-sans: var(--font-archivo), system-ui, sans-serif;
-  --font-display: var(--font-archivo), system-ui, sans-serif;
-  --ease-print: cubic-bezier(0.16, 1, 0.3, 1);
-  /* Khoảng cách và vùng chạm tính bằng px, để thu nhỏ chữ trên điện thoại không làm vùng chạm dưới 48px (NFR-02) */
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Vùng chạm tính bằng px để luôn ≥ 48px (NFR-02) */
   --spacing: 4px;
 }
 
@@ -52,91 +49,34 @@ html {
 body {
   min-height: 100dvh;
   color: var(--ink);
-  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Chữ biển trên bao diêm: cùng họ Archivo, hẹp và đậm. Một họ chữ, thứ bậc bằng độ rộng và độ đậm.
-   Không nằm trong layer, nên thắng tracking-wide còn sót từ thế giới cũ */
-.font-display {
-  font-stretch: 72%;
-  font-weight: 800;
-  letter-spacing: 0;
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
-::selection {
-  background: var(--ember);
-  color: var(--ember-ink);
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 input,
 select,
 textarea {
-  caret-color: var(--ember);
-}
-
-:focus-visible {
-  outline: 2px solid var(--ember);
-  outline-offset: 2px;
-}
-
-a {
-  text-underline-offset: 0.2em;
+  caret-color: var(--accent);
 }
 
 * {
-  scrollbar-color: var(--edge) transparent;
+  scrollbar-color: var(--surface-2) transparent;
   scrollbar-width: thin;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.85) sepia(0.3);
-}
-
-/* Dải quẹt diêm: lớp nhám in chấm, đường chia duy nhất có chất liệu; chỉ bùng sáng khi gửi đơn thành công */
-.striker {
-  position: relative;
-  overflow: hidden;
-  height: 8px;
-  border-radius: 2px;
-  background-color: var(--raised);
-  background-image:
-    radial-gradient(var(--edge) 0.8px, transparent 1.1px),
-    radial-gradient(var(--line) 1.2px, transparent 1.6px),
-    radial-gradient(var(--edge) 0.6px, transparent 0.9px);
-  background-size: 5px 4px, 7px 5px, 3px 6px;
-  background-position: 0 0, 2px 1px, 1px 3px;
-}
-
-/* Gửi đơn thành công: dải quẹt bùng sáng một lần như que diêm vừa quẹt (hợp đồng thiết kế) */
-@keyframes strike {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-.striker-flare::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, var(--ember), transparent);
-  animation: strike 400ms var(--ease-print) both;
-}
-
-/* Tấm giỏ đơn trượt lên từ đáy */
-@keyframes sheet-up {
-  from {
-    transform: translateY(100%);
-  }
-}
-.sheet-in[open] {
-  animation: sheet-up 250ms var(--ease-print) both;
-}
-.sheet-in::backdrop {
-  animation: fade-in 200ms ease-out both;
+  filter: invert(0.8);
 }
 
 @keyframes fade-in {
@@ -144,38 +84,47 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 0;
   }
 }
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes pop {
+  50% {
+    transform: scale(1.25);
+  }
+}
 
 .fade-in {
   animation: fade-in 180ms ease-out both;
 }
+.rise {
+  animation: rise 220ms var(--ease-out) both;
+}
+.pop {
+  animation: pop 150ms ease-out;
+}
 
-/* Hộp thoại sửa: nổi lên nhẹ giữa màn hình, nền tối mờ dần */
-@keyframes dialog-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
+/* Tấm trượt từ đáy trên điện thoại, hộp thoại giữa màn từ 1024px (DESIGN.md) */
+.sheet[open] {
+  animation: sheet-up 250ms var(--ease-out) both;
 }
-.edit-dialog[open] {
-  animation: dialog-in 200ms var(--ease-print) both;
+.dialog[open] {
+  animation: rise 200ms var(--ease-out) both;
 }
-.edit-dialog::backdrop {
+.sheet::backdrop,
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.72);
   animation: fade-in 200ms ease-out both;
 }
 
-/* Đơn mới trượt vào Đơn vừa tạo */
-@keyframes row-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-}
-.row-in {
-  animation: row-in 240ms var(--ease-print) both;
-}
-
-/* iOS Safari phóng to trang khi chạm ô nhập có chữ dưới 16px. Nằm trong base để class text-* vẫn thắng.
-   Mọi điều khiển đổi màu, viền, độ mờ mượt trong 150ms; class transition-* của từng component vẫn thắng */
+/* iOS phóng to khi ô nhập dưới 16px; mọi điều khiển đổi trạng thái trong 150ms */
 @layer base {
   input,
   select,
@@ -190,33 +139,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   textarea {
     transition-property: color, background-color, border-color, opacity, transform;
     transition-duration: 150ms;
-    transition-timing-function: var(--ease-print);
+    transition-timing-function: var(--ease-out);
   }
-}
-
-/* Thông báo đơn mới trên trang chủ quán */
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
+  button:active:not(:disabled) {
+    transform: scale(0.98);
   }
-}
-.toast-in {
-  animation: toast-in 200ms var(--ease-print) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Bỏ di chuyển, giữ thay đổi độ mờ để trạng thái vẫn đọc được */
-  .row-in,
-  .toast-in,
-  .edit-dialog[open],
-  .sheet-in[open] {
+  .rise,
+  .sheet[open],
+  .dialog[open] {
     animation: fade-in 200ms ease-out both;
   }
-  /* Dải quẹt chỉ chớp sáng rồi mờ, không chạy ngang */
-  .striker-flare::after {
-    animation: fade-in 400ms ease-out reverse both;
-    transform: none;
+  .pop {
+    animation: none;
   }
   *,
   *::before,

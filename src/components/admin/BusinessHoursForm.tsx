@@ -39,12 +39,12 @@ export function BusinessHoursForm({ start, end }: { start: number; end: number }
   }
 
   const select =
-    "min-h-12 rounded-lg border border-edge bg-transparent px-3 font-display text-xl tabular-nums transition-colors duration-150 hover:border-ink";
+    "h-13 rounded-[14px] bg-surface-2 px-3.5 text-lg font-bold";
   return (
     <form onSubmit={submit} className="space-y-3">
       <div className="flex flex-wrap items-end gap-4">
         {(["start", "end"] as const).map((key) => (
-          <label key={key} className="flex flex-col gap-1 text-sm text-ink-muted">
+          <label key={key} className="flex flex-col gap-1 text-sm text-muted">
             {key === "start" ? "Giờ mở cửa" : "Giờ đóng cửa"}
             <select
               value={next[key]}
@@ -65,12 +65,12 @@ export function BusinessHoursForm({ start, end }: { start: number; end: number }
         <button
           type="submit"
           disabled={!dirty || busy}
-          className="min-h-12 rounded-lg bg-ember px-5 font-semibold text-ember-ink transition-[transform,opacity] duration-150 active:scale-[0.98] disabled:opacity-40"
+          className="h-12 rounded-[14px] bg-accent px-5 font-semibold text-accent-ink disabled:opacity-40"
         >
           {busy ? "Đang lưu…" : "Lưu giờ"}
         </button>
       </div>
-      <p className="text-xs text-ink-muted">Nên đổi khi quán đã đóng cửa.</p>
+      <p className="text-xs text-muted">Nên đổi khi quán đã đóng cửa.</p>
       {error && (
         <p role="alert" className="text-danger">
           {error}

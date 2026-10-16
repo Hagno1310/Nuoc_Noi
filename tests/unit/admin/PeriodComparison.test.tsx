@@ -5,7 +5,7 @@ import { PeriodComparison } from "@/components/admin/PeriodComparison";
 const zero = { revenue: 0, item_count: 0, order_count: 0, discount_total: 0 };
 
 describe("PeriodComparison", () => {
-  it("đếm bằng Số món, không còn Số cốc", () => {
+  it("đếm bằng món, không còn cốc", () => {
     render(
       <PeriodComparison
         periods={[
@@ -17,12 +17,11 @@ describe("PeriodComparison", () => {
         ]}
       />,
     );
-    expect(screen.getByText("Số món")).toBeInTheDocument();
     expect(screen.queryByText(/cốc/)).toBeNull();
     // Doanh thu và số món đều tăng 50%
     expect(screen.getAllByText("+50%")).toHaveLength(2);
-    // Một dòng kỳ trước cho cả kỳ (điện thoại) và một nhãn cho hàng (màn rộng), không lặp theo từng số
-    expect(screen.getAllByText(/Kỳ trước/)).toHaveLength(2);
+    // Một dòng kỳ trước cho cả kỳ, không lặp theo từng số
+    expect(screen.getAllByText(/Kỳ trước/)).toHaveLength(1);
     expect(screen.getByText("Kỳ trước 380.000đ · 2 món · 1 đơn")).toBeInTheDocument();
   });
 

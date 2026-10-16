@@ -45,7 +45,7 @@ export function PhotoViewer({ publicId, onClose }: { publicId: string | null; on
           <button
             type="button"
             onClick={onClose}
-            className="min-h-12 rounded-xl border border-edge bg-raised px-6 font-semibold"
+            className="min-h-12 rounded-xl border border-line bg-surface-2 px-6 font-semibold"
           >
             Đóng
           </button>
@@ -64,7 +64,7 @@ export function TransferPhotoThumb({ publicId }: { publicId: string }) {
         type="button"
         aria-label="Xem ảnh chuyển khoản"
         onClick={() => setOpen(true)}
-        className="block min-h-12 overflow-hidden rounded-lg border border-edge"
+        className="block min-h-12 overflow-hidden rounded-lg border border-line"
       >
         <PhotoImg publicId={publicId} width={480} alt="" className="h-32 w-auto" />
       </button>

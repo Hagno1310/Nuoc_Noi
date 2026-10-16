@@ -10,6 +10,8 @@ import {
   parseDiscountInput,
   parseQuantityInput,
   removeLine,
+  setItemQuantity,
+  setNote,
   setQuantity,
   subtotal,
   summarize,
@@ -89,6 +91,15 @@ describe("giỏ đơn", () => {
   it("tóm tắt dòng đơn và dữ liệu gửi server", () => {
     expect(summarize([{ item_name: "Classic", quantity: 2 }, { item_name: "Neat", quantity: 1 }])).toBe("2 Classic, 1 Neat");
     expect(summarize(null)).toBe("");
-    expect(toPayload(addItem([], classic))).toEqual([{ menuItemId: "m1", quantity: 1, clientPrice: 190000 }]);
+    expect(toPayload(addItem([], classic))).toEqual([{ menuItemId: "m1", quantity: 1, clientPrice: 190000, note: "" }]);
+  });
+
+  it("ghi chú tách dòng; trùng ghi chú thì gộp; chạm giữ đặt số lượng", () => {
+    let c = setNote(addItem([], classic), "m1", "  Ít đá ");
+    expect(c.map((l) => [l.note, l.quantity])).toEqual([["Ít đá", 1]]);
+    c = setItemQuantity(c, classic, 12);
+    expect(c.map((l) => [l.note, l.quantity])).toEqual([["Ít đá", 1], ["", 12]]);
+    c = setNote(c, "m1", "Ít đá");
+    expect(c.map((l) => [l.note, l.quantity])).toEqual([["Ít đá", 13]]);
   });
 });

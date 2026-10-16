@@ -8,6 +8,7 @@ const NOW = new Date("2026-10-07T14:00:00Z");
 const PHOTO = "nuoc-noi/transfer/11111111-1111-1111-1111-111111111111";
 const order = (over: Partial<MyOrder>): MyOrder => ({
   id: "o1",
+  kind: "order",
   item_count: 1,
   subtotal_amount: 190000,
   discount_percent: 0,
@@ -18,7 +19,7 @@ const order = (over: Partial<MyOrder>): MyOrder => ({
   created_at: NOW.toISOString(),
   payment_method: "cash",
   transfer_photo_id: null,
-  lines: [{ item_name: "Classic", unit_price: 190000, quantity: 1, line_amount: 190000 }],
+  lines: [{ item_name: "Classic", unit_price: 190000, quantity: 1, line_amount: 190000, note: "" }],
   ...over,
 });
 

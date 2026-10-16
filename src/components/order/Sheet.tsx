@@ -1,10 +1,26 @@
 "use client";
+import { X } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 
-// Tấm giỏ đơn trên điện thoại: <dialog> gốc của trình duyệt lo nền tối, khóa focus và phím Esc.
-// Trượt lên từ đáy; chạm nền tối để đóng. Nội dung chỉ dựng khi mở.
+// Tấm trượt từ đáy trên điện thoại, hộp thoại giữa màn từ md (DESIGN.md). <dialog> gốc lo nền tối, focus và Esc.
 // ponytail: chưa có cử chỉ kéo xuống để đóng; đóng bằng nền tối, nút Đóng hoặc Esc
-export function CartSheet({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
+export function Sheet({
+  open,
+  onClose,
+  label,
+  title,
+  subtitle,
+  actions,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  label: string;
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  actions?: ReactNode;
+  children: ReactNode;
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -15,12 +31,35 @@ export function CartSheet({ open, onClose, children }: { open: boolean; onClose:
   return (
     <dialog
       ref={ref}
-      aria-label="Giỏ đơn"
-      onClose={onClose}
+      aria-label={label}
+      // React đẩy sự kiện close của tấm con (ghi chú) lên tấm cha; chỉ đóng khi chính tấm này đóng
+      onClose={(e) => e.target === e.currentTarget && onClose()}
       onClick={(e) => e.target === e.currentTarget && onClose()}
-      className="sheet-in mx-auto mt-auto mb-0 max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-2xl border-t border-edge bg-bg p-0 text-ink backdrop:bg-bg/70"
+      className="sheet m-0 mt-auto max-h-[92dvh] w-full max-w-none overflow-hidden rounded-t-3xl bg-bg p-0 text-ink md:m-auto md:max-w-md md:rounded-3xl"
     >
-      {open && <div className="px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{children}</div>}
+      {open && (
+        <div className="flex max-h-[92dvh] flex-col px-4 pt-2.5 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <span aria-hidden="true" className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-line md:hidden" />
+          {title !== undefined && (
+            <header className="flex shrink-0 items-center gap-2 pb-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate text-xl font-bold">{title}</h2>
+                {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
+              </div>
+              {actions}
+              <button
+                type="button"
+                aria-label="Đóng"
+                onClick={onClose}
+                className="grid size-12 shrink-0 place-items-center rounded-full bg-surface-2"
+              >
+                <X aria-hidden="true" size={18} />
+              </button>
+            </header>
+          )}
+          {children}
+        </div>
+      )}
     </dialog>
   );
 }
