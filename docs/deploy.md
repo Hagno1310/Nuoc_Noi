@@ -36,6 +36,7 @@ Quán chỉ có **một** tài khoản chủ quán (SRS FR-05a).
 1. Đẩy repo lên GitHub, rồi import vào https://vercel.com.
 2. Environment Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` và `NEXT_PUBLIC_STAFF_EMAIL=nhanvien@quan.local`.
    **Không** thêm service_role key (SRS NFR-04).
+   Thêm `CRON_SECRET` (chuỗi ngẫu nhiên, ví dụ `openssl rand -hex 32`). Vercel Cron trong `vercel.json` gọi `/api/heartbeat` mỗi ngày để Supabase không tạm dừng (SRS R52).
    Thêm `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (Cloudinary → Settings → API Keys). Hai biến sau **không** có tiền tố `NEXT_PUBLIC_`.
 3. Deploy. Hàm server chạy ở Singapore (`sin1`, khai báo trong `vercel.json`), cạnh Supabase; đổi region Supabase thì đổi cả dòng này.
 
@@ -56,7 +57,7 @@ Quán chỉ có **một** tài khoản chủ quán (SRS FR-05a).
 
 ## 6. Vận hành
 
-- **Nghỉ hơn 7 ngày:** Supabase gói miễn phí tạm dừng database. Vào Dashboard → bấm **Restore project**.
+- **Heartbeat:** Vercel → project → Settings → Cron Jobs xem lần chạy gần nhất của `/api/heartbeat` (trả 200 là được; 401 là thiếu hoặc sai `CRON_SECRET`). Nếu database vẫn bị tạm dừng, vào Supabase Dashboard → bấm **Restore project**.
 - **Sao lưu:** đầu mỗi tháng, vào Lịch sử đơn hàng, lọc cả tháng trước, rồi bấm **Xuất CSV** và lưu file lại.
 - **Nhân viên nghỉ việc:** đổi PIN quán trong trang Cài đặt.
 - **Cập nhật app:** push lên `main`, Vercel tự deploy. Có migration mới thì chạy `npx supabase db push`.

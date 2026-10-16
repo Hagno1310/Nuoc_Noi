@@ -4,10 +4,11 @@
 
 | | |
 |---|---|
-| **Phiên bản** | 3.8 |
+| **Phiên bản** | 3.9 |
 | **Tác giả** | Chủ quán / Developer |
 | **Ngày cập nhật** | 2026-10-17 |
 | **Thuật ngữ** | Xem [GLOSSARY.md](../GLOSSARY.md). Mọi thuật ngữ in đậm trong tài liệu này đều được định nghĩa ở đó. |
+| **Thay đổi ở v3.9** | `/admin/login` có bố cục máy tính từ 1024px (R51). Vercel Cron gọi `/api/heartbeat` mỗi ngày để Supabase gói miễn phí không tạm dừng database (R52). |
 | **Thay đổi ở v3.8** | **Trả sau**: ghi lượt gọi vào **đơn chờ thanh toán** của chỗ ngồi, thu tiền một lần khi khách về; giảm giá chuyển sang tấm thanh toán (R45, R50). **Ghi chú** trên từng dòng đơn (R46). Tổng quan có **món bán chạy**, số món theo giờ và thời gian còn lại đến giờ đóng cửa (R47). Chạm giữ ô món để nhập số lượng (R48). Giao diện mới theo `design/design.pen`, trang chủ quán có bố cục máy tính (R49). |
 | **Thay đổi ở v3.7** | Nút − ngay trên hàng món đã có trong giỏ; tấm giỏ đơn giữ Thành tiền, dải chỗ ngồi và nút Xác nhận đơn dính đáy, chỗ ngồi đứng trước giảm giá; tấm thanh toán đặt nút ở nửa dưới (R44). |
 | **Thay đổi ở v3.6** | Route ký upload ảnh chuyển khoản không cho ghi đè ảnh đã có, và lỗi tạm thời khi kiểm tra quyền không đăng xuất nhân viên (R43). |
@@ -350,8 +351,8 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | Mã | Yêu cầu |
 |---|---|
 | NFR-01 | Mỗi lần bấm nút trên `/order` có phản hồi trên giao diện dưới 200ms. Trong lúc gửi đơn, nút hiện trạng thái "Đang gửi…". |
-| NFR-02 | Mobile-first. Nút chính trên màn order cao ít nhất 56px; trên trang chủ quán ít nhất 48px. Mọi vùng chạm ít nhất 48px. Thành tiền hiển thị cỡ lớn. Trang chủ quán có bố cục máy tính từ 1024px: thanh điều hướng bên trái, nội dung nhiều cột, hộp thoại giữa màn thay cho tấm trượt từ đáy. |
-| NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. `CLOUDINARY_API_SECRET` chỉ nằm ở server Vercel (không có tiền tố `NEXT_PUBLIC_`) và chỉ route ký upload đọc nó; route chỉ ký cho nhân viên hoặc chủ quán đang đăng nhập. Chữ ký upload kèm `overwrite=false`, nên không ghi đè được ảnh đã có. Kiểm tra quyền lỗi tạm thời thì route trả 503 và màn order báo "Chưa tải được ảnh – kiểm tra mạng rồi thử lại."; chỉ khi không có quyền mới trả 401 và đăng xuất. |
+| NFR-02 | Mobile-first. Nút chính trên màn order cao ít nhất 56px; trên trang chủ quán ít nhất 48px. Mọi vùng chạm ít nhất 48px. Thành tiền hiển thị cỡ lớn. Trang chủ quán có bố cục máy tính từ 1024px: thanh điều hướng bên trái, nội dung nhiều cột, hộp thoại giữa màn thay cho tấm trượt từ đáy. `/admin/login` từ 1024px chia hai nửa: trái là wordmark lớn trên nền surface, phải là form căn giữa. |
+| NFR-04 | Mọi kiểm tra quyền chạy ở server. Không có chức năng tự đăng ký. Không bao giờ đưa service_role key lên Vercel. `CLOUDINARY_API_SECRET` chỉ nằm ở server Vercel (không có tiền tố `NEXT_PUBLIC_`) và chỉ route ký upload đọc nó; route chỉ ký cho nhân viên hoặc chủ quán đang đăng nhập. Chữ ký upload kèm `overwrite=false`, nên không ghi đè được ảnh đã có. Kiểm tra quyền lỗi tạm thời thì route trả 503 và màn order báo "Chưa tải được ảnh – kiểm tra mạng rồi thử lại."; chỉ khi không có quyền mới trả 401 và đăng xuất. `CRON_SECRET` chỉ nằm ở server Vercel và chỉ route `/api/heartbeat` đọc nó; thiếu hoặc sai `Authorization: Bearer <CRON_SECRET>` thì route trả 401 và không truy vấn database. |
 | NFR-05 | Tiền là số nguyên. Server tính đơn giá, tạm tính, số tiền giảm và thành tiền. Không bao giờ xóa cứng đơn hàng, chỗ ngồi hoặc món. Ngoại lệ duy nhất: migration v3.0 xóa dữ liệu thử một lần trước khi dùng thật (R36). |
 | NFR-06 | Giao diện tiếng Việt, tiền định dạng `25.000đ`, giờ Việt Nam. |
 | NFR-07 | Chạy trên Chrome Android và Safari iOS bản mới nhất. Cài được ra màn hình chính. |
@@ -365,8 +366,9 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
   - Tạo tài khoản chủ quán và tài khoản nhân viên bằng script.
   - Kiểm tra thực đơn, đặt giờ mở cửa và chỗ ngồi.
   - Tạo tài khoản Cloudinary, đặt `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` trên Vercel.
+  - Đặt `CRON_SECRET` (chuỗi ngẫu nhiên ≥ 16 ký tự) trên Vercel.
   - Deploy lên Vercel.
-- **Nghỉ hơn 7 ngày:** Supabase gói miễn phí tạm dừng database. Vào trang Supabase bấm **Restore** để chạy lại.
+- **Heartbeat:** Vercel Cron gọi `/api/heartbeat` lúc 00:00 UTC mỗi ngày; route đọc một dòng của bảng `settings`, nên database không bao giờ nghỉ quá 7 ngày. Nếu database vẫn bị tạm dừng (ví dụ cron lỗi), vào trang Supabase bấm **Restore**.
 - **Sao lưu:** xuất CSV hằng tháng.
 
 ---
@@ -437,3 +439,5 @@ Doanh thu và số món **chỉ tính đơn đã thanh toán**. **Doanh thu** l�
 | R48 (v3.8) | Nhập nhanh số lượng | Chạm giữ ô món mở bàn phím số, để đơn nhiều ly không cần chạm nhiều lần. Mỗi chạm có phản hồi số nảy và rung ngắn. |
 | R50 (v3.8) | Trả sau: gửi lại và thay đổi giữa chừng | Sau lỗi mạng chỉ gửi lại bằng đúng cách vừa chọn (trả ngay và Trả sau ghi vào hai nơi, không gộp được một `id`). Thu tiền kèm tạm tính đang thấy, lệch hoặc đơn đã bị hủy thì từ chối (khách không trả theo số cũ). Đơn đã thu thì báo đã thu, không phân biệt máy nào bấm. Lượt gọi gửi lại đã bị hủy thì làm như FR-04. Lịch sử và CSV ghi giờ thu tiền cho đơn trả sau; đơn đã hủy giữ mọi dòng đơn. Thu tiền chỉ tải lại số liệu trang chủ quán. |
 | R49 (v3.8) | Giao diện mới | Bỏ thế giới "Bao diêm"; giao diện tối, gọn, thẻ bo tròn, một màu nhấn cam, font Be Vietnam Pro, theo `design/design.pen`. Màn order lưới món 2 cột. Tấm trượt từ đáy cho hộp thoại trên điện thoại. Đăng xuất chủ quán nằm trong Cài đặt. Trang chủ quán có bố cục máy tính từ 1024px. |
+| R51 (v3.9) | Đăng nhập chủ quán trên máy tính | Chủ quán đăng nhập trên máy tính toàn màn: chia hai nửa, wordmark lớn bên trái, form bên phải. Điện thoại giữ bố cục một cột. Logic và câu lỗi của FR-00b không đổi. |
+| R52 (v3.9) | Heartbeat Supabase | Supabase gói miễn phí tạm dừng database sau 7 ngày không hoạt động (ví dụ quán nghỉ Tết). Vercel Cron (gói Hobby, tối đa một lần mỗi ngày) gọi `/api/heartbeat`; route kiểm tra `CRON_SECRET` rồi đọc `settings` bằng anon key. Không dùng service_role. Thay việc phải bấm Restore bằng tay ở §6. |

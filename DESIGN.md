@@ -119,6 +119,7 @@ Mọi con số về tiền, số lượng và giờ dùng `tabular-nums`.
 - Thực đơn: danh sách món (rộng) + Lịch sử đổi giá (460px).
 - Lịch sử đơn hàng: hàng bộ lọc (Từ ngày, Đến ngày, chip trạng thái), 5 ô tổng, bảng 7 cột có dòng mở xuống.
 - Cài đặt: cột trái Giờ mở cửa + PIN quán, cột phải Chỗ ngồi.
+- Đăng nhập chủ quán: chia hai nửa; nửa trái nền surface, wordmark lớn (360px) ở giữa; nửa phải form rộng tối đa 384px căn giữa theo chiều dọc, không có wordmark nhỏ.
 
 **Vùng chạm:** ≥ 48px; nút chính trên màn order 56–64px (NFR-02); các vùng chạm cách nhau ≥ 6–8px.
 
