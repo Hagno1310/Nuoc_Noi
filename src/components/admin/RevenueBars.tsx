@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { formatVnd } from "@/lib/money";
 import type { DayPoint } from "@/lib/admin/stats";
 
@@ -25,12 +25,15 @@ function bar(x: number, w: number, value: number, max: number) {
 
 export function RevenueBars({
   title,
+  head,
   points,
   currentLabel,
   previousLabel,
   ticks,
 }: {
   title: string;
+  // Thay cho tiêu đề hiển thị (ví dụ nút chuyển Tuần/Tháng); title vẫn dùng cho bảng của trình đọc màn hình
+  head?: ReactNode;
   points: DayPoint[];
   currentLabel: string;
   previousLabel: string;
@@ -64,7 +67,7 @@ export function RevenueBars({
   return (
     <figure className="space-y-4 rounded-3xl bg-surface p-5 lg:p-6">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="text-base font-bold">{title}</span>
+        {head ?? <span className="text-base font-bold">{title}</span>}
         <span className="flex gap-4 text-xs text-muted">
           <span className="inline-flex items-center gap-1.5">
             <span

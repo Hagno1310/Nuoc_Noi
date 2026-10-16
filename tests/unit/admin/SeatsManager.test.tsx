@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SeatsManager, type OwnerSeat } from "@/components/admin/SeatsManager";
 
@@ -22,9 +22,13 @@ beforeEach(() => {
 });
 
 describe("SeatsManager", () => {
-  it("đổi thứ tự chỉ trong cùng loại, bằng tay cầm", () => {
+  it("điện thoại: đổi thứ tự chỉ trong cùng loại, bằng nút trong hộp thoại", async () => {
+    const user = userEvent.setup();
     render(<SeatsManager seats={seats} />);
-    fireEvent.keyDown(screen.getByRole("button", { name: "Kéo để đổi thứ tự Quầy 2" }), { key: "ArrowUp" });
+    await user.click(screen.getByRole("button", { name: "Sửa Quầy 2" }));
+    const dialog = screen.getByRole("dialog", { name: "Quầy 2" });
+    expect(within(dialog).getByRole("button", { name: /Ra sau/ })).toBeDisabled();
+    await user.click(within(dialog).getByRole("button", { name: /Lên trước/ }));
     expect(db.update).toHaveBeenCalledWith({ sort_order: 1 });
     expect(db.eq).toHaveBeenCalledWith("id", "q2");
     expect(db.eq).not.toHaveBeenCalledWith("id", "b1");

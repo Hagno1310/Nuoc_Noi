@@ -1,4 +1,5 @@
 import { BusinessHoursForm } from "@/components/admin/BusinessHoursForm";
+import { KeyRound, Timer } from "lucide-react";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 import { PageTitle, SectionTitle } from "@/components/admin/SectionTitle";
 import { SeatsManager, type OwnerSeat } from "@/components/admin/SeatsManager";
@@ -35,22 +36,23 @@ export default async function SettingsPage() {
       {/* Laptop: cài đặt ngắn bên trái, danh sách chỗ ngồi (dài) bên phải. Điện thoại: chỗ ngồi xuống cuối.
           Giá món nằm ở trang Thực đơn (SRS v3.0 FR-05). */}
       <div className="grid gap-4 lg:grid-cols-2 lg:items-start lg:gap-5">
-        <div className="space-y-4 lg:space-y-5">
-          <section className="rounded-3xl bg-surface p-5 lg:p-6">
-            <SectionTitle>Giờ mở cửa</SectionTitle>
+        {/* Điện thoại: Giờ mở cửa → Chỗ ngồi → PIN quán (design.pen); máy tính: hai cột */}
+        <div className="contents lg:block lg:space-y-5">
+          <section className="order-1 rounded-3xl bg-surface p-5 lg:p-6">
+            <SectionTitle icon={Timer}>Giờ mở cửa</SectionTitle>
             <BusinessHoursForm
               start={settings.business_day_start_hour}
               end={settings.business_day_end_hour}
             />
           </section>
 
-          <section className="rounded-3xl bg-surface p-5 lg:p-6">
-            <SectionTitle>PIN quán</SectionTitle>
+          <section className="order-3 rounded-3xl bg-surface p-5 lg:p-6">
+            <SectionTitle icon={KeyRound}>PIN quán</SectionTitle>
             <PinSection />
           </section>
         </div>
 
-        <section className="rounded-3xl bg-surface p-5 lg:p-6">
+        <section className="order-2 rounded-3xl bg-surface p-5 lg:order-none lg:p-6">
           <SeatsManager seats={(seats ?? []) as OwnerSeat[]} />
         </section>
       </div>

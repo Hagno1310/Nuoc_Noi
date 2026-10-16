@@ -312,7 +312,8 @@ export function OrderScreen({
         setPay(null);
         setInfo(e.code === "ORDER_NOT_OPEN" && e.details === "paid" ? "Đơn này đã được thu tiền." : ORDER_CHANGED_TEXT);
       }
-      await refreshOpen();
+      // Lượt gọi Trả sau trong Đơn vừa tạo đổi sang đã thanh toán: tải lại để nút Hủy biến mất (FR-04b)
+      await Promise.all([refreshOpen(), refreshRecent()]);
     });
 
   async function handleCancel(target: { id: string; kind: "order" | "round" }, from: "undo" | "list") {

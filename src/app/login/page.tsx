@@ -7,15 +7,8 @@ import { getBrowserSupabase } from "@/lib/supabase/client";
 export default function StaffLoginPage() {
   const router = useRouter();
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-10 px-6 py-8">
-      <Image
-        src="/brand/nuoc-noi-wordmark.png"
-        alt="Nước Nôi"
-        width={160}
-        height={148}
-        priority
-        className="mx-auto"
-      />
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col px-6 pt-[18dvh] pb-[max(2.25rem,env(safe-area-inset-bottom))]">
+      <Image src="/brand/nuoc-noi-wordmark.png" alt="Nước Nôi" width={170} height={160} priority className="mx-auto h-auto w-[170px]" />
       <PinLogin
         onLogin={async (pin) => {
           const { error } = await getBrowserSupabase().auth.signInWithPassword({

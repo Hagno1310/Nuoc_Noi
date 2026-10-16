@@ -1,15 +1,15 @@
 "use client";
 import { useSyncExternalStore } from "react";
 
-const QUERY = "(min-width: 768px)";
-
-function subscribe(onChange: () => void) {
-  const mq = window.matchMedia(QUERY);
-  mq.addEventListener("change", onChange);
-  return () => mq.removeEventListener("change", onChange);
-}
-
-// Màn rộng (tablet, điện thoại xoay ngang): phiếu đơn luôn hiện bên phải thay cho tấm giỏ đơn
-export function useWide(): boolean {
-  return useSyncExternalStore(subscribe, () => window.matchMedia(QUERY).matches, () => false);
+// Màn rộng: 768px (md) cho phiếu đơn luôn hiện bên phải; 1024px (lg) cho bố cục máy tính của trang chủ quán
+export function useWide(query = "(min-width: 768px)"): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { InlineEdit } from "@/components/admin/InlineEdit";
@@ -28,8 +28,6 @@ type Result = PromiseLike<{ error: { message: string; code?: string } | null }>;
 export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   const router = useRouter();
   const supabase = getBrowserSupabase();
-  const [newName, setNewName] = useState("");
-  const [newPrice, setNewPrice] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // Khóa thao tác tới khi dữ liệu mới về, để không tính thứ tự trên danh sách cũ
@@ -53,24 +51,6 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
     setBusy(false);
     startTransition(() => router.refresh());
     return failure;
-  }
-
-  async function add() {
-    const nameError = menuNameError(newName, items);
-    if (nameError) return setError(nameError);
-    const price = parsePriceInput(newPrice);
-    if (price === null) return setError(PRICE_RANGE_TEXT);
-    const failure = await run([
-      () =>
-        supabase
-          .from("menu_items")
-          .insert({ name: normalizeMenuName(newName), price, sort_order: nextSortOrder(items) }),
-    ]);
-    setError(failure);
-    if (!failure) {
-      setNewName("");
-      setNewPrice("");
-    }
   }
 
   async function rename(item: OwnerMenuItem, raw: string) {
@@ -133,7 +113,7 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
   return (
     <div className="space-y-4">
       {active.length === 0 ? (
-        <p className="text-sm text-muted">Chưa có món nào đang bán. Thêm món ở ô bên dưới.</p>
+        <p className="text-sm text-muted">Chưa có món nào đang bán. Bấm &quot;Thêm món&quot; ở đầu trang.</p>
       ) : (
         <ul className="divide-y divide-line rounded-3xl bg-surface px-2 py-1">
           {active.map((item, i) => (
@@ -187,38 +167,13 @@ export function MenuManager({ items }: { items: OwnerMenuItem[] }) {
         </ul>
       )}
 
-      <form
-        className="flex flex-wrap items-end gap-2 rounded-3xl bg-surface p-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void add();
-        }}
-      >
-        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm text-muted">
-          Tên món
-          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Highball" className={field} />
-        </label>
-        <label className="flex w-36 flex-col gap-1 text-sm text-muted">
-          Giá
-          <input
-            value={newPrice}
-            onChange={(e) => setNewPrice(e.target.value)}
-            placeholder="120.000"
-            inputMode="numeric"
-            className={`${field} tabular-nums`}
-          />
-        </label>
-        <button type="submit" disabled={locked} className={`${outline} px-5 font-semibold`}>
-          Thêm món
-        </button>
-      </form>
 
       {archived.length > 0 && (
-        <details>
-          <summary className="flex min-h-12 cursor-pointer items-center text-sm text-muted transition-colors duration-150 hover:text-ink">
+        <details className="rounded-3xl bg-surface px-5">
+          <summary className="flex min-h-14 cursor-pointer items-center text-[15px] font-semibold text-muted hover:text-ink">
             Món đã ẩn ({archived.length})
           </summary>
-          <ul className="fade-in">
+          <ul className="fade-in pb-3">
             {archived.map((item) => (
               <li key={item.id} className="flex items-center gap-3 py-1">
                 <span className="flex flex-1 items-center gap-2 text-muted">
@@ -316,6 +271,93 @@ function EditMenuItem({
           className="h-13 rounded-[14px] bg-accent px-5.5 font-semibold text-accent-ink disabled:opacity-40"
         >
           Lưu
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// Nút "Thêm món" ở đầu trang mở tấm/hộp thoại thêm món (design.pen, màn "Thêm món"). Món mới đứng cuối thực đơn.
+export function AddMenuItem({ items }: { items: OwnerMenuItem[] }) {
+  const router = useRouter();
+  const [refreshing, startTransition] = useTransition();
+  const [busy, setBusy] = useState(false);
+  const field = "h-13 w-full rounded-[14px] bg-surface-2 px-3.5 text-base text-ink ring-accent placeholder:text-muted focus:ring-[1.5px] focus:outline-none";
+
+  async function add(rawName: string, rawPrice: string) {
+    const nameError = menuNameError(rawName, items);
+    if (nameError) return nameError;
+    const price = parsePriceInput(rawPrice);
+    if (price === null) return PRICE_RANGE_TEXT;
+    setBusy(true);
+    const { error } = await getBrowserSupabase()
+      .from("menu_items")
+      .insert({ name: normalizeMenuName(rawName), price, sort_order: nextSortOrder(items) });
+    setBusy(false);
+    startTransition(() => router.refresh());
+    return error ? ownerErrorText(error) : null;
+  }
+
+  return (
+    <EditDialog
+      label="Thêm món"
+      title="Thêm món"
+      triggerClassName="flex h-12 items-center gap-1.5 rounded-full bg-accent pr-4.5 pl-3.5 text-sm font-semibold text-accent-ink"
+      trigger={
+        <>
+          <Plus aria-hidden="true" size={18} />
+          Thêm món
+        </>
+      }
+    >
+      {(close) => <AddForm field={field} locked={busy || refreshing} onAdd={add} close={close} />}
+    </EditDialog>
+  );
+}
+
+function AddForm({
+  field,
+  locked,
+  onAdd,
+  close,
+}: {
+  field: string;
+  locked: boolean;
+  onAdd: (name: string, price: string) => Promise<string | null>;
+  close: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const failure = await onAdd(name, price);
+        if (failure) setError(failure);
+        else close();
+      }}
+    >
+      <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
+        Tên món
+        <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Ví dụ: Highball" className={field} />
+      </label>
+      <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
+        Giá
+        <input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="120.000" inputMode="numeric" className={field} />
+      </label>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex items-center gap-2 pt-1">
+        <button type="button" onClick={close} className="ml-auto h-13 rounded-[14px] bg-surface-2 px-4.5 text-sm font-semibold">
+          Hủy
+        </button>
+        <button type="submit" disabled={locked} className="h-13 rounded-[14px] bg-accent px-5.5 font-semibold text-accent-ink disabled:opacity-40">
+          Thêm món
         </button>
       </div>
     </form>

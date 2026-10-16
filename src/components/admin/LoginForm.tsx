@@ -19,12 +19,12 @@ export function LoginForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4">
-      <h1 className="text-[28px] font-bold">
+    <form onSubmit={submit} className="flex flex-1 flex-col gap-4 lg:flex-none">
+      <h1 className="text-[28px] leading-tight font-bold">
         Đăng nhập chủ quán
       </h1>
       <label className="block">
-        <span>Email</span>
+        <span className="text-[13px] font-medium text-muted">Email</span>
         <input
           type="email"
           required
@@ -35,7 +35,7 @@ export function LoginForm({
         />
       </label>
       <label className="block">
-        <span>Mật khẩu</span>
+        <span className="text-[13px] font-medium text-muted">Mật khẩu</span>
         <input
           type="password"
           required
@@ -53,7 +53,7 @@ export function LoginForm({
       <button
         type="submit"
         disabled={busy}
-        className="h-14 w-full rounded-2xl bg-accent font-semibold text-accent-ink disabled:opacity-50"
+        className="mt-auto h-14 w-full rounded-2xl bg-accent font-semibold text-accent-ink disabled:opacity-50 lg:mt-4"
       >
         {busy ? "Đang đăng nhập…" : "Đăng nhập"}
       </button>

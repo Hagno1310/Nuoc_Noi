@@ -1,4 +1,4 @@
-import { MenuManager, type OwnerMenuItem } from "@/components/admin/MenuManager";
+import { AddMenuItem, MenuManager, type OwnerMenuItem } from "@/components/admin/MenuManager";
 import { PageTitle, SectionTitle } from "@/components/admin/SectionTitle";
 import { PriceHistory, type PriceRow } from "@/components/admin/PriceHistory";
 import { createServerSupabase } from "@/lib/supabase/server";
@@ -35,7 +35,11 @@ export default async function MenuPage() {
 
   return (
     <div>
-      <PageTitle title="Thực đơn" sub={`${items.filter((i) => !i.is_archived).length} món đang bán`} />
+      <PageTitle
+        title="Thực đơn"
+        sub={`${items.filter((i) => !i.is_archived).length} món đang bán`}
+        action={<AddMenuItem items={items as OwnerMenuItem[]} />}
+      />
       {/* Máy tính: danh sách món bên trái, lịch sử đổi giá bên phải (460px). Điện thoại: lịch sử xuống cuối */}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-start lg:gap-5">
         <section>

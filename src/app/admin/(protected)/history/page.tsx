@@ -120,13 +120,32 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
       </nav>
 
       {t && (
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
-          <Tile label="Doanh thu" value={formatVnd(t.revenue)} big />
-          <Tile label="Đơn · Món" value={`${t.order_count} · ${t.item_count}`} />
-          <Tile label="Tiền mặt" value={formatVnd(t.cash_revenue)} />
-          <Tile label="Chuyển khoản" value={formatVnd(t.transfer_revenue)} />
-          <Tile label="Đã giảm" value={formatVnd(t.discount_total)} />
-        </div>
+        <>
+          {/* Điện thoại: một thẻ doanh thu kèm ba ô nhỏ; máy tính: năm ô một hàng (design.pen) */}
+          <section aria-label="Dòng tổng" className="space-y-3 rounded-3xl bg-surface p-5 lg:hidden">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[13px] text-muted">Doanh thu</p>
+                <p className="text-[28px] leading-tight font-extrabold">{formatVnd(t.revenue)}</p>
+              </div>
+              <p className="pb-1 text-[13px] text-muted">
+                {t.order_count} đơn · {t.item_count} món
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Tile label="Tiền mặt" value={formatVnd(t.cash_revenue)} small />
+              <Tile label="Chuyển khoản" value={formatVnd(t.transfer_revenue)} small />
+              <Tile label="Đã giảm" value={formatVnd(t.discount_total)} small />
+            </div>
+          </section>
+          <div className="hidden grid-cols-5 gap-3 lg:grid">
+            <Tile label="Doanh thu" value={formatVnd(t.revenue)} big />
+            <Tile label="Đơn · Món" value={`${t.order_count} · ${t.item_count}`} />
+            <Tile label="Tiền mặt" value={formatVnd(t.cash_revenue)} />
+            <Tile label="Chuyển khoản" value={formatVnd(t.transfer_revenue)} />
+            <Tile label="Đã giảm" value={formatVnd(t.discount_total)} />
+          </div>
+        </>
       )}
       {totalsError && (
         <p role="alert" className="text-danger">
@@ -270,11 +289,11 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   );
 }
 
-function Tile({ label, value, big }: { label: string; value: string; big?: boolean }) {
+function Tile({ label, value, big, small }: { label: string; value: string; big?: boolean; small?: boolean }) {
   return (
-    <div className={`rounded-[18px] bg-surface p-3.5 ${big ? "col-span-2 sm:col-span-1" : ""}`}>
-      <p className="text-xs text-muted">{label}</p>
-      <p className={`font-bold ${big ? "text-2xl" : "text-[15px]"}`}>{value}</p>
+    <div className={`rounded-[18px] ${small ? "rounded-xl bg-surface-2 p-2.5" : "bg-surface p-4"}`}>
+      <p className={`text-muted ${small ? "text-[11px]" : "text-xs"}`}>{label}</p>
+      <p className={`font-bold ${big ? "text-2xl" : small ? "text-[13px]" : "text-lg"}`}>{value}</p>
     </div>
   );
 }

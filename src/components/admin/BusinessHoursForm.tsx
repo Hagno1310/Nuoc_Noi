@@ -38,13 +38,12 @@ export function BusinessHoursForm({ start, end }: { start: number; end: number }
     router.refresh();
   }
 
-  const select =
-    "h-13 rounded-[14px] bg-surface-2 px-3.5 text-lg font-bold";
+  const select = "h-13 w-full rounded-[14px] bg-surface-2 px-3.5 text-lg font-bold text-ink";
   return (
-    <form onSubmit={submit} className="space-y-3">
-      <div className="flex flex-wrap items-end gap-4">
+    <form onSubmit={submit} className="space-y-3.5">
+      <div className="grid grid-cols-2 gap-2.5">
         {(["start", "end"] as const).map((key) => (
-          <label key={key} className="flex flex-col gap-1 text-sm text-muted">
+          <label key={key} className="flex flex-col gap-1.5 text-xs font-medium text-muted">
             {key === "start" ? "Giờ mở cửa" : "Giờ đóng cửa"}
             <select
               value={next[key]}
@@ -62,15 +61,15 @@ export function BusinessHoursForm({ start, end }: { start: number; end: number }
             </select>
           </label>
         ))}
-        <button
-          type="submit"
-          disabled={!dirty || busy}
-          className="h-12 rounded-[14px] bg-accent px-5 font-semibold text-accent-ink disabled:opacity-40"
-        >
-          {busy ? "Đang lưu…" : "Lưu giờ"}
-        </button>
       </div>
       <p className="text-xs text-muted">Nên đổi khi quán đã đóng cửa.</p>
+      <button
+        type="submit"
+        disabled={!dirty || busy}
+        className="h-12 w-full rounded-[14px] bg-accent px-5 font-semibold text-accent-ink disabled:opacity-40 lg:w-auto"
+      >
+        {busy ? "Đang lưu…" : "Lưu giờ"}
+      </button>
       {error && (
         <p role="alert" className="text-danger">
           {error}

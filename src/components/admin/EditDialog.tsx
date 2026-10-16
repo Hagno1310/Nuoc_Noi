@@ -8,10 +8,15 @@ import { useRef, useState, type ReactNode } from "react";
 export function EditDialog({
   label,
   title,
+  trigger,
+  triggerClassName = "flex size-12 shrink-0 items-center justify-center rounded-xl text-muted hover:text-ink",
   children,
 }: {
   label: string;
   title: string;
+  // Nội dung nút mở; mặc định là icon ⋯
+  trigger?: ReactNode;
+  triggerClassName?: string;
   children: (close: () => void) => ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -27,9 +32,9 @@ export function EditDialog({
           setOpen(true);
           ref.current?.showModal();
         }}
-        className="flex size-12 shrink-0 items-center justify-center rounded-xl text-muted hover:text-ink"
+        className={triggerClassName}
       >
-        <Ellipsis aria-hidden="true" size={20} />
+        {trigger ?? <Ellipsis aria-hidden="true" size={20} />}
       </button>
       <dialog
         ref={ref}

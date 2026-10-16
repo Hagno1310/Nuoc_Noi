@@ -631,6 +631,8 @@ describe("OrderScreen", () => {
     expect(api.checkoutOrder).toHaveBeenCalledWith({ orderId: "open-1", expectedSubtotal: 380000, discountPercent: 10, payment: { method: "cash" } });
     expect(await screen.findByRole("status")).toHaveTextContent("Đã thu 342.000đ – Bàn 1");
     expect(screen.queryByRole("button", { name: "Hoàn tác" })).toBeNull();
+    // Đơn vừa tạo được tải lại để lượt gọi đã thu tiền không còn nút Hủy
+    expect(vi.mocked(api.listOrdersByIds).mock.calls.length).toBeGreaterThan(1);
   });
 
   it("thu tiền một đơn máy khác vừa thu: báo và tải lại danh sách", async () => {

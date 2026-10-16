@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MenuManager, type OwnerMenuItem } from "@/components/admin/MenuManager";
+import { AddMenuItem, MenuManager, type OwnerMenuItem } from "@/components/admin/MenuManager";
 
 const db = vi.hoisted(() => ({ insert: vi.fn(), update: vi.fn(), eq: vi.fn() }));
 vi.mock("@/lib/supabase/client", () => ({
@@ -24,29 +24,32 @@ beforeEach(() => {
 describe("MenuManager", () => {
   it("thêm món hợp lệ, đứng cuối thực đơn", async () => {
     const user = userEvent.setup();
-    render(<MenuManager items={items} />);
+    render(<AddMenuItem items={items} />);
+    await user.click(screen.getByRole("button", { name: "Thêm món" }));
     await user.type(screen.getByLabelText("Tên món"), "  Highball ");
     await user.type(screen.getByLabelText("Giá"), "120.000");
-    await user.click(screen.getByRole("button", { name: "Thêm món" }));
+    await user.click(within(screen.getByRole("dialog", { name: "Thêm món" })).getByRole("button", { name: "Thêm món" }));
     expect(db.insert).toHaveBeenCalledWith({ name: "Highball", price: 120000, sort_order: 4 });
   });
 
   it("không thêm món trùng tên món đang bán", async () => {
     const user = userEvent.setup();
-    render(<MenuManager items={items} />);
+    render(<AddMenuItem items={items} />);
+    await user.click(screen.getByRole("button", { name: "Thêm món" }));
     await user.type(screen.getByLabelText("Tên món"), " classic ");
     await user.type(screen.getByLabelText("Giá"), "100000");
-    await user.click(screen.getByRole("button", { name: "Thêm món" }));
+    await user.click(within(screen.getByRole("dialog", { name: "Thêm món" })).getByRole("button", { name: "Thêm món" }));
     expect(db.insert).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent("Đã có món đang bán tên này. Đặt tên khác.");
   });
 
   it("không thêm món có giá ngoài khoảng", async () => {
     const user = userEvent.setup();
-    render(<MenuManager items={items} />);
+    render(<AddMenuItem items={items} />);
+    await user.click(screen.getByRole("button", { name: "Thêm món" }));
     await user.type(screen.getByLabelText("Tên món"), "Shot");
     await user.type(screen.getByLabelText("Giá"), "999");
-    await user.click(screen.getByRole("button", { name: "Thêm món" }));
+    await user.click(within(screen.getByRole("dialog", { name: "Thêm món" })).getByRole("button", { name: "Thêm món" }));
     expect(db.insert).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent("Giá phải là số nguyên từ 1.000đ đến 5.000.000đ.");
   });
@@ -159,9 +162,8 @@ describe("MenuManager", () => {
     expect(db.eq).toHaveBeenCalledWith("id", "a");
   });
 
-  it("thực đơn trống vẫn có hướng dẫn và form thêm món", () => {
+  it("thực đơn trống có hướng dẫn tới nút Thêm món", () => {
     render(<MenuManager items={[]} />);
-    expect(screen.getByText("Chưa có món nào đang bán. Thêm món ở ô bên dưới.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Thêm món" })).toBeEnabled();
+    expect(screen.getByText('Chưa có món nào đang bán. Bấm "Thêm món" ở đầu trang.')).toBeInTheDocument();
   });
 });

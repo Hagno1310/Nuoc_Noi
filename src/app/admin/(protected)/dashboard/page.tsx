@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AnimatedNumber } from "@/components/admin/AnimatedNumber";
 import { AutoRefresh } from "@/components/admin/AutoRefresh";
 import { Change, PeriodComparison } from "@/components/admin/PeriodComparison";
-import { RevenueBars } from "@/components/admin/RevenueBars";
+import { RevenueChart } from "@/components/admin/RevenueChart";
 import { PageTitle } from "@/components/admin/SectionTitle";
 import { minutesToClose, openWindow, periodRange, type PeriodKind } from "@/lib/admin/businessDay";
 import type { PeriodTotals } from "@/lib/admin/stats";
@@ -59,9 +59,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const monthLabel = day.slice(3);
   const lastDay = s.month_days.length;
   const openTotal = (open ?? []).reduce((t, o) => t + o.subtotal_amount, 0);
+  // Mở Lịch sử lọc Chờ thanh toán, từ ngày kinh doanh của đơn chờ cũ nhất (FR-06)
+  const openHref = open?.length
+    ? `/admin/history?status=open&from=${open.map((o) => o.business_date).sort()[0]}&to=${s.business_date}`
+    : null;
   const openHours = (end - start + 24) % 24;
   const hours = Array.from({ length: openHours }, (_, i) => (start + i) % 24);
-  const perHour = new Map((it?.hours ?? []).map((h) => [h.hour, h.quantity]));
+  // Chỉ vẽ và xét cao điểm trong khoảng giờ mở cửa (FR-06)
+  const perHour = new Map((it?.hours ?? []).filter((h) => hours.includes(h.hour)).map((h) => [h.hour, h.quantity]));
   const peak = Math.max(0, ...perHour.values());
   const topMax = it?.top[0]?.quantity ?? 1;
 
@@ -99,23 +104,25 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-3">
             <Stat label="Món" value={<AnimatedNumber value={s.day.current.item_count} />} change={<Change current={s.day.current.item_count} previous={s.day.previous.item_count} />} />
             <Stat label="Đơn" value={<AnimatedNumber value={s.day.current.order_count} />} change={<Change current={s.day.current.order_count} previous={s.day.previous.order_count} />} />
-            {open && open.length > 0 && (
-              <Link
-                href={`/admin/history?status=open&from=${(open ?? []).map((o) => o.business_date).sort()[0]}&to=${s.business_date}`}
-                className="col-span-2 flex items-center gap-2.5 rounded-[14px] bg-warn-soft p-3.5 text-warn lg:col-span-1 lg:flex-col lg:items-start lg:gap-0.5"
-              >
-                <NotebookPen aria-hidden="true" size={18} className="lg:hidden" />
-                <span className="flex-1 text-sm font-semibold lg:text-[22px] lg:font-bold">
-                  <span className="lg:hidden">{open.length} đơn chờ thanh toán · </span>
-                  {formatVnd(openTotal)}
-                </span>
-                <span className="hidden text-xs lg:block">{open.length} đơn chờ thanh toán</span>
-                <ChevronRight aria-hidden="true" size={18} className="lg:hidden" />
+            {openHref && (
+              <Link href={openHref} className="hidden flex-col gap-0.5 rounded-[14px] bg-warn-soft p-3.5 text-warn lg:flex">
+                <span className="text-[22px] font-bold">{formatVnd(openTotal)}</span>
+                <span className="text-xs">{open!.length} đơn chờ thanh toán</span>
               </Link>
             )}
           </div>
           <p className="text-xs text-muted">{`Hôm trước ${formatVnd(s.day.previous.revenue)} · ${s.day.previous.item_count} món · ${s.day.previous.order_count} đơn`}</p>
         </section>
+        {/* Điện thoại: tiền chờ thu là một dải riêng ngay dưới thẻ ngày kinh doanh (design.pen) */}
+        {openHref && (
+          <Link href={openHref} className="flex h-15 items-center gap-2.5 rounded-[18px] bg-warn-soft pr-3 pl-4 text-warn lg:hidden">
+            <NotebookPen aria-hidden="true" size={18} />
+            <span className="flex-1 text-sm font-semibold">
+              {open!.length} đơn chờ thanh toán · {formatVnd(openTotal)}
+            </span>
+            <ChevronRight aria-hidden="true" size={18} />
+          </Link>
+        )}
         <PeriodComparison
           periods={[
             { title: "Tuần này", ...s.week },
@@ -137,8 +144,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         ))}
       </nav>
 
-      <div className="space-y-4 lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-5 lg:space-y-0">
-        <section aria-label="Số món theo giờ" className="space-y-4 rounded-3xl bg-surface p-5 lg:order-2 lg:p-6">
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-5">
+        <section aria-label="Số món theo giờ" className="order-2 space-y-4 rounded-3xl bg-surface p-5 lg:order-3 lg:col-span-2 lg:p-6">
           <h2 className="flex items-center justify-between font-bold">
             Số món theo giờ
             {peak > 0 && (
@@ -164,7 +171,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             })}
           </ol>
         </section>
-        <section aria-label="Món bán chạy" className="space-y-3.5 rounded-3xl bg-surface p-5 lg:row-span-2 lg:p-6">
+        <section aria-label="Món bán chạy" className="order-1 space-y-3.5 rounded-3xl bg-surface p-5 lg:order-2 lg:p-6">
           <h2 className="font-bold">Món bán chạy</h2>
           {itemsError ? (
             <p role="alert" className="text-sm text-danger">
@@ -189,26 +196,28 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             ))}
           </ol>
         </section>
+        <div className="order-3 lg:order-1">
+          <RevenueChart
+            week={{
+              title: "Doanh thu tuần",
+              currentLabel: "Tuần này",
+              previousLabel: "Tuần trước",
+              points: s.week_days.map((d) => ({ label: WEEKDAYS[d.weekday - 1], revenue: d.revenue, previous_revenue: d.previous_revenue })),
+              ticks: [0, 1, 2, 3, 4, 5, 6],
+            }}
+            month={{
+              title: `Doanh thu tháng ${monthLabel}`,
+              currentLabel: "Tháng này",
+              previousLabel: "Tháng trước",
+              points: s.month_days.map((d) => ({ label: String(d.day), revenue: d.revenue, previous_revenue: d.previous_revenue })),
+              ticks: s.month_days
+                .map((_, i) => i)
+                .filter((i) => i === 0 || ((i + 1) % 5 === 0 && i < lastDay - 3) || i === lastDay - 1),
+            }}
+          />
+        </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
-        <RevenueBars
-          title="Doanh thu tuần"
-          currentLabel="Tuần này"
-          previousLabel="Tuần trước"
-          points={s.week_days.map((d) => ({ label: WEEKDAYS[d.weekday - 1], revenue: d.revenue, previous_revenue: d.previous_revenue }))}
-          ticks={[0, 1, 2, 3, 4, 5, 6]}
-        />
-        <RevenueBars
-          title={`Doanh thu tháng ${monthLabel}`}
-          currentLabel="Tháng này"
-          previousLabel="Tháng trước"
-          points={s.month_days.map((d) => ({ label: String(d.day), revenue: d.revenue, previous_revenue: d.previous_revenue }))}
-          ticks={s.month_days
-            .map((_, i) => i)
-            .filter((i) => i === 0 || ((i + 1) % 5 === 0 && i < lastDay - 3) || i === lastDay - 1)}
-        />
-      </div>
     </div>
   );
 }

@@ -38,14 +38,11 @@ export function PinForm({
     set(v);
   };
   const field =
-    "mt-1.5 h-13 w-40 rounded-[14px] bg-surface-2 px-3.5 text-lg tracking-widest ring-accent focus:ring-[1.5px] focus:outline-none";
+    "mt-1.5 h-13 w-full rounded-[14px] bg-surface-2 px-3.5 text-lg tracking-widest ring-accent focus:ring-[1.5px] focus:outline-none";
   return (
-    <form onSubmit={submit} className="space-y-2">
-      <p className="text-sm text-muted">
-        Đổi PIN quán sẽ đăng xuất ngay mọi điện thoại của nhân viên.
-      </p>
-      <div className="flex flex-wrap gap-4">
-        <label className="block">
+    <form onSubmit={submit} className="space-y-3.5">
+      <div className="grid grid-cols-2 gap-2.5">
+        <label className="block text-xs font-medium text-muted">
           <span className="block">PIN quán mới</span>
           <input
             type="password"
@@ -57,7 +54,7 @@ export function PinForm({
             className={field}
           />
         </label>
-        <label className="block">
+        <label className="block text-xs font-medium text-muted">
           <span className="block">Nhập lại PIN</span>
           <input
             type="password"
@@ -70,6 +67,7 @@ export function PinForm({
           />
         </label>
       </div>
+      <p className="text-xs text-muted">Đổi PIN quán sẽ đăng xuất ngay mọi điện thoại của nhân viên.</p>
       {error && (
         <p role="alert" className="text-danger">
           {error}
@@ -83,7 +81,7 @@ export function PinForm({
       <button
         type="submit"
         disabled={busy}
-        className={`h-12 rounded-[14px] px-5 font-semibold disabled:opacity-50 ${step.armed ? "bg-danger text-accent-ink" : "bg-danger-soft text-danger"}`}
+        className={`h-12 w-full rounded-[14px] px-5 font-semibold disabled:opacity-50 lg:w-auto ${step.armed ? "bg-danger text-accent-ink" : "bg-danger-soft text-danger"}`}
       >
         {busy
           ? "Đang đổi…"

@@ -14,21 +14,14 @@ Cần Node 22 và Docker Desktop đang chạy.
 ```bash
 npm install
 npx supabase start
-npx supabase status -o env    # tạo .env.local với 4 biến bên dưới
+cp .env.example .env.local    # điền theo hướng dẫn bên dưới
 npx supabase db reset         
 npm run create-user -- owner owner@quan.vn matkhau123
 npm run create-user -- staff nhanvien@quan.local 123456
 npm run dev                   # http://localhost:3000 (PIN quán: 123456)
 ```
 
-`.env.local` (lấy giá trị từ `npx supabase status -o env`; file này không commit):
-
-```text
-NEXT_PUBLIC_SUPABASE_URL=<API_URL>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<ANON_KEY>
-NEXT_PUBLIC_STAFF_EMAIL=nhanvien@quan.local
-SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
-```
+`.env.local`: chép từ [.env.example](.env.example) rồi điền (Supabase lấy từ `npx supabase status -o env`, Cloudinary từ Cloudinary → Settings → API Keys). File này không commit.
 
 - Nhân viên: mở `/login`, nhập PIN quán.
 - Chủ quán: mở `/admin/login`, đăng nhập bằng email và mật khẩu ở trên.
